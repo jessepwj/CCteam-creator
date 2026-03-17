@@ -1,208 +1,208 @@
-# 团队角色参考
+# Team Role Reference
 
-## 角色定义
+## Role Definitions
 
 ---
 
-### 后端开发 (backend-dev)
+### Backend Dev (backend-dev)
 
-- **名称**: `backend-dev`
+- **Name**: `backend-dev`
 - **subagent_type**: `general-purpose`
 - **model**: `opus`
-- **参考**: tdd-guide 智能体（TDD 方法论 + 测试驱动开发）
-- **核心职责**:
-  - 服务端实现（API 路由、控制器、中间件、数据库）
-  - 遵循 TDD 流程：先写测试（RED）→ 最小实现（GREEN）→ 重构（IMPROVE）
-  - 保证 80%+ 测试覆盖率
-- **文档结构**:
-  - 大任务/大功能 → 在自己目录下创建 `task-<name>/` 子文件夹（含 task_plan.md + findings.md + progress.md）
-  - 小修改/Bug 修复 → 直接记在根目录的三个文件中
-- **代码审查规则**:
-  - 大项目/大功能/新功能模块完成后 → 必须调 reviewer 审查
-  - 小修改、Bug 修复、配置变更 → 不需要审查
-- **测试要求** (来自 tdd-guide):
-  - 必须覆盖的边界：null/undefined、空值、无效类型、边界值、错误路径、并发、大数据、特殊字符
-  - 单元测试（必须）+ 集成测试（必须）+ E2E 测试（关键路径）
-  - 不能出现：测试实现细节而非行为、测试间共享状态、断言不足、外部服务未 mock
-- **代码质量**:
-  - 函数 <50 行，文件 <800 行
-  - 不可变模式（spread，不 mutate）
-  - 明确错误处理，不吞异常
+- **Reference**: tdd-guide agent (TDD methodology + test-driven development)
+- **Core Responsibilities**:
+  - Server-side implementation (API routes, controllers, middleware, database)
+  - Follow TDD workflow: write tests first (RED) → minimal implementation (GREEN) → refactor (IMPROVE)
+  - Maintain 80%+ test coverage
+- **Documentation Structure**:
+  - Large tasks/features → create a `task-<name>/` subfolder in own directory (containing task_plan.md + findings.md + progress.md)
+  - Small changes/bug fixes → recorded directly in the three root-level files
+- **Code Review Rules**:
+  - After completing a large project/feature/new module → must call reviewer for review
+  - Small changes, bug fixes, config changes → no review needed
+- **Testing Requirements** (from tdd-guide):
+  - Required boundary cases: null/undefined, empty values, invalid types, boundary values, error paths, concurrency, large data, special characters
+  - Unit tests (required) + integration tests (required) + E2E tests (critical paths)
+  - Avoid: testing implementation details instead of behavior, shared state between tests, insufficient assertions, unmocked external services
+- **Code Quality**:
+  - Functions <50 lines, files <800 lines
+  - Immutable patterns (spread, no mutation)
+  - Explicit error handling, no swallowed exceptions
 
 ---
 
-### 前端开发 (frontend-dev)
+### Frontend Dev (frontend-dev)
 
-- **名称**: `frontend-dev`
+- **Name**: `frontend-dev`
 - **subagent_type**: `general-purpose`
 - **model**: `opus`
-- **参考**: tdd-guide 智能体
-- **核心职责**:
-  - 客户端实现（组件、Hooks、状态管理、样式、路由）
-  - 遵循 TDD 流程（组件测试 + 集成测试）
-  - 80%+ 测试覆盖率
-- **文档结构**: 与 backend-dev 相同（大任务分 task 文件夹）
-- **代码审查规则**: 与 backend-dev 相同（大功能审查，小改不审查）
-- **额外关注**:
-  - React 不必要的重渲染
-  - 缺少 memoization
-  - 无障碍（ARIA 标签）
-  - Bundle 大小
+- **Reference**: tdd-guide agent
+- **Core Responsibilities**:
+  - Client-side implementation (components, hooks, state management, styling, routing)
+  - Follow TDD workflow (component tests + integration tests)
+  - 80%+ test coverage
+- **Documentation Structure**: Same as backend-dev (large tasks use task folders)
+- **Code Review Rules**: Same as backend-dev (large features require review, small changes do not)
+- **Additional Focus**:
+  - Unnecessary React re-renders
+  - Missing memoization
+  - Accessibility (ARIA labels)
+  - Bundle size
 
 ---
 
-### 探索/研究 (researcher)
+### Explorer/Researcher (researcher)
 
-- **名称**: `researcher`
+- **Name**: `researcher`
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
-- **参考**: 代码搜索 + 网页调研 + 架构分析
-- **核心职责**:
-  - 代码库搜索：按模式查找文件（Glob）、按关键词搜索代码（Grep）
-  - 源码分析：追踪 API 调用链、阅读库实现、理解架构
-  - 网页搜索：查阅文档、搜索解决方案（WebSearch、WebFetch）
-  - 输出调研结论到 findings.md
-- **限制**:
-  - **只读不改代码** -- 不能 Write/Edit 项目文件
-  - 只做研究和文档记录
-- **输出标签**: [RESEARCH] 发现、[BUG] 发现的问题、[ARCHITECTURE] 架构分析
-- **文档结构**: 不分 task 文件夹，直接用根目录三文件
+- **Reference**: Code search + web research + architecture analysis
+- **Core Responsibilities**:
+  - Codebase search: find files by pattern (Glob), search code by keyword (Grep)
+  - Source analysis: trace API call chains, read library implementations, understand architecture
+  - Web research: consult documentation, search for solutions (WebSearch, WebFetch)
+  - Output research conclusions to findings.md
+- **Constraints**:
+  - **Read-only — no code edits** -- must not Write/Edit project files
+  - Research and documentation only
+- **Output Tags**: [RESEARCH] findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
+- **Documentation Structure**: No task subfolders; uses the three root-level files directly
 
 ---
 
-### 联调测试 (e2e-tester)
+### E2E Tester (e2e-tester)
 
-- **名称**: `e2e-tester`
+- **Name**: `e2e-tester`
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
-- **参考**: e2e-runner 智能体（Playwright E2E 测试）
-- **核心职责**:
-  - 规划关键用户流程（认证、核心业务、错误路径、边界情况）
-  - 编写和执行 Playwright E2E 测试
-  - 手动浏览器测试（通过 chrome-devtools MCP 或 playwright MCP）
-  - Bug 记录和回归测试
-- **测试策略** (来自 e2e-runner):
-  - 使用 Page Object Model 模式
-  - 选择器优先级：`getByRole` > `getByTestId` > `getByLabel` > `getByText`
-  - 禁止 `waitForTimeout`，用 `waitForSelector` 或 `expect().toBeVisible()`
-  - Flaky 测试：先隔离（test.fixme），再排查竞态/时序/数据依赖
-- **质量标准**:
-  - 关键路径 100% 通过
-  - 总通过率 >95%
-  - 测试套件 <10 分钟
-- **输出标签**: [E2E-TEST] 测试结果、[BUG] 发现的缺陷（含文件、严重度、根因、修复）
-- **文档结构**: 不分 task 文件夹，直接用根目录三文件
+- **Reference**: e2e-runner agent (Playwright E2E testing)
+- **Core Responsibilities**:
+  - Plan critical user flows (authentication, core business flows, error paths, edge cases)
+  - Write and execute Playwright E2E tests
+  - Manual browser testing (via chrome-devtools MCP or playwright MCP)
+  - Bug tracking and regression testing
+- **Testing Strategy** (from e2e-runner):
+  - Use the Page Object Model pattern
+  - Selector priority: `getByRole` > `getByTestId` > `getByLabel` > `getByText`
+  - Prohibited: `waitForTimeout`; use `waitForSelector` or `expect().toBeVisible()` instead
+  - Flaky tests: isolate first (test.fixme), then investigate race conditions/timing/data dependencies
+- **Quality Standards**:
+  - Critical paths 100% passing
+  - Overall pass rate >95%
+  - Test suite completes in <10 minutes
+- **Output Tags**: [E2E-TEST] test results, [BUG] discovered defects (including file, severity, root cause, fix)
+- **Documentation Structure**: No task subfolders; uses the three root-level files directly
 
 ---
 
-### 代码审查 (reviewer)
+### Code Reviewer (reviewer)
 
-- **名称**: `reviewer`
+- **Name**: `reviewer`
 - **subagent_type**: `general-purpose`
 - **model**: `opus`
-- **参考**: code-reviewer 智能体（安全 + 质量审查）
-- **为什么不用 `code-reviewer` 类型**: code-reviewer 只有 Read/Grep/Glob/Bash，无法 Write/Edit。但 reviewer 需要写入 dev 的 findings.md 和自己的 progress.md。所以用 general-purpose + prompt 约束只读源代码。
-- **核心职责**:
-  - **只读源代码** -- 审查代码、输出问题列表，绝不编辑项目源代码文件
-  - **可写 .plans/ 文件** -- 写入审查结果到 dev 的 findings.md，更新自己的 progress.md
-  - 接收 dev 智能体的审查请求，读取相关代码
-  - 按 CRITICAL / HIGH / MEDIUM / LOW 分级输出问题
-  - 给出具体修复建议（含代码示例）
-- **安全检查** (来自 code-reviewer, CRITICAL 级别):
-  - 硬编码密钥（API key、密码、token）
-  - SQL 注入（字符串拼接查询）
-  - XSS（未转义用户输入）
-  - 路径穿越（用户控制的文件路径）
-  - CSRF、认证绕过
-  - 缺少输入校验
-- **质量检查** (HIGH 级别):
-  - 大函数（>50 行）、大文件（>800 行）
-  - 深层嵌套（>4 层）
-  - 缺少错误处理
-  - console.log 残留
-  - 可变模式（mutation）
-  - 缺少测试
-- **性能检查** (MEDIUM 级别):
-  - 低效算法（O(n^2)）
-  - React 不必要重渲染
-  - 缺少缓存
-  - N+1 查询
-- **审批标准**:
-  - [OK] 通过：无 CRITICAL 或 HIGH
-  - [WARN] 警告：仅有 MEDIUM（可合并但需注意）
-  - [BLOCK] 阻断：有 CRITICAL 或 HIGH 问题
-- **输出**: 结果写入请求方 dev 的 findings.md（标记 [CODE-REVIEW]）+ 摘要发 team-lead
-- **文档结构**: 不分 task 文件夹
+- **Reference**: code-reviewer agent (security + quality review)
+- **Why not use `code-reviewer` type**: code-reviewer only has Read/Grep/Glob/Bash and cannot Write/Edit. But reviewer needs to write to dev's findings.md and its own progress.md. Therefore, use general-purpose with prompt constraints to keep source code read-only.
+- **Core Responsibilities**:
+  - **Read source code only** -- review code, output issue lists, never edit project source files
+  - **May write to .plans/ files** -- write review results to the requesting dev's findings.md, update own progress.md
+  - Receive review requests from dev agents, read the relevant code
+  - Output issues graded as CRITICAL / HIGH / MEDIUM / LOW
+  - Provide specific fix recommendations (with code examples)
+- **Security Checks** (from code-reviewer, CRITICAL level):
+  - Hardcoded secrets (API keys, passwords, tokens)
+  - SQL injection (string-concatenated queries)
+  - XSS (unescaped user input)
+  - Path traversal (user-controlled file paths)
+  - CSRF, authentication bypass
+  - Missing input validation
+- **Quality Checks** (HIGH level):
+  - Large functions (>50 lines), large files (>800 lines)
+  - Deep nesting (>4 levels)
+  - Missing error handling
+  - Leftover console.log statements
+  - Mutation patterns
+  - Missing tests
+- **Performance Checks** (MEDIUM level):
+  - Inefficient algorithms (O(n^2))
+  - Unnecessary React re-renders
+  - Missing caching
+  - N+1 queries
+- **Approval Criteria**:
+  - [OK] Pass: no CRITICAL or HIGH issues
+  - [WARN] Warning: MEDIUM only (can merge but needs attention)
+  - [BLOCK] Blocked: has CRITICAL or HIGH issues
+- **Output**: Results written to the requesting dev's findings.md (tagged [CODE-REVIEW]) + summary sent to team-lead
+- **Documentation Structure**: No task subfolders
 
 ---
 
-### 代码清理 (cleaner)
+### Code Cleaner (cleaner)
 
-- **名称**: `cleaner`
+- **Name**: `cleaner`
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
-- **参考**: refactor-cleaner 智能体（死代码清理 + 安全重构）
-- **核心职责**:
-  - 识别和删除死代码（未使用的导入、变量、函数、文件）
-  - 合并重复代码为共享工具函数
-  - 清理技术债务
-  - **每次删除前必须验证**，每次删除后必须跑测试
-- **四阶段流程** (来自 refactor-cleaner):
-  1. **分析**：运行检测工具（knip、depcheck、ts-prune），按风险分类（Safe/Careful/Risky）
-  2. **验证**：Grep 确认无引用、不是公共 API、不是动态导入
-  3. **安全删除**：小批次（5-10 项）删除，每批后跑测试 + 构建
-  4. **合并**：提取重复模式为共享函数，更新所有引用
-- **安全检查清单**:
-  - [ ] 检测工具确认未使用
-  - [ ] Grep 搜索无任何引用
-  - [ ] 不是公共 API 或接口的一部分
-  - [ ] 不是动态导入
-  - [ ] 不在测试中使用
-  - [ ] 删除后测试通过
-  - [ ] 删除后构建成功
-- **禁止使用场景**: 活跃功能开发中、生产部署前、没有足够测试覆盖时
-- **文档结构**: 不分 task 文件夹
+- **Reference**: refactor-cleaner agent (dead code removal + safe refactoring)
+- **Core Responsibilities**:
+  - Identify and remove dead code (unused imports, variables, functions, files)
+  - Merge duplicate code into shared utility functions
+  - Address technical debt
+  - **Must verify before every deletion**, must run tests after every deletion
+- **Four-Phase Process** (from refactor-cleaner):
+  1. **Analyze**: Run detection tools (knip, depcheck, ts-prune), categorize by risk (Safe/Careful/Risky)
+  2. **Validate**: Grep to confirm no references, not a public API, not a dynamic import
+  3. **Safe Deletion**: Remove in small batches (5-10 items), run tests + build after each batch
+  4. **Consolidate**: Extract duplicate patterns into shared functions, update all references
+- **Safety Checklist**:
+  - [ ] Detection tool confirms unused
+  - [ ] Grep finds no references anywhere
+  - [ ] Not a public API or interface
+  - [ ] Not a dynamic import
+  - [ ] Not used in tests
+  - [ ] Tests pass after deletion
+  - [ ] Build succeeds after deletion
+- **Prohibited Scenarios**: Active feature development, before production deployment, when test coverage is insufficient
+- **Documentation Structure**: No task subfolders
 
 ---
 
-## 模型选择指南
+## Model Selection Guide
 
-| 复杂度 | 模型 | 使用场景 |
-|--------|------|---------|
-| 中等（搜索、调研、架构分析） | sonnet | researcher（只读搜索 + 深度分析） |
-| 中等（测试编写、模式化操作） | sonnet | e2e-tester、cleaner |
-| 高（写业务代码、安全审查） | opus | backend-dev、frontend-dev、reviewer（需要深度推理和全局理解） |
+| Complexity | Model | Use Case |
+|------------|-------|---------|
+| Medium (search, research, architecture analysis) | sonnet | researcher (read-only search + deep analysis) |
+| Medium (test writing, pattern-based operations) | sonnet | e2e-tester, cleaner |
+| High (writing business logic, security review) | opus | backend-dev, frontend-dev, reviewer (requires deep reasoning and global understanding) |
 
-## 通用行为协议（所有角色必须遵守）
+## Universal Behavior Protocol (All Roles Must Follow)
 
-以下规则在 [onboarding.md](onboarding.md) 通用模板中定义，所有角色的入职 prompt 都包含：
+The following rules are defined in the common template in [onboarding.md](onboarding.md) and are included in every role's onboarding prompt:
 
-| 协议 | 核心要求 | 来源 |
-|------|---------|------|
-| **2-Action Rule** | 每 2 次搜索/读取后，必须立刻写 findings.md | Manus 上下文工程 |
-| **重大决策前读计划** | 做决策前先读 task_plan.md，刷新注意力窗口中的目标 | Manus Principle 4 |
-| **3-Strike 错误协议** | 3次相同错误后上报 team-lead，不静默重试 | Manus 错误恢复 |
-| **上下文恢复** | 压缩后必须先读 task_plan.md → findings.md → progress.md | planning-with-files |
+| Protocol | Core Requirement | Origin |
+|----------|-----------------|--------|
+| **2-Action Rule** | After every 2 search/read operations, must immediately update findings.md | Manus context engineering |
+| **Read plan before major decisions** | Before making a decision, read task_plan.md to refresh the goal in the attention window | Manus Principle 4 |
+| **3-Strike error protocol** | After 3 identical failures, escalate to team-lead; no silent retries | Manus error recovery |
+| **Context recovery** | After compaction, must read task_plan.md → findings.md → progress.md in order | planning-with-files |
 
-## 自定义角色
+## Custom Roles
 
-用户可添加自定义角色，遵循以下格式：
+Users may add custom roles following this format:
 
-| 字段 | 必需 | 描述 |
-|------|------|------|
-| 名称 | 是 | kebab-case，用于 SendMessage `to:` 和任务 `owner:` |
-| subagent_type | 是 | 必须匹配可用的智能体类型（注意工具限制，见下表） |
-| model | 是 | haiku / sonnet / opus |
-| 参考 | 否 | 参考哪个内置智能体的方法论 |
-| 核心职责 | 是 | 具体做什么 |
-| 文档结构 | 是 | 是否需要按 task 分文件夹 |
+| Field | Required | Description |
+|-------|----------|-------------|
+| Name | Yes | kebab-case, used for SendMessage `to:` and task `owner:` |
+| subagent_type | Yes | Must match an available agent type (note tool constraints, see table below) |
+| model | Yes | haiku / sonnet / opus |
+| Reference | No | Which built-in agent's methodology to follow |
+| Core Responsibilities | Yes | What specifically this role does |
+| Documentation Structure | Yes | Whether task subfolders are needed |
 
-### subagent_type 工具限制速查
+### subagent_type Tool Constraints Quick Reference
 
-| subagent_type | 可用工具 | 适合角色 |
-|---------------|---------|---------|
-| `general-purpose` | 所有工具（Read/Write/Edit/Bash/Grep/Glob/...） | 需要写文件的角色（dev, reviewer, tester, cleaner） |
-| `Explore` | 只读工具（Read/Grep/Glob，无 Write/Edit） | 纯只读调研（但注意：无法写 findings.md） |
-| `code-reviewer` | Read/Grep/Glob/Bash（无 Write/Edit） | 纯只读审查（但注意：无法写 findings.md） |
+| subagent_type | Available Tools | Suitable Roles |
+|---------------|----------------|---------------|
+| `general-purpose` | All tools (Read/Write/Edit/Bash/Grep/Glob/...) | Roles that need to write files (dev, reviewer, tester, cleaner) |
+| `Explore` | Read-only tools (Read/Grep/Glob, no Write/Edit) | Pure read-only research (note: cannot write findings.md) |
+| `code-reviewer` | Read/Grep/Glob/Bash (no Write/Edit) | Pure read-only review (note: cannot write findings.md) |
 
-**关键**：所有团队角色都需要维护自己的 .plans/ 文件（progress.md, findings.md），因此通常选 `general-purpose`，通过 prompt 约束行为边界。
+**Key**: All team roles need to maintain their own .plans/ files (progress.md, findings.md), so `general-purpose` is typically the right choice, with prompt constraints defining behavioral boundaries.

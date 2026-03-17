@@ -11,153 +11,153 @@ description: >
   for", "build team", "organize project", "multi-agent project".
 ---
 
-# 团队项目设置
+# Team Project Setup
 
-为复杂项目设置多智能体团队，使用持久化文件进行规划和进度追踪。
+Set up a multi-agent team for complex projects, using persistent files for planning and progress tracking.
 
-## 流程
+## Process
 
-1. **需求咨询** — 向用户介绍团队机制、了解需求
-2. **确认方案** — 汇总需求，让用户确认团队配置
-3. 创建规划文件（含智能体子目录）
-4. 创建记忆文件
-5. 创建团队 + 生成智能体
-6. 确认设置
+1. **Requirements Consultation** — Introduce the team mechanism to the user and gather requirements
+2. **Confirm the Plan** — Summarize requirements and let the user confirm the team configuration
+3. Create planning files (including per-agent subdirectories)
+4. Create memory files
+5. Create the team + spawn agents
+6. Confirm setup
 
-## 第 1 步：需求咨询（先沟通，后动手）
+## Step 1: Requirements Consultation (Talk First, Then Act)
 
-**这一步的目标**：让用户充分理解团队是怎么运作的，同时收集用户的真实需求。不要急于创建任何文件或团队。
+**Goal of this step**: Help the user fully understand how the team works, while gathering their actual requirements. Do not rush to create any files or teams.
 
-### 1.1 向用户介绍团队机制
+### 1.1 Introduce the Team Mechanism
 
-用自然对话的方式（不要照搬下面的原文，根据上下文灵活表达），向用户解释以下要点：
+In a natural, conversational tone (do not copy this text verbatim — adapt to context), explain the following points:
 
-**团队是什么**：
-- 你（Claude）作为 team-lead，会同时指挥多个 AI 智能体并行工作
-- 每个智能体有明确的角色分工（开发、研究、测试、审查等）
-- 智能体之间可以直接沟通（如 dev 直接找 reviewer 审查代码）
-- 所有进度通过文件系统持久化，不怕上下文丢失
+**What a team is**:
+- You (Claude) act as team-lead, simultaneously directing multiple AI agents working in parallel
+- Each agent has a clearly defined role (development, research, testing, review, etc.)
+- Agents can communicate directly with each other (e.g., dev reaching out to reviewer directly)
+- All progress is persisted via the file system, so context loss is not a concern
 
-**适合什么场景**：
-- 多模块并行开发的项目（前后端同时推进）
-- 需要调研 + 开发 + 测试多阶段协作的任务
-- 代码量较大，需要审查和质量把关的项目
+**When it's a good fit**:
+- Projects with parallel multi-module development (frontend and backend progressing simultaneously)
+- Tasks requiring research + development + testing across multiple phases
+- Larger codebases that need code review and quality assurance
 
-**不适合什么场景**：
-- 简单的单文件修改或小 Bug 修复
-- 只需要单一角色的任务（直接用单个 Agent 更高效）
+**When it's not a good fit**:
+- Simple single-file changes or small bug fixes
+- Tasks that only need a single role (a single agent is more efficient)
 
-**运作逻辑**：
-- team-lead（你自己）负责分配任务、协调进度、做决策
-- 每个智能体有自己的工作目录（`.plans/<项目>/`），记录任务、发现和进度
-- 智能体遇到问题会上报 team-lead，team-lead 裁决后给出方向
-- 代码开发完成后，dev 会自动找 reviewer 做代码审查
+**How it works**:
+- The team-lead (you) assigns tasks, coordinates progress, and makes decisions
+- Each agent has its own working directory (`.plans/<project>/`), recording tasks, findings, and progress
+- Agents escalate blockers to the team-lead, who provides direction after review
+- After development, devs automatically request a code review from the reviewer
 
-### 1.2 了解用户需求
+### 1.2 Gather User Requirements
 
-在介绍完机制后，通过对话了解：
+After the introduction, learn the following through conversation:
 
-1. **用户想做什么** — 项目目标、功能需求、技术偏好
-2. **项目现状** — 是全新项目还是已有代码库？有没有现成的技术栈？
-3. **用户的参与度** — 想全程参与决策，还是希望团队自主推进？
-4. **特殊要求** — 有没有特定的编码规范、测试要求、部署目标？
+1. **What the user wants to build** — Project goals, feature requirements, technology preferences
+2. **Current state** — Is this a greenfield project or an existing codebase? Is there an existing tech stack?
+3. **User involvement** — Do they want to be involved in every decision, or prefer the team to work autonomously?
+4. **Special requirements** — Any specific coding standards, testing requirements, or deployment targets?
 
-**注意**：不要一次性抛出所有问题。根据用户的回答逐步深入，像正常对话一样自然交流。如果用户的需求已经很清晰，可以跳过部分问题。
+**Note**: Do not fire all questions at once. Follow up naturally based on the user's answers, like a normal conversation. If the user's requirements are already clear, you may skip some questions.
 
-### 1.3 推荐团队配置
+### 1.3 Recommend a Team Configuration
 
-根据用户需求，推荐合适的角色组合。解释每个角色的作用和为什么推荐它。
+Based on the user's needs, recommend an appropriate combination of roles. Explain each role's purpose and why you're recommending it.
 
-可用的标准角色：
+Available standard roles:
 
-| 角色 | 名称 | 参考智能体 | model | 核心能力 |
-|------|------|-----------|-------|---------|
-| 后端开发 | backend-dev | tdd-guide | opus | 写代码 + TDD + 大任务按 task 分文件夹 |
-| 前端开发 | frontend-dev | tdd-guide | opus | 写代码 + TDD + 大任务按 task 分文件夹 |
-| 探索/研究 | researcher | — | sonnet | 代码搜索 + 网页搜索 + 只读不改代码 |
-| 联调测试 | e2e-tester | e2e-runner | sonnet | E2E 测试 + 浏览器自动化 + Bug 记录 |
-| 代码审查 | reviewer | code-reviewer | opus | 只读审查 + 安全/质量/性能深度检查 |
-| 代码清理 | cleaner | refactor-cleaner | sonnet | 死代码清理 + 重复合并 + 重构 |
+| Role | Name | Reference Agent | model | Core Capability |
+|------|------|----------------|-------|----------------|
+| Backend Dev | backend-dev | tdd-guide | opus | Write code + TDD + large tasks split into task folders |
+| Frontend Dev | frontend-dev | tdd-guide | opus | Write code + TDD + large tasks split into task folders |
+| Explorer/Researcher | researcher | — | sonnet | Code search + web research + read-only (no code edits) |
+| E2E Tester | e2e-tester | e2e-runner | sonnet | E2E testing + browser automation + bug tracking |
+| Code Reviewer | reviewer | code-reviewer | opus | Read-only review + deep security/quality/performance checks |
+| Code Cleaner | cleaner | refactor-cleaner | sonnet | Dead code removal + deduplication + refactoring |
 
-参见 [references/roles.md](references/roles.md) 了解角色详细定义和能力。
+See [references/roles.md](references/roles.md) for detailed role definitions and capabilities.
 
-**推荐原则**：
-- 不是角色越多越好，根据项目实际需要选择
-- 小项目可能只需要 1 个 dev + 1 个 researcher
-- 大项目可以配齐全部角色
-- 用户可以添加自定义角色（解释自定义角色需要提供：名称、职责、模型选择）
+**Recommendation principles**:
+- More roles is not always better — choose based on actual project needs
+- Small projects may only need 1 dev + 1 researcher
+- Large projects can have the full set of roles
+- Users can add custom roles (explain that custom roles require: name, responsibilities, model choice)
 
-### 1.4 用户可自定义的内容
+### 1.4 What Users Can Customize
 
-告知用户以下内容都可以根据需要调整：
+Inform the user that the following can all be adjusted as needed:
 
-- **角色组合**：选择需要的角色，去掉不需要的
-- **自定义角色**：如果标准角色不满足需求，可以定义新角色
-- **任务阶段**：项目分几个阶段、每个阶段的目标
-- **技术决策**：技术栈、框架选择、编码规范
-- **审查严格度**：是否需要代码审查、安全审查
+- **Role composition**: Choose which roles to include and which to leave out
+- **Custom roles**: If standard roles don't cover the need, new roles can be defined
+- **Task phases**: How many phases the project has and the goal of each phase
+- **Technical decisions**: Tech stack, framework choices, coding standards
+- **Review strictness**: Whether code review or security review is required
 
-Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
+Team-lead = the main conversation (you). Do not generate a team-lead agent.
 
-## 第 2 步：确认方案
+## Step 2: Confirm the Plan
 
-在充分沟通后，使用 AskUserQuestion 让用户最终确认：
+After thorough discussion, use AskUserQuestion to get final user confirmation on:
 
-- **项目名称**：简短、ASCII、kebab-case（例如 `chatr`、`data-pipeline`）
-- **简要描述**：1-2 句话
-- **确认的角色列表**：哪些角色参与，各自负责什么
-- **初步的阶段规划**：项目大致分几步走
+- **Project name**: Short, ASCII, kebab-case (e.g., `chatr`, `data-pipeline`)
+- **Brief description**: 1-2 sentences
+- **Confirmed role list**: Which roles are participating and what each is responsible for
+- **Initial phase plan**: A rough breakdown of the project's key steps
 
-只有用户确认后，才进入后续的创建步骤。
+Only proceed to the creation steps after the user confirms.
 
-## 第 3 步：创建规划文件
+## Step 3: Create Planning Files
 
-参见 [references/templates.md](references/templates.md) 了解文件模板。
+See [references/templates.md](references/templates.md) for file templates.
 
-### 目录结构
+### Directory Structure
 
 ```
 .plans/<project>/
-  task_plan.md                -- 主计划
-  findings.md                 -- 发现、Bug、审查结果
-  progress.md                 -- 工作日志
+  task_plan.md                -- Main plan
+  findings.md                 -- Findings, bugs, review results
+  progress.md                 -- Work log
 
-  <agent-name>/               -- 每个智能体一个目录
-    task_plan.md              -- 智能体任务清单
-    findings.md               -- 智能体发现记录
-    progress.md               -- 智能体工作日志
+  <agent-name>/               -- One directory per agent
+    task_plan.md              -- Agent task list
+    findings.md               -- Agent findings log
+    progress.md               -- Agent work log
 ```
 
-### 前后端开发智能体的特殊结构
+### Special Structure for Frontend/Backend Dev Agents
 
-前后端开发智能体（backend-dev、frontend-dev）在接收大任务/大功能时，
-应在自己目录下为每个大任务创建独立的 task 文件夹：
+When backend-dev and frontend-dev agents receive large tasks or large features,
+they should create an independent task folder for each major task within their own directory:
 
 ```
 .plans/<project>/backend-dev/
-  task_plan.md                -- 智能体总览（列出所有 task）
-  findings.md                 -- 通用发现
-  progress.md                 -- 通用进度
+  task_plan.md                -- Agent overview (lists all tasks)
+  findings.md                 -- General findings
+  progress.md                 -- General progress
 
-  task-auth/                  -- 大任务：认证模块
-    task_plan.md              -- 此任务的详细步骤
-    findings.md               -- 此任务的发现
-    progress.md               -- 此任务的进度
-  task-file-upload/           -- 大任务：文件上传
+  task-auth/                  -- Large task: auth module
+    task_plan.md              -- Detailed steps for this task
+    findings.md               -- Findings for this task
+    progress.md               -- Progress for this task
+  task-file-upload/           -- Large task: file upload
     task_plan.md
     findings.md
     progress.md
 ```
 
-其他智能体（researcher、e2e-tester、reviewer、cleaner）任务通常不大，
-不需要按 task 分文件夹，直接用智能体根目录的三个文件即可。
+Other agents (researcher, e2e-tester, reviewer, cleaner) typically handle smaller tasks
+and do not need task-based subdirectories. They use the three files in the agent root directory.
 
-## 第 4 步：创建记忆文件
+## Step 4: Create Memory Files
 
-在项目记忆目录中：
+In the project memory directory:
 
-1. 创建 `memory/<project>-decisions.md`，仅包含标题
-2. 将项目条目追加到 `memory/MEMORY.md`：
+1. Create `memory/<project>-decisions.md` with only a title
+2. Append the project entry to `memory/MEMORY.md`:
    ```
    ## Project: <Name>
    - Status: PLANNING
@@ -165,82 +165,79 @@ Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
    - Decisions: [<project>-decisions.md](<project>-decisions.md)
    ```
 
-## 第 5 步：创建团队 + 生成智能体
+## Step 5: Create Team + Spawn Agents
 
 1. `TeamCreate(team_name: "<project>")`
-2. 对每个角色并行生成，`run_in_background: true`
+2. Spawn each role in parallel, `run_in_background: true`
 
-参见 [references/onboarding.md](references/onboarding.md) 了解每个角色的入职 prompt。
+See [references/onboarding.md](references/onboarding.md) for the onboarding prompt for each role.
 
-## 第 6 步：确认
+## Step 6: Confirm
 
-向用户展示团队成员表和文件位置。
+Show the user a table of team members and the file locations.
 
-## 关键规则
+## Key Rules
 
-- **规划文件就是进度追踪器** -- 不要同时用 TaskCreate/TodoWrite
-- **上下文恢复**：智能体被压缩后，必须先读自己的 task_plan.md + findings.md + progress.md 才能继续工作
-- **前后端大任务分 task 文件夹**：每个大功能/新功能独立一组三文件
-- **代码审查触发条件**：大项目/大功能/新建功能完成后调 reviewer；小修改/Bug 修复不需要
-- **researcher 用 sonnet 模型**：调研需要一定深度
-- **并行生成**：同时启动所有独立智能体
-- **Peer Review**：dev 直接找 reviewer，不经 team-lead
-- **代码是真理**：文档跟着代码走
-- **默认中文回复**
+- **Planning files are the progress tracker** -- Do not also use TaskCreate/TodoWrite
+- **Context recovery**: After an agent is compacted, it must first read its own task_plan.md + findings.md + progress.md before continuing work
+- **Large dev tasks use task folders**: Each large feature/new feature gets its own set of three files
+- **Code review trigger**: Call reviewer after completing a large project/feature/new module; small changes/bug fixes do not require review
+- **researcher uses sonnet model**: Research requires sufficient depth
+- **Spawn in parallel**: Launch all independent agents simultaneously
+- **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
+- **Code is the source of truth**: Documentation follows the code
 
-## Team-Lead 运营指南
+## Team-Lead Operations Guide
 
-### planning-with-files 在团队中的应用
+### Applying planning-with-files in a Team Context
 
-planning-with-files 的核心思想是：**文件系统 = 磁盘，上下文 = 内存，重要的东西必须写到磁盘上**。
+The core idea behind planning-with-files is: **file system = disk, context = memory, important things must be written to disk**.
 
-团队项目中，这套思想在三个层面运作：
+In a team project, this principle operates at three levels:
 
-| 层面 | 谁负责 | 文件位置 | 关注什么 |
-|------|--------|---------|---------|
-| 项目全局 | team-lead | `.plans/<project>/task_plan.md` | 阶段进度、架构决策、任务分配 |
-| 智能体级 | 各 agent 自己 | `.plans/<project>/<agent>/` | 自己的任务、发现、工作日志 |
-| 大任务级 | dev agent | `.plans/<project>/<agent>/task-<name>/` | 单个大功能的详细步骤 |
+| Level | Owner | File Location | Focus |
+|-------|-------|--------------|-------|
+| Project Global | team-lead | `.plans/<project>/task_plan.md` | Phase progress, architecture decisions, task assignments |
+| Agent Level | Each agent individually | `.plans/<project>/<agent>/` | Own tasks, findings, work log |
+| Large Task Level | dev agent | `.plans/<project>/<agent>/task-<name>/` | Detailed steps for a single large feature |
 
-每个 agent 的入职 prompt 已内置了等效的自检协议（定期自检 5 问、2-Action Rule、3-Strike），
-team-lead 不需要手动触发这些机制，agent 会自主执行。
+Each agent's onboarding prompt already includes an equivalent self-check protocol (periodic 5-question check, 2-Action Rule, 3-Strike). The team-lead does not need to manually trigger these mechanisms — agents execute them autonomously.
 
-> **关于 `/planning-with-files:status`**：该命令读取项目根目录的单个 task_plan.md，
-> 不感知团队的多层文件结构。如要查看主计划，直接 Read `.plans/<project>/task_plan.md`。
+> **Regarding `/planning-with-files:status`**: This command reads the single task_plan.md at the project root directory and is not aware of the team's multi-layered file structure. To check the main plan, directly Read `.plans/<project>/task_plan.md`.
 
-### 团队状态检查（team-lead 版自检）
+### Team Status Check (team-lead Self-Check)
 
-team-lead 也应遵循"定期自检"原则。建议在以下时机主动检查：
+The team-lead should also follow a periodic self-check principle. It is recommended to proactively check at these moments:
 
-**快速扫描**（并行读取各 agent 的 progress.md）：
+**Quick scan** (read each agent's progress.md in parallel):
 ```
 Read .plans/<project>/backend-dev/progress.md
 Read .plans/<project>/frontend-dev/progress.md
 Read .plans/<project>/researcher/progress.md
-...（按实际角色）
+...（adjust for actual roles）
 ```
 
-**深挖问题**（有疑问时读 findings.md）：
+**Deep dive** (read findings.md when something seems off):
 ```
 Read .plans/<project>/<agent-name>/findings.md
 ```
 
-**决策对齐**（需要调整方向时读主计划）：
+**Decision alignment** (read the main plan when direction needs adjustment):
 ```
 Read .plans/<project>/task_plan.md
 ```
 
-读取顺序：**progress（到哪了）→ findings（遇到什么）→ task_plan（目标是什么）**
+Reading order: **progress (where are we) → findings (what was encountered) → task_plan (what is the goal)**
 
-### 智能体 3-Strike 上报处理
+### Handling Agent 3-Strike Escalations
 
-当智能体报告"3次失败，上报 team-lead"时：
-1. 读取其 progress.md 中的已尝试记录
-2. 分析是否需要修改主计划（task_plan.md）
-3. 给出明确的新方案方向，或重新分配任务给其他智能体
+When an agent reports "3 failures, escalating to team-lead":
+1. Read the attempted steps recorded in its progress.md
+2. Assess whether the main plan (task_plan.md) needs to be revised
+3. Provide a clear new direction, or reassign the task to another agent
 
-### 阶段推进节奏
+### Phase Advancement Cadence
 
-- 调研阶段完成 → 读 researcher findings.md → 更新主 task_plan.md 的架构决策章节
-- 开发阶段完成 → 等 reviewer 审查结果 → 确认 [OK] 或 [WARN] 后推进下一阶段
-- 全部完成 → 并行读各 agent progress.md，确认所有任务已 complete
+- Research phase complete → Read researcher findings.md → Update the architecture decisions section in the main task_plan.md
+- Development phase complete → Wait for reviewer results → Confirm [OK] or [WARN] before advancing to the next phase
+- All done → Read each agent's progress.md in parallel, confirm all tasks are marked complete

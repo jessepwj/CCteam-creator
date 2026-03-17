@@ -1,225 +1,225 @@
-# 规划文件模板
+# Planning File Templates
 
-## 主 task_plan.md
-
-```markdown
-# <项目名> - 主计划
-
-> 状态: PLANNING
-> 创建: <日期>
-> 更新: <日期>
-> 团队: <team-name> (<角色列表>)
-> 决策记录: memory/<project>-decisions.md
-
----
-
-## 1. 项目概述
-
-<1-2 段项目描述>
-
----
-
-## 2. 关键架构决策
-
-<规划阶段填写，记录每个决策及理由>
-
----
-
-## 3. 技术栈
-
-<技术、框架、版本列表>
-
----
-
-## 4. 目录结构
-
-<项目文件布局>
-
----
-
-## 5. 任务分解
-
-### 阶段 1: 调研
-- [ ] T1: <描述> — 分配给: researcher
-
-### 阶段 2: 核心开发
-- [ ] T2: <描述> — 分配给: backend-dev
-- [ ] T3: <描述> — 分配给: frontend-dev
-
-### 阶段 3: 联调测试
-- [ ] T4: <描述> — 分配给: e2e-tester
-
-### 阶段 4: 审查清理
-- [ ] T5: 代码审查 — 分配给: reviewer
-- [ ] T6: 死代码清理 — 分配给: cleaner
-
----
-
-## 6. API 文档
-
-<随着 API 设计/发现逐步填写>
-```
-
-## 主 findings.md
+## Main task_plan.md
 
 ```markdown
-# <项目名> - 发现与技术记录
+# <Project Name> - Main Plan
 
-> 由团队智能体自动更新。每条标注来源。
-
----
-
-<工作中添加条目，格式如下:>
-
-## [标签] <日期> — <标题>
-
-### 来源: <agent-name>
-
-<内容>
+> Status: PLANNING
+> Created: <date>
+> Updated: <date>
+> Team: <team-name> (<role list>)
+> Decision Log: memory/<project>-decisions.md
 
 ---
 
-标签说明:
-- [RESEARCH] 调研发现
-- [BUG] 缺陷记录
-- [CODE-REVIEW] 代码审查结果
-- [REVIEW-FIX] 审查问题修复
-- [SECURITY-REVIEW] 安全审查
-- [ARCHITECTURE] 架构分析
-- [E2E-TEST] 端到端测试结果
-- [INTEGRATION] 集成问题
+## 1. Project Overview
+
+<1-2 paragraph project description>
+
+---
+
+## 2. Key Architecture Decisions
+
+<Fill in during planning phase; record each decision and its rationale>
+
+---
+
+## 3. Tech Stack
+
+<List of technologies, frameworks, and versions>
+
+---
+
+## 4. Directory Structure
+
+<Project file layout>
+
+---
+
+## 5. Task Breakdown
+
+### Phase 1: Research
+- [ ] T1: <description> — Assigned to: researcher
+
+### Phase 2: Core Development
+- [ ] T2: <description> — Assigned to: backend-dev
+- [ ] T3: <description> — Assigned to: frontend-dev
+
+### Phase 3: Integration Testing
+- [ ] T4: <description> — Assigned to: e2e-tester
+
+### Phase 4: Review & Cleanup
+- [ ] T5: Code review — Assigned to: reviewer
+- [ ] T6: Dead code cleanup — Assigned to: cleaner
+
+---
+
+## 6. API Documentation
+
+<Fill in incrementally as APIs are designed/discovered>
 ```
 
-## 主 progress.md
+## Main findings.md
 
 ```markdown
-# <项目名> - 进度日志
+# <Project Name> - Findings & Technical Log
 
-> 按时间线记录。每条记录谁做了什么。
+> Automatically updated by team agents. Each entry is tagged with its source.
 
 ---
 
-## <日期> Session N — <标题>
+<Add entries during work in the following format:>
 
-### 已完成
-- [x] <条目>
+## [TAG] <date> — <title>
 
-### 待办
-- [ ] <条目>
+### Source: <agent-name>
 
-### 关键决策
-- <决策及理由>
+<content>
+
+---
+
+Tag Reference:
+- [RESEARCH] Research findings
+- [BUG] Defect records
+- [CODE-REVIEW] Code review results
+- [REVIEW-FIX] Review issue fixes
+- [SECURITY-REVIEW] Security review
+- [ARCHITECTURE] Architecture analysis
+- [E2E-TEST] End-to-end test results
+- [INTEGRATION] Integration issues
 ```
 
----
-
-## 智能体根目录 task_plan.md
+## Main progress.md
 
 ```markdown
-# <智能体名> - 任务计划
+# <Project Name> - Progress Log
 
-> 角色: <角色描述>
-> 状态: pending
-> 分配的任务: <列表>
-
-## 任务
-
-- [ ] 步骤 1: <描述>
-- [ ] 步骤 2: <描述>
-- [ ] 步骤 3: <描述>
-
-## 备注
-
-<智能体相关的上下文、约束、参考>
-```
-
-## 智能体根目录 findings.md
-
-```markdown
-# <智能体名> - 发现记录
-
-> 工作中发现的问题和技术要点。
+> Recorded chronologically. Each entry notes who did what.
 
 ---
 
-<初始为空，工作中填写>
-```
+## <date> Session N — <title>
 
-## 智能体根目录 progress.md
+### Completed
+- [x] <item>
 
-```markdown
-# <智能体名> - 工作日志
+### To Do
+- [ ] <item>
 
-> 用于上下文恢复。压缩/重启后先读此文件。
-
----
-
-<初始为空，工作中填写>
+### Key Decisions
+- <decision and rationale>
 ```
 
 ---
 
-## 大任务 task 文件夹模板（仅 backend-dev / frontend-dev 使用）
-
-当前后端开发智能体接到大功能/新模块时，在自己目录下创建：
-
-```
-.plans/<project>/<agent-name>/task-<功能名>/
-```
-
-### task 文件夹 task_plan.md
+## Agent Root task_plan.md
 
 ```markdown
-# <功能名> - 任务计划
+# <Agent Name> - Task Plan
 
-> 所属智能体: <agent-name>
-> 状态: in_progress
-> 创建: <日期>
+> Role: <role description>
+> Status: pending
+> Assigned Tasks: <list>
 
-## 目标
+## Tasks
 
-<此功能要实现什么>
+- [ ] Step 1: <description>
+- [ ] Step 2: <description>
+- [ ] Step 3: <description>
 
-## 详细步骤
+## Notes
 
-- [ ] 1. <步骤描述>
-- [ ] 2. <步骤描述>
-- [ ] 3. <步骤描述>
-- [ ] 4. 编写测试（TDD）
-- [ ] 5. 验证覆盖率 >= 80%
-- [ ] 6. 请求 reviewer 审查（大功能必须）
-
-## 涉及文件
-
-- `path/to/file1.ts` — <说明>
-- `path/to/file2.ts` — <说明>
-
-## 依赖
-
-- 依赖 T1 调研结论（见 researcher findings.md）
-- 依赖 xxx API 设计（见主 task_plan.md §6）
+<Context, constraints, and references relevant to this agent>
 ```
 
-### task 文件夹 findings.md
+## Agent Root findings.md
 
 ```markdown
-# <功能名> - 发现记录
+# <Agent Name> - Findings Log
 
-> 此任务开发中的技术发现。
+> Issues and technical notes discovered during work.
 
 ---
 
-<初始为空>
+<Empty initially; fill in during work>
 ```
 
-### task 文件夹 progress.md
+## Agent Root progress.md
 
 ```markdown
-# <功能名> - 工作日志
+# <Agent Name> - Work Journal
 
-> 上下文恢复时只需读此文件（不用读其他 task 文件夹）。
+> For context recovery. Read this file first after compaction/restart.
 
 ---
 
-<初始为空>
+<Empty initially; fill in during work>
+```
+
+---
+
+## Large Task Folder Templates (backend-dev / frontend-dev Only)
+
+When a frontend or backend dev agent receives a large feature or new module, create the following in their directory:
+
+```
+.plans/<project>/<agent-name>/task-<feature-name>/
+```
+
+### Task Folder task_plan.md
+
+```markdown
+# <Feature Name> - Task Plan
+
+> Agent: <agent-name>
+> Status: in_progress
+> Created: <date>
+
+## Goal
+
+<What this feature needs to accomplish>
+
+## Detailed Steps
+
+- [ ] 1. <step description>
+- [ ] 2. <step description>
+- [ ] 3. <step description>
+- [ ] 4. Write tests (TDD)
+- [ ] 5. Verify coverage >= 80%
+- [ ] 6. Request reviewer review (required for large features)
+
+## Files Involved
+
+- `path/to/file1.ts` — <description>
+- `path/to/file2.ts` — <description>
+
+## Dependencies
+
+- Depends on T1 research conclusions (see researcher findings.md)
+- Depends on xxx API design (see main task_plan.md §6)
+```
+
+### Task Folder findings.md
+
+```markdown
+# <Feature Name> - Findings Log
+
+> Technical findings during development of this task.
+
+---
+
+<Empty initially>
+```
+
+### Task Folder progress.md
+
+```markdown
+# <Feature Name> - Work Journal
+
+> For context recovery, only this file needs to be read (not other task folders).
+
+---
+
+<Empty initially>
 ```

@@ -1,4 +1,4 @@
-# Team Pilot
+# CCteam-creator
 
 > Multi-agent team orchestration skill for [Claude Code](https://code.claude.com/).
 
@@ -6,22 +6,22 @@
 
 ## Standing on the Shoulders of Giants
 
-Team Pilot is built upon two outstanding open-source projects:
+CCteam-creator is built upon two outstanding open-source projects:
 
 | Project | Stars | What We Learned |
 |---------|-------|-----------------|
-| [**planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 16,000+ | Manus-style persistent markdown planning — the 3-file pattern (task_plan.md / findings.md / progress.md) that survives context compression. The "context window = RAM, file system = disk" philosophy is the backbone of Team Pilot's state persistence. Born from the workflow pattern behind the [$2B Manus acquisition](https://github.com/OthmanAdi/planning-with-files). |
+| [**planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 16,000+ | Manus-style persistent markdown planning — the 3-file pattern (task_plan.md / findings.md / progress.md) that survives context compression. The "context window = RAM, file system = disk" philosophy is the backbone of our state persistence. Born from the workflow pattern behind the [$2B Manus acquisition](https://github.com/OthmanAdi/planning-with-files). |
 | [**everything-claude-code**](https://github.com/affaan-m/everything-claude-code) | 50,000+ | The agent harness performance optimization system by Anthropic hackathon winner [@affaan-m](https://github.com/affaan-m). 13 expert agents, 40+ skills, 98% test coverage. Inspired our skill structure, role-based agent design, and plugin distribution approach. |
 
-Team Pilot extends their ideas into the **multi-agent coordination** domain — orchestrating multiple specialized agents working in parallel with structured communication and file-based progress tracking.
+CCteam-creator extends their ideas into the **multi-agent coordination** domain — orchestrating multiple specialized agents working in parallel with structured communication and file-based progress tracking.
 
 ---
 
-Team Pilot helps you set up and manage parallel AI agent teams in Claude Code. Instead of working with a single AI assistant, you can orchestrate multiple specialized agents — developers, researchers, testers, reviewers — all working together on your project.
+CCteam-creator helps you set up and manage parallel AI agent teams in Claude Code. Instead of working with a single AI assistant, you can orchestrate multiple specialized agents — developers, researchers, testers, reviewers — all working together on your project.
 
 ## What It Does
 
-When you invoke `/team-project-setup`, Team Pilot:
+When you invoke `/team-project-setup`, CCteam-creator:
 
 1. **Consults with you first** — explains how agent teams work, understands your project needs, and recommends a team configuration
 2. **Sets up the team** — creates planning files, work directories, and spawns agents with proper onboarding
@@ -31,7 +31,7 @@ When you invoke `/team-project-setup`, Team Pilot:
 
 ### Enable Agent Teams
 
-Agent teams are an experimental feature in Claude Code. Enable them by setting the environment variable:
+Agent teams are an experimental feature in Claude Code. You **must** enable them first:
 
 **Option A: In your shell**
 ```bash
@@ -49,34 +49,45 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 ## Installation
 
+> **Important**: Install either the English version OR the Chinese version — not both. They are the same skill in different languages. Installing both will cause conflicts.
+
 ### Option 1: Plugin Install (Recommended)
 
 ```bash
 # In Claude Code, run:
-/plugin install https://github.com/team-pilot/team-pilot
+/plugin install https://github.com/jessepwj/CCteam-creator
 ```
 
-This installs Team Pilot as a Claude Code plugin. Both Chinese and English skill versions are included.
+This installs CCteam-creator as a Claude Code plugin. The default skill is in **English** (`team-project-setup`). A Chinese version (`team-project-setup-cn`) is also included in the plugin — Claude will use the English one by default.
 
-### Option 2: Manual Copy
+If you prefer Chinese only, after installing the plugin, you can remove the English skill directory and rename the Chinese one.
+
+### Option 2: Manual Copy — English (Default)
 
 ```bash
-# Clone the repository
-git clone https://github.com/team-pilot/team-pilot.git
-
-# Copy the English skill to your personal skills directory
-cp -r team-pilot/skills/team-project-setup-en ~/.claude/skills/team-project-setup
-
-# Or copy the Chinese version
-cp -r team-pilot/skills/team-project-setup ~/.claude/skills/team-project-setup
+git clone https://github.com/jessepwj/CCteam-creator.git
+cp -r CCteam-creator/skills/team-project-setup ~/.claude/skills/team-project-setup
 ```
 
-### Option 3: Project-level Install
-
-Place the skill in your project's `.claude/skills/` directory so all team members share it:
+### Option 3: Manual Copy — Chinese
 
 ```bash
-cp -r team-pilot/skills/team-project-setup-en .claude/skills/team-project-setup
+git clone https://github.com/jessepwj/CCteam-creator.git
+cp -r CCteam-creator/skills/team-project-setup-cn ~/.claude/skills/team-project-setup
+```
+
+> **Note**: Both versions copy into the same target directory (`~/.claude/skills/team-project-setup`). This ensures only one version is active at a time.
+
+### Option 4: Project-level Install
+
+Share the skill with your team by placing it in your project:
+
+```bash
+# English (default)
+cp -r CCteam-creator/skills/team-project-setup .claude/skills/team-project-setup
+
+# Or Chinese
+cp -r CCteam-creator/skills/team-project-setup-cn .claude/skills/team-project-setup
 ```
 
 ## Usage
@@ -89,7 +100,7 @@ Simply tell Claude Code that you want to set up a team:
 > I want to build a REST API, can you create a team?
 ```
 
-Team Pilot will:
+CCteam-creator will:
 1. Explain how the agent team works
 2. Ask about your project goals, tech stack, and preferences
 3. Recommend which roles you need
@@ -111,7 +122,7 @@ The skill auto-activates when you mention: `team`, `swarm`, `start project`, `se
 | Code Reviewer | `reviewer` | opus | Security/quality/performance review (read-only on source) |
 | Code Cleaner | `cleaner` | sonnet | Dead code removal + safe refactoring |
 
-You don't need all roles for every project. Team Pilot recommends the right combination based on your needs.
+You don't need all roles for every project. CCteam-creator recommends the right combination based on your needs.
 
 ## How It Works
 
@@ -161,17 +172,17 @@ You can customize:
 ## Project Structure
 
 ```
-team-pilot/
+CCteam-creator/
   .claude-plugin/
     plugin.json                       -- Plugin metadata
   skills/
-    team-project-setup/               -- Chinese version
+    team-project-setup/               -- English version (default)
       SKILL.md
       references/
         roles.md
         onboarding.md
         templates.md
-    team-project-setup-en/            -- English version
+    team-project-setup-cn/            -- Chinese version
       SKILL.md
       references/
         roles.md
