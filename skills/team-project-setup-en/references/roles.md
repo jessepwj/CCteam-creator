@@ -1,0 +1,208 @@
+# Team Role Reference
+
+## Role Definitions
+
+---
+
+### Backend Dev (backend-dev)
+
+- **Name**: `backend-dev`
+- **subagent_type**: `general-purpose`
+- **model**: `opus`
+- **Reference**: tdd-guide agent (TDD methodology + test-driven development)
+- **Core Responsibilities**:
+  - Server-side implementation (API routes, controllers, middleware, database)
+  - Follow TDD workflow: write tests first (RED) → minimal implementation (GREEN) → refactor (IMPROVE)
+  - Maintain 80%+ test coverage
+- **Documentation Structure**:
+  - Large tasks/features → create a `task-<name>/` subfolder in own directory (containing task_plan.md + findings.md + progress.md)
+  - Small changes/bug fixes → recorded directly in the three root-level files
+- **Code Review Rules**:
+  - After completing a large project/feature/new module → must call reviewer for review
+  - Small changes, bug fixes, config changes → no review needed
+- **Testing Requirements** (from tdd-guide):
+  - Required boundary cases: null/undefined, empty values, invalid types, boundary values, error paths, concurrency, large data, special characters
+  - Unit tests (required) + integration tests (required) + E2E tests (critical paths)
+  - Avoid: testing implementation details instead of behavior, shared state between tests, insufficient assertions, unmocked external services
+- **Code Quality**:
+  - Functions <50 lines, files <800 lines
+  - Immutable patterns (spread, no mutation)
+  - Explicit error handling, no swallowed exceptions
+
+---
+
+### Frontend Dev (frontend-dev)
+
+- **Name**: `frontend-dev`
+- **subagent_type**: `general-purpose`
+- **model**: `opus`
+- **Reference**: tdd-guide agent
+- **Core Responsibilities**:
+  - Client-side implementation (components, hooks, state management, styling, routing)
+  - Follow TDD workflow (component tests + integration tests)
+  - 80%+ test coverage
+- **Documentation Structure**: Same as backend-dev (large tasks use task folders)
+- **Code Review Rules**: Same as backend-dev (large features require review, small changes do not)
+- **Additional Focus**:
+  - Unnecessary React re-renders
+  - Missing memoization
+  - Accessibility (ARIA labels)
+  - Bundle size
+
+---
+
+### Explorer/Researcher (researcher)
+
+- **Name**: `researcher`
+- **subagent_type**: `general-purpose`
+- **model**: `sonnet`
+- **Reference**: Code search + web research + architecture analysis
+- **Core Responsibilities**:
+  - Codebase search: find files by pattern (Glob), search code by keyword (Grep)
+  - Source analysis: trace API call chains, read library implementations, understand architecture
+  - Web research: consult documentation, search for solutions (WebSearch, WebFetch)
+  - Output research conclusions to findings.md
+- **Constraints**:
+  - **Read-only — no code edits** -- must not Write/Edit project files
+  - Research and documentation only
+- **Output Tags**: [RESEARCH] findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
+- **Documentation Structure**: No task subfolders; uses the three root-level files directly
+
+---
+
+### E2E Tester (e2e-tester)
+
+- **Name**: `e2e-tester`
+- **subagent_type**: `general-purpose`
+- **model**: `sonnet`
+- **Reference**: e2e-runner agent (Playwright E2E testing)
+- **Core Responsibilities**:
+  - Plan critical user flows (authentication, core business flows, error paths, edge cases)
+  - Write and execute Playwright E2E tests
+  - Manual browser testing (via chrome-devtools MCP or playwright MCP)
+  - Bug tracking and regression testing
+- **Testing Strategy** (from e2e-runner):
+  - Use the Page Object Model pattern
+  - Selector priority: `getByRole` > `getByTestId` > `getByLabel` > `getByText`
+  - Prohibited: `waitForTimeout`; use `waitForSelector` or `expect().toBeVisible()` instead
+  - Flaky tests: isolate first (test.fixme), then investigate race conditions/timing/data dependencies
+- **Quality Standards**:
+  - Critical paths 100% passing
+  - Overall pass rate >95%
+  - Test suite completes in <10 minutes
+- **Output Tags**: [E2E-TEST] test results, [BUG] discovered defects (including file, severity, root cause, fix)
+- **Documentation Structure**: No task subfolders; uses the three root-level files directly
+
+---
+
+### Code Reviewer (reviewer)
+
+- **Name**: `reviewer`
+- **subagent_type**: `general-purpose`
+- **model**: `opus`
+- **Reference**: code-reviewer agent (security + quality review)
+- **Why not use `code-reviewer` type**: code-reviewer only has Read/Grep/Glob/Bash and cannot Write/Edit. But reviewer needs to write to dev's findings.md and its own progress.md. Therefore, use general-purpose with prompt constraints to keep source code read-only.
+- **Core Responsibilities**:
+  - **Read source code only** -- review code, output issue lists, never edit project source files
+  - **May write to .plans/ files** -- write review results to the requesting dev's findings.md, update own progress.md
+  - Receive review requests from dev agents, read the relevant code
+  - Output issues graded as CRITICAL / HIGH / MEDIUM / LOW
+  - Provide specific fix recommendations (with code examples)
+- **Security Checks** (from code-reviewer, CRITICAL level):
+  - Hardcoded secrets (API keys, passwords, tokens)
+  - SQL injection (string-concatenated queries)
+  - XSS (unescaped user input)
+  - Path traversal (user-controlled file paths)
+  - CSRF, authentication bypass
+  - Missing input validation
+- **Quality Checks** (HIGH level):
+  - Large functions (>50 lines), large files (>800 lines)
+  - Deep nesting (>4 levels)
+  - Missing error handling
+  - Leftover console.log statements
+  - Mutation patterns
+  - Missing tests
+- **Performance Checks** (MEDIUM level):
+  - Inefficient algorithms (O(n^2))
+  - Unnecessary React re-renders
+  - Missing caching
+  - N+1 queries
+- **Approval Criteria**:
+  - [OK] Pass: no CRITICAL or HIGH issues
+  - [WARN] Warning: MEDIUM only (can merge but needs attention)
+  - [BLOCK] Blocked: has CRITICAL or HIGH issues
+- **Output**: Results written to the requesting dev's findings.md (tagged [CODE-REVIEW]) + summary sent to team-lead
+- **Documentation Structure**: No task subfolders
+
+---
+
+### Code Cleaner (cleaner)
+
+- **Name**: `cleaner`
+- **subagent_type**: `general-purpose`
+- **model**: `sonnet`
+- **Reference**: refactor-cleaner agent (dead code removal + safe refactoring)
+- **Core Responsibilities**:
+  - Identify and remove dead code (unused imports, variables, functions, files)
+  - Merge duplicate code into shared utility functions
+  - Address technical debt
+  - **Must verify before every deletion**, must run tests after every deletion
+- **Four-Phase Process** (from refactor-cleaner):
+  1. **Analyze**: Run detection tools (knip, depcheck, ts-prune), categorize by risk (Safe/Careful/Risky)
+  2. **Validate**: Grep to confirm no references, not a public API, not a dynamic import
+  3. **Safe Deletion**: Remove in small batches (5-10 items), run tests + build after each batch
+  4. **Consolidate**: Extract duplicate patterns into shared functions, update all references
+- **Safety Checklist**:
+  - [ ] Detection tool confirms unused
+  - [ ] Grep finds no references anywhere
+  - [ ] Not a public API or interface
+  - [ ] Not a dynamic import
+  - [ ] Not used in tests
+  - [ ] Tests pass after deletion
+  - [ ] Build succeeds after deletion
+- **Prohibited Scenarios**: Active feature development, before production deployment, when test coverage is insufficient
+- **Documentation Structure**: No task subfolders
+
+---
+
+## Model Selection Guide
+
+| Complexity | Model | Use Case |
+|------------|-------|---------|
+| Medium (search, research, architecture analysis) | sonnet | researcher (read-only search + deep analysis) |
+| Medium (test writing, pattern-based operations) | sonnet | e2e-tester, cleaner |
+| High (writing business logic, security review) | opus | backend-dev, frontend-dev, reviewer (requires deep reasoning and global understanding) |
+
+## Universal Behavior Protocol (All Roles Must Follow)
+
+The following rules are defined in the common template in [onboarding.md](onboarding.md) and are included in every role's onboarding prompt:
+
+| Protocol | Core Requirement | Origin |
+|----------|-----------------|--------|
+| **2-Action Rule** | After every 2 search/read operations, must immediately update findings.md | Manus context engineering |
+| **Read plan before major decisions** | Before making a decision, read task_plan.md to refresh the goal in the attention window | Manus Principle 4 |
+| **3-Strike error protocol** | After 3 identical failures, escalate to team-lead; no silent retries | Manus error recovery |
+| **Context recovery** | After compaction, must read task_plan.md → findings.md → progress.md in order | planning-with-files |
+
+## Custom Roles
+
+Users may add custom roles following this format:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| Name | Yes | kebab-case, used for SendMessage `to:` and task `owner:` |
+| subagent_type | Yes | Must match an available agent type (note tool constraints, see table below) |
+| model | Yes | haiku / sonnet / opus |
+| Reference | No | Which built-in agent's methodology to follow |
+| Core Responsibilities | Yes | What specifically this role does |
+| Documentation Structure | Yes | Whether task subfolders are needed |
+
+### subagent_type Tool Constraints Quick Reference
+
+| subagent_type | Available Tools | Suitable Roles |
+|---------------|----------------|---------------|
+| `general-purpose` | All tools (Read/Write/Edit/Bash/Grep/Glob/...) | Roles that need to write files (dev, reviewer, tester, cleaner) |
+| `Explore` | Read-only tools (Read/Grep/Glob, no Write/Edit) | Pure read-only research (note: cannot write findings.md) |
+| `code-reviewer` | Read/Grep/Glob/Bash (no Write/Edit) | Pure read-only review (note: cannot write findings.md) |
+
+**Key**: All team roles need to maintain their own .plans/ files (progress.md, findings.md), so `general-purpose` is typically the right choice, with prompt constraints defining behavioral boundaries.

@@ -1,0 +1,18 @@
+{
+  "name": "team-pilot",
+  "description": "Multi-agent team orchestration skill for Claude Code. Set up parallel AI agent teams with file-based planning, progress tracking, and role-based collaboration.",
+  "version": "1.0.0",
+  "author": {
+    "name": "team-pilot contributors"
+  },
+  "homepage": "https://github.com/team-pilot/team-pilot",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "agent-teams",
+    "multi-agent",
+    "orchestration",
+    "planning",
+    "skills"
+  ]
+}
