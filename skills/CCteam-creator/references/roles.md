@@ -61,12 +61,16 @@
   - Codebase search: find files by pattern (Glob), search code by keyword (Grep)
   - Source analysis: trace API call chains, read library implementations, understand architecture
   - Web research: consult documentation, search for solutions (WebSearch, WebFetch)
-  - Output research conclusions to findings.md
+  - Output research conclusions to task-specific findings.md
 - **Constraints**:
   - **Read-only — no code edits** -- must not Write/Edit project files
   - Research and documentation only
 - **Output Tags**: [RESEARCH] findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
-- **Documentation Structure**: No task subfolders; uses the three root-level files directly
+- **Documentation Structure**:
+  - Each assigned research topic → create a `research-<topic>/` subfolder (containing task_plan.md + findings.md + progress.md)
+  - findings.md is the **main deliverable** of each research task — others read this to get the conclusions
+  - Root findings.md serves as an **index** linking to each research report
+  - Quick one-off observations → recorded in root findings.md directly
 
 ---
 
@@ -91,7 +95,11 @@
   - Overall pass rate >95%
   - Test suite completes in <10 minutes
 - **Output Tags**: [E2E-TEST] test results, [BUG] discovered defects (including file, severity, root cause, fix)
-- **Documentation Structure**: No task subfolders; uses the three root-level files directly
+- **Documentation Structure**:
+  - Each test scope/round → create a `test-<scope>/` subfolder (containing task_plan.md + findings.md + progress.md)
+  - findings.md contains test results, bugs, and pass/fail summaries for that scope
+  - Root findings.md serves as an **index** linking to each test round
+  - Quick regression checks → recorded in root findings.md directly
 
 ---
 
@@ -131,8 +139,12 @@
   - [OK] Pass: no CRITICAL or HIGH issues
   - [WARN] Warning: MEDIUM only (can merge but needs attention)
   - [BLOCK] Blocked: has CRITICAL or HIGH issues
-- **Output**: Results written to the requesting dev's findings.md (tagged [CODE-REVIEW]) + summary sent to team-lead
-- **Documentation Structure**: No task subfolders
+- **Output**: Full review written to own `review-<target>/findings.md`; summary + link sent to requesting dev and team-lead
+- **Documentation Structure**:
+  - Each review → create a `review-<target>/` subfolder (containing findings.md + progress.md)
+  - findings.md contains the full review report (issue list, severity, fix recommendations)
+  - Root findings.md serves as an **index** linking to each review
+  - Reviewer also appends a brief summary line to the requesting dev's task findings.md with a cross-reference
 
 ---
 

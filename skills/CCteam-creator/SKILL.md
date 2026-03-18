@@ -119,38 +119,67 @@ See [references/templates.md](references/templates.md) for file templates.
 ```
 .plans/<project>/
   task_plan.md                -- Main plan
-  findings.md                 -- Findings, bugs, review results
+  findings.md                 -- Team-level summary
   progress.md                 -- Work log
 
   <agent-name>/               -- One directory per agent
     task_plan.md              -- Agent task list
-    findings.md               -- Agent findings log
+    findings.md               -- INDEX linking to task-specific findings
     progress.md               -- Agent work log
+    <prefix>-<task>/          -- Task folder (one per assigned task)
+      task_plan.md / findings.md / progress.md
 ```
 
-### Special Structure for Frontend/Backend Dev Agents
+### Task Folder Pattern (All Roles)
 
-When backend-dev and frontend-dev agents receive large tasks or large features,
-they should create an independent task folder for each major task within their own directory:
+Every role creates task folders when assigned distinct tasks. The root `findings.md` serves as an **index** — linking to each task-specific findings file instead of dumping everything into one giant document.
+
+| Role | Folder Prefix | Example |
+|------|--------------|---------|
+| backend-dev / frontend-dev | `task-` | `task-auth/`, `task-payments/` |
+| researcher | `research-` | `research-tech-stack/`, `research-auth-options/` |
+| e2e-tester | `test-` | `test-auth-flow/`, `test-checkout/` |
+| reviewer | `review-` | `review-auth-module/`, `review-payments/` |
+| cleaner | (uses root files) | — |
+
+Example structure with multiple roles:
 
 ```
-.plans/<project>/backend-dev/
-  task_plan.md                -- Agent overview (lists all tasks)
-  findings.md                 -- General findings
-  progress.md                 -- General progress
-
-  task-auth/                  -- Large task: auth module
-    task_plan.md              -- Detailed steps for this task
-    findings.md               -- Findings for this task
-    progress.md               -- Progress for this task
-  task-file-upload/           -- Large task: file upload
-    task_plan.md
-    findings.md
+.plans/<project>/
+  backend-dev/
+    task_plan.md              -- Agent overview
+    findings.md               -- INDEX: links to each task
     progress.md
+    task-auth/                -- Feature: auth module
+      task_plan.md / findings.md / progress.md
+    task-payments/            -- Feature: payments
+      task_plan.md / findings.md / progress.md
+
+  researcher/
+    task_plan.md              -- Research agenda
+    findings.md               -- INDEX: links to each research report
+    progress.md
+    research-tech-stack/      -- Research: tech stack evaluation
+      task_plan.md / findings.md / progress.md
+    research-auth-options/    -- Research: auth approaches
+      task_plan.md / findings.md / progress.md
+
+  e2e-tester/
+    task_plan.md              -- Test plan overview
+    findings.md               -- INDEX: links to each test round
+    progress.md
+    test-auth-flow/           -- Test scope: auth flow
+      task_plan.md / findings.md / progress.md
+
+  reviewer/
+    task_plan.md              -- Review queue
+    findings.md               -- INDEX: links to each review
+    progress.md
+    review-auth-module/       -- Review: auth module
+      findings.md / progress.md
 ```
 
-Other agents (researcher, e2e-tester, reviewer, cleaner) typically handle smaller tasks
-and do not need task-based subdirectories. They use the three files in the agent root directory.
+Quick one-off notes (bug fixes, config changes) can go directly in root files without a task folder.
 
 ## Step 4: Create Memory Files
 
@@ -179,9 +208,9 @@ Show the user a table of team members and the file locations.
 ## Key Rules
 
 - **Planning files are the progress tracker** -- Do not also use TaskCreate/TodoWrite
-- **Context recovery**: After an agent is compacted, it must first read its own task_plan.md + findings.md + progress.md before continuing work
-- **Large dev tasks use task folders**: Each large feature/new feature gets its own set of three files
-- **Code review trigger**: Call reviewer after completing a large project/feature/new module; small changes/bug fixes do not require review
+- **Context recovery**: After an agent is compacted, it must first read its task folder's files (or root files if no active task folder)
+- **All roles use task folders**: Every assigned task gets a dedicated folder with its own findings/progress files; root findings.md is an index
+- **Code review trigger**: Call reviewer after completing a feature/new module; small changes/bug fixes do not require review
 - **researcher uses sonnet model**: Research requires sufficient depth
 - **Spawn in parallel**: Launch all independent agents simultaneously
 - **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
@@ -198,8 +227,8 @@ In a team project, this principle operates at three levels:
 | Level | Owner | File Location | Focus |
 |-------|-------|--------------|-------|
 | Project Global | team-lead | `.plans/<project>/task_plan.md` | Phase progress, architecture decisions, task assignments |
-| Agent Level | Each agent individually | `.plans/<project>/<agent>/` | Own tasks, findings, work log |
-| Large Task Level | dev agent | `.plans/<project>/<agent>/task-<name>/` | Detailed steps for a single large feature |
+| Agent Level | Each agent individually | `.plans/<project>/<agent>/` | Task index, general notes, work log |
+| Task Level | Each agent | `.plans/<project>/<agent>/<prefix>-<name>/` | Detailed steps, findings, and progress for a specific task |
 
 Each agent's onboarding prompt already includes an equivalent self-check protocol (periodic 5-question check, 2-Action Rule, 3-Strike). The team-lead does not need to manually trigger these mechanisms — agents execute them autonomously.
 

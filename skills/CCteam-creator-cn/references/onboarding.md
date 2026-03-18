@@ -28,16 +28,39 @@
 - 发现技术问题或坑 → 立即写入 findings.md
 - 设计决策偏离预设方案 → findings.md 记录原因 + 通知 team-lead
 
-### 2-Action Rule（搜索/读取场景强制执行）
+### 文档读写技巧（节省上下文！）
 
-每完成 **2 次** 搜索/读取/浏览操作，**必须立刻**更新 findings.md，不能等"稍后再写"。
-多步搜索结果和视觉信息极容易从上下文中丢失，写下来才算真的记住。
+findings.md 和 progress.md 是追加型日志，会随项目推进不断增长。
+为避免每次写入都全量加载文件，遵循以下原则：
 
-计数示例：
-- 第1次：Grep 搜索 → 记下线索
-- 第2次：Read 读文件 → **立即更新 findings.md** ← 必须在这里停下来写
-- 第3次：WebSearch → 记下结果
-- 第4次：WebFetch → **立即更新 findings.md** ← 再次必须写
+**写入（追加）**：用 Bash 追加，不要先 Read 再 Edit：
+```bash
+# 正确：直接追加，不消耗上下文
+echo '## [RESEARCH] 2026-03-18 — API 限流策略\n### 来源: researcher\n发现...' >> findings.md
+
+# 错误：先 Read 200 行 → 再 Edit 追加 5 行（浪费 200 行上下文）
+```
+
+**读取（查找）**：用 Grep 按标签搜索，不要 Read 全文：
+```bash
+# 正确：只看 researcher 的发现
+Grep pattern="[RESEARCH]" path=".plans/project/researcher/findings.md"
+
+# 正确：只看最近的进度（末尾 30 行）
+Read file=progress.md offset=<末尾> limit=30
+
+# 错误：Read 整个 findings.md（可能 300+ 行，大部分和你无关）
+```
+
+**修改（勾选任务）**：task_plan.md 通常较短，Read + Edit 没问题。
+
+### 2-Action Rule（调研/排查场景）
+
+在**专门做搜索、调研、排查问题**时，每完成 2 次搜索/读取操作，必须立刻更新 findings.md。
+多步搜索结果极容易从上下文中丢失，写下来才算真的记住。
+
+> **开发角色注意**：编码过程中读代码文件（理解上下文、查类型定义、看现有实现）不受此规则约束。
+> 开发角色的记录节奏见各角色专属指南。
 
 ### 重大决策前先读计划
 
@@ -52,6 +75,17 @@
 - 报告进度/提问：SendMessage(to: "team-lead", message: "...")
 - 代码审查请求：SendMessage(to: "reviewer", message: "...") — 直接找 reviewer，不经 team-lead
 - 文档规则：代码是真理，文档跟着代码走；不要静默改变设计
+
+### 任务交接协议
+
+**大任务/大功能**（跨角色传递工作成果时）：
+1. 先写好交接文档：在 findings.md 中记录结论、方案、关键文件路径和行号
+2. 再 SendMessage 给接收方，包含：交接摘要 + 文档位置
+   例: SendMessage(to: "backend-dev", message: "调研完成，API 方案见 findings.md §3-§5，建议方案A，理由见 §4")
+
+**小任务/小修改**：
+直接 SendMessage 说明改动即可，不需要额外写交接文档。
+   例: SendMessage(to: "reviewer", message: "修复了 login 的 XSS，改动在 src/auth/login.ts:42")
 
 ## 错误处理协议（3-Strike）
 
@@ -141,8 +175,14 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 上下文恢复时，如果你正在做某个大任务，只需读取该 task 文件夹下的三个文件即可，
 不需要读所有 task 文件夹。
 
+### 文档记录节奏（覆盖通用 2-Action Rule）
+- **编码中读代码**（理解上下文、查类型定义、看现有实现）→ 不需要停下来写 findings
+- **发现意外问题**（Bug、兼容性问题、设计冲突）→ 立即写 findings.md
+- **做出偏离计划的决策** → 立即写 findings.md + 通知 team-lead
+- **完成一个功能/步骤** → 更新 task_plan.md 勾选 + progress.md 记录
+
 ### 代码审查规则
-- 完成大项目/大功能/新功能模块后 → 必须 SendMessage(to: "reviewer") 请求审查
+- 完成大功能/新功能模块后 → 先在 findings.md 记录改动摘要（涉及文件、设计决策、已知风险），再 SendMessage(to: "reviewer") 请求审查并注明文档位置
 - 小修改、Bug 修复、配置变更 → 不需要审查，直接继续
 - 审查结果修复后，在 findings.md 标记 [REVIEW-FIX]
 

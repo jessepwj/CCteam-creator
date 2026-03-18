@@ -133,18 +133,31 @@ All progress is persisted to `.plans/<project>/` — no state is lost when conte
 ```
 .plans/<project>/
   task_plan.md          -- Master plan (phases, architecture, assignments)
-  findings.md           -- Team-level findings and review results
+  findings.md           -- Team-level summary
   progress.md           -- Work log
 
   backend-dev/          -- Each agent's workspace
-    task_plan.md
-    findings.md
-    progress.md
-    task-auth/          -- Large features get sub-directories
-      task_plan.md
-      findings.md
-      progress.md
+    findings.md         -- INDEX linking to task-specific findings
+    task-auth/          -- Each assigned task gets its own folder
+      task_plan.md / findings.md / progress.md
+
+  researcher/
+    findings.md         -- INDEX linking to research reports
+    research-tech-stack/ -- Each research topic
+      findings.md       -- THE research report (main deliverable)
+
+  e2e-tester/
+    findings.md         -- INDEX linking to test results
+    test-auth-flow/     -- Each test scope
+      findings.md       -- Test results and bugs
+
+  reviewer/
+    findings.md         -- INDEX linking to reviews
+    review-auth-module/ -- Each code review
+      findings.md       -- Full review report
 ```
+
+Every role uses task folders — the root `findings.md` serves as a clean index, not a dump of all content.
 
 ### Agent Protocols
 

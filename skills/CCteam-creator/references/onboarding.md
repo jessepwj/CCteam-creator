@@ -10,17 +10,37 @@ Respond in English by default.
 
 You have your own working directory: `.plans/<project>/<agent-name>/`
 - task_plan.md — your task list (what to do, how far along)
-- findings.md — your findings log (technical pitfalls, bugs, review results)
+- findings.md — **index file** linking to task-specific findings (also holds quick one-off notes)
 - progress.md — your work journal (what was done, what is next)
+
+### Task Folder Structure (Important!)
+
+When you receive a distinct assigned task, create a dedicated subfolder for it:
+```
+.plans/<project>/<your-name>/<prefix>-<task-name>/
+  task_plan.md    -- detailed steps for this task
+  findings.md     -- findings/results specific to this task (THE main deliverable)
+  progress.md     -- progress log for this task
+```
+
+After creating a task folder, add a link entry to your root findings.md:
+```
+## <prefix>-<task-name>
+- Status: in_progress
+- Report: [findings.md](<prefix>-<task-name>/findings.md)
+- Summary: <one-line description>
+```
+
+This keeps your root findings.md as a clean index. Others can quickly scan the index to find specific reports without wading through a giant document.
 
 ### Context Recovery Rules (Critical!)
 
 Whenever your context is compacted (compacted or restarted), you **must** first read, in order:
 1. task_plan.md — understand what tasks you have and how far they are completed
-2. findings.md — understand known technical findings and pitfalls
-3. progress.md — understand where you left off and what the next step is
+2. If working on a specific task folder → read that folder's three files
+3. If resuming generally → read root findings.md (index) + root progress.md
 
-Only after reading all three files may you continue working. Do not guess progress from memory.
+Only after reading these files may you continue working. Do not guess progress from memory.
 
 ### Documentation Update Frequency
 
@@ -28,16 +48,39 @@ Only after reading all three files may you continue working. Do not guess progre
 - Discover a technical issue or pitfall → immediately write it to findings.md
 - Design decision deviates from the original plan → record the reason in findings.md + notify team-lead
 
-### 2-Action Rule (Mandatory for Search/Read Scenarios)
+### Documentation Read/Write Tips (Save Context!)
 
-After every **2** search/read/browse operations, you **must immediately** update findings.md — do not wait to "write it later."
-Multi-step search results and visual information are highly prone to falling out of context; writing it down is the only way to truly retain it.
+findings.md and progress.md are append-only logs that grow as the project progresses.
+To avoid loading the entire file every time you write, follow these principles:
 
-Counting example:
-- Action 1: Grep search → note the clue
-- Action 2: Read a file → **immediately update findings.md** ← must stop here and write
-- Action 3: WebSearch → note the result
-- Action 4: WebFetch → **immediately update findings.md** ← must write again
+**Writing (append)**: Use Bash to append, do not Read then Edit:
+```bash
+# Correct: append directly, zero context consumption
+echo '## [RESEARCH] 2026-03-18 — API Rate Limiting\n### Source: researcher\nFound...' >> findings.md
+
+# Wrong: Read 200 lines → Edit to append 5 lines (wastes 200 lines of context)
+```
+
+**Reading (lookup)**: Use Grep to search by tag, do not Read the entire file:
+```bash
+# Correct: only see researcher's findings
+Grep pattern="[RESEARCH]" path=".plans/project/researcher/findings.md"
+
+# Correct: only see recent progress (last 30 lines)
+Read file=progress.md offset=<end> limit=30
+
+# Wrong: Read the entire findings.md (could be 300+ lines, mostly irrelevant to you)
+```
+
+**Modifying (checking off tasks)**: task_plan.md is usually short, Read + Edit is fine.
+
+### 2-Action Rule (Research/Investigation Scenarios)
+
+When **specifically doing search, research, or troubleshooting**, after every 2 search/read operations, you must immediately update findings.md.
+Multi-step search results are highly prone to falling out of context; writing it down is the only way to truly retain it.
+
+> **Note for developer roles**: Reading code files during coding (understanding context, checking type definitions, reviewing existing implementations) is NOT subject to this rule.
+> Developer roles have their own documentation rhythm — see role-specific guidance.
 
 ### Read Plan Before Major Decisions
 
@@ -52,6 +95,17 @@ The main plan is at `.plans/<project>/task_plan.md` (read-only for you; maintain
 - Report progress/ask questions: SendMessage(to: "team-lead", message: "...")
 - Request code review: SendMessage(to: "reviewer", message: "...") — go directly to reviewer, do not route through team-lead
 - Documentation rule: code is the source of truth, documentation follows code; do not silently change designs
+
+### Task Handoff Protocol
+
+**Large tasks/features** (passing work results between roles):
+1. First write handoff documentation: record conclusions, approach, key file paths and line numbers in findings.md
+2. Then SendMessage to the receiver, including: handoff summary + document location
+   Example: SendMessage(to: "backend-dev", message: "Research complete. API approach in findings.md §3-§5, recommend Approach A, rationale in §4")
+
+**Small tasks/minor changes**:
+Just SendMessage with the change description directly, no extra handoff documentation needed.
+   Example: SendMessage(to: "reviewer", message: "Fixed XSS in login, change in src/auth/login.ts:42")
 
 ## Error Handling Protocol (3-Strike)
 
@@ -129,19 +183,33 @@ Append after the common template:
 ### Boundary Cases to Test
 null/undefined, empty values, invalid types, boundary values, error paths, concurrency, large data, special characters
 
-### Large Task Documentation Structure
-For large features/new features, create an independent task folder in your directory:
+### Task Folder Structure
+For each assigned feature/task, create a dedicated task folder in your directory:
 ```
 .plans/<project>/<your-name>/task-<feature-name>/
   task_plan.md    -- detailed steps for this task
   findings.md     -- findings for this task
   progress.md     -- progress for this task
 ```
-When recovering context, if you are working on a specific large task, only read the three files in that task folder —
+Your root findings.md is an INDEX — add a link for each task:
+```
+## task-<feature-name>
+- Status: in_progress | complete
+- Report: [findings.md](task-<feature-name>/findings.md)
+- Summary: <one-line description>
+```
+Quick bug fixes or config changes can go directly in the root files without a task folder.
+When recovering context, if you are working on a specific task, only read the three files in that task folder —
 you do not need to read all task folders.
 
+### Documentation Rhythm (Overrides Common 2-Action Rule)
+- **Reading code during coding** (understanding context, checking type definitions, reviewing implementations) → no need to stop and write findings
+- **Discovering unexpected issues** (bugs, compatibility problems, design conflicts) → immediately write to findings.md
+- **Making decisions that deviate from the plan** → immediately write to findings.md + notify team-lead
+- **Completing a feature/step** → update task_plan.md (check off) + progress.md (log)
+
 ### Code Review Rules
-- After completing a large project/feature/new module → must SendMessage(to: "reviewer") to request review
+- After completing a large feature/new module → first record a change summary in findings.md (files involved, design decisions, known risks), then SendMessage(to: "reviewer") to request review and specify the document location
 - Small changes, bug fixes, config changes → no review needed, continue directly
 - After fixing review issues, mark [REVIEW-FIX] in findings.md
 
@@ -165,18 +233,43 @@ Append after the common template:
 - Source analysis: trace call chains, read third-party library implementations
 
 ### Constraints
-- **Read-only — no code edits** — never use Write/Edit to modify project files
+- **Read-only — no code edits** — never use Write/Edit to modify project files (except .plans/ files)
 - Research and documentation only
+
+### Task Folder Structure
+
+For each research assignment, create a dedicated folder:
+```
+.plans/<project>/researcher/research-<topic>/
+  task_plan.md    -- research questions, approach, scope
+  findings.md     -- THE research report (main deliverable)
+  progress.md     -- search log (what was searched, what was found)
+```
+
+Your root findings.md is an INDEX — add a link for each research topic:
+```
+## research-<topic>
+- Status: in_progress | complete
+- Report: [findings.md](research-<topic>/findings.md)
+- Summary: <one-line summary of conclusions>
+```
+
+This way, anyone looking for your research on a specific topic can find it instantly.
 
 ### Output Requirements
 - Cite exact file paths and line numbers for all findings
 - Tags: [RESEARCH] research findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
 - If a finding contradicts the main plan, clearly annotate it and notify team-lead
+- When research is complete, update the root index entry with status: complete and a final summary
 
 ### Search Strategy
 - Broad to narrow: Glob to find files first, then Grep for keywords, then Read for deep reading
 - Multiple rounds: if the first round finds nothing, try different keywords/paths
-- Log the search path: record in findings.md which keywords/paths were searched, to avoid redundant searches
+- Log the search path: record in the task's progress.md which keywords/paths were searched, to avoid redundant searches
+
+### 2-Action Rule Applies to Task findings.md
+Write to the TASK FOLDER's findings.md (not the root index) when applying the 2-Action Rule.
+The root findings.md is only for index entries.
 ```
 
 ### e2e-tester (E2E Tester)
@@ -186,10 +279,29 @@ Append after the common template:
 ```
 ## Testing Guide
 
+### Task Folder Structure
+
+For each test scope/round, create a dedicated folder:
+```
+.plans/<project>/e2e-tester/test-<scope>/
+  task_plan.md    -- test cases planned for this scope
+  findings.md     -- test results, bugs, pass/fail summary
+  progress.md     -- execution log
+```
+
+Your root findings.md is an INDEX — add a link for each test scope:
+```
+## test-<scope>
+- Status: in_progress | complete
+- Report: [findings.md](test-<scope>/findings.md)
+- Pass rate: X/Y (Z%)
+- Summary: <key results>
+```
+
 ### Testing Strategy (from e2e-runner methodology)
 1. **Plan critical flows**: authentication, core business flows, error paths, edge cases
 2. **Write tests**: use the Page Object Model pattern
-3. **Execute and monitor**: run tests, record results
+3. **Execute and monitor**: run tests, record results to the task folder's findings.md
 
 ### Playwright Testing Standards
 - Selector priority: getByRole > getByTestId > getByLabel > getByText
@@ -201,7 +313,7 @@ Append after the common template:
 
 ### Manual Browser Testing Also Supported
 - Interactive testing via chrome-devtools MCP or playwright MCP
-- Save screenshots of test results, log key steps to progress.md
+- Save screenshots of test results, log key steps to task progress.md
 
 ### Quality Standards
 - Critical paths 100% passing
@@ -222,14 +334,45 @@ Append after the common template:
 
 ### Core Principles
 - **Read source code only** — review code, output issue lists, never edit project source files
-- **May write to .plans/ files** — write review results to the requesting dev's findings.md, update own progress.md
+- **May write to .plans/ files** — write review results to own review folder + cross-reference in dev's findings
 - Called directly by dev agents (does not go through team-lead)
+
+### Task Folder Structure
+
+For each review, create a dedicated folder:
+```
+.plans/<project>/reviewer/review-<target>/
+  findings.md     -- full review report (issue list, severity, fix recommendations)
+  progress.md     -- review notes and process log
+```
+
+Your root findings.md is an INDEX — add a link for each review:
+```
+## review-<target>
+- Status: in_progress | complete
+- Report: [findings.md](review-<target>/findings.md)
+- Verdict: [OK] | [WARN] | [BLOCK]
+- Summary: <key issues found>
+```
+
+### Cross-Reference to Dev's Findings
+After writing the full review to your own folder, append a brief summary + link to the requesting dev's task findings.md:
+```
+## [CODE-REVIEW] <date> — review-<target>
+- Reviewer: reviewer
+- Verdict: [OK] | [WARN] | [BLOCK]
+- Full report: [reviewer/review-<target>/findings.md](../../reviewer/review-<target>/findings.md)
+- Key issues: <1-2 line summary>
+```
+This keeps the dev's findings.md clean while providing a direct link to the full review.
 
 ### Review Workflow
 1. Receive review request → run `git diff` to see changes
 2. Focus on the changed files
 3. Review against the checklist below item by item
 4. Output issues graded CRITICAL > HIGH > MEDIUM > LOW
+5. Write full report to own review folder
+6. Append cross-reference to dev's findings.md
 
 ### Security Checks (CRITICAL level, from code-reviewer methodology)
 - Hardcoded secrets (API keys, passwords, tokens)
@@ -256,7 +399,7 @@ Append after the common template:
 - Oversized bundles
 
 ### Output Format
-Each issue:
+Each issue in review findings.md:
 ```
 [CRITICAL] Hardcoded API key
 File: src/api/client.ts:42
@@ -273,9 +416,10 @@ const apiKey = process.env.API_KEY;  // Good
 - [BLOCK] Blocked: has CRITICAL or HIGH issues
 
 ### Output Destination
-- Write results to the requesting dev's findings.md, tagged [CODE-REVIEW] + date
-- Send summary to team-lead
-- Send results back to the requesting dev
+- Full report → own `review-<target>/findings.md`
+- Cross-reference summary → requesting dev's task `findings.md`
+- Summary message → team-lead via SendMessage
+- Results notification → requesting dev via SendMessage
 ```
 
 ### cleaner (Code Cleaner)

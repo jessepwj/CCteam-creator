@@ -133,18 +133,31 @@ CCteam-creator 会：
 ```
 .plans/<project>/
   task_plan.md          -- 主计划（阶段、架构、任务分配）
-  findings.md           -- 团队级发现和审查结果
+  findings.md           -- 团队级摘要
   progress.md           -- 工作日志
 
   backend-dev/          -- 每个智能体的工作区
-    task_plan.md
-    findings.md
-    progress.md
-    task-auth/          -- 大功能有独立子目录
-      task_plan.md
-      findings.md
-      progress.md
+    findings.md         -- 索引，链接到各任务的具体发现
+    task-auth/          -- 每个分配的任务有独立文件夹
+      task_plan.md / findings.md / progress.md
+
+  researcher/
+    findings.md         -- 索引，链接到各调研报告
+    research-tech-stack/ -- 每个调研课题
+      findings.md       -- 调研报告（主要交付物）
+
+  e2e-tester/
+    findings.md         -- 索引，链接到各轮测试结果
+    test-auth-flow/     -- 每个测试范围
+      findings.md       -- 测试结果和 Bug
+
+  reviewer/
+    findings.md         -- 索引，链接到各次审查
+    review-auth-module/ -- 每次代码审查
+      findings.md       -- 完整审查报告
 ```
+
+所有角色都使用任务文件夹 — 根 `findings.md` 作为整洁的索引，而非所有内容的堆砌。
 
 ### 智能体协议
 

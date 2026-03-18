@@ -159,15 +159,27 @@ Tag Reference:
 
 ---
 
-## Large Task Folder Templates (backend-dev / frontend-dev Only)
+## Task Folder Templates
 
-When a frontend or backend dev agent receives a large feature or new module, create the following in their directory:
+All roles use task folders when assigned distinct tasks. The folder prefix varies by role:
+
+| Role | Prefix | Example |
+|------|--------|---------|
+| backend-dev / frontend-dev | `task-` | `task-auth/`, `task-payments/` |
+| researcher | `research-` | `research-tech-stack/`, `research-auth-options/` |
+| e2e-tester | `test-` | `test-auth-flow/`, `test-checkout/` |
+| reviewer | `review-` | `review-auth-module/`, `review-payments/` |
+| cleaner | (uses root files) | — |
+
+---
+
+### Dev Task Folder (backend-dev / frontend-dev)
 
 ```
 .plans/<project>/<agent-name>/task-<feature-name>/
 ```
 
-### Task Folder task_plan.md
+#### task_plan.md
 
 ```markdown
 # <Feature Name> - Task Plan
@@ -187,7 +199,7 @@ When a frontend or backend dev agent receives a large feature or new module, cre
 - [ ] 3. <step description>
 - [ ] 4. Write tests (TDD)
 - [ ] 5. Verify coverage >= 80%
-- [ ] 6. Request reviewer review (required for large features)
+- [ ] 6. Request reviewer review (required for features)
 
 ## Files Involved
 
@@ -196,11 +208,11 @@ When a frontend or backend dev agent receives a large feature or new module, cre
 
 ## Dependencies
 
-- Depends on T1 research conclusions (see researcher findings.md)
+- Depends on T1 research conclusions (see researcher/research-<topic>/findings.md)
 - Depends on xxx API design (see main task_plan.md §6)
 ```
 
-### Task Folder findings.md
+#### findings.md
 
 ```markdown
 # <Feature Name> - Findings Log
@@ -212,7 +224,7 @@ When a frontend or backend dev agent receives a large feature or new module, cre
 <Empty initially>
 ```
 
-### Task Folder progress.md
+#### progress.md
 
 ```markdown
 # <Feature Name> - Work Journal
@@ -222,4 +234,254 @@ When a frontend or backend dev agent receives a large feature or new module, cre
 ---
 
 <Empty initially>
+```
+
+---
+
+### Research Folder (researcher)
+
+```
+.plans/<project>/researcher/research-<topic>/
+```
+
+#### task_plan.md
+
+```markdown
+# Research: <Topic> - Plan
+
+> Agent: researcher
+> Status: in_progress
+> Created: <date>
+
+## Research Questions
+
+1. <What needs to be answered?>
+2. <What are the alternatives?>
+3. <What are the trade-offs?>
+
+## Approach
+
+- [ ] 1. <search/read strategy>
+- [ ] 2. <web research targets>
+- [ ] 3. <source code analysis scope>
+- [ ] 4. Compile conclusions into findings.md
+- [ ] 5. Update root index
+
+## Scope
+
+<What is in scope / out of scope for this research>
+```
+
+#### findings.md (Main Deliverable)
+
+```markdown
+# Research: <Topic> - Report
+
+> This is the main research deliverable. Others read this to get conclusions.
+> Agent: researcher
+> Status: in_progress
+> Created: <date>
+
+---
+
+## Summary
+
+<Executive summary — fill in when research is complete>
+
+## Detailed Findings
+
+<Add findings as research progresses, using 2-Action Rule>
+
+### [RESEARCH] <date> — <finding title>
+
+<content with exact file paths, line numbers, and evidence>
+
+---
+
+## Conclusions & Recommendations
+
+<Fill in when research is complete>
+```
+
+#### progress.md
+
+```markdown
+# Research: <Topic> - Search Log
+
+> Records what was searched and found. For context recovery and avoiding redundant searches.
+
+---
+
+<Empty initially>
+```
+
+---
+
+### Test Folder (e2e-tester)
+
+```
+.plans/<project>/e2e-tester/test-<scope>/
+```
+
+#### task_plan.md
+
+```markdown
+# Test: <Scope> - Plan
+
+> Agent: e2e-tester
+> Status: in_progress
+> Created: <date>
+
+## Test Scope
+
+<What user flows / features are being tested>
+
+## Test Cases
+
+- [ ] TC1: <description> — Priority: CRITICAL
+- [ ] TC2: <description> — Priority: HIGH
+- [ ] TC3: <description> — Priority: MEDIUM
+
+## Prerequisites
+
+- <What must be deployed/running before tests can execute>
+```
+
+#### findings.md
+
+```markdown
+# Test: <Scope> - Results
+
+> Test results and bug reports for this scope.
+> Agent: e2e-tester
+> Status: in_progress
+
+---
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Total tests | — |
+| Passed | — |
+| Failed | — |
+| Pass rate | — |
+
+## Results
+
+<Add test results as tests are executed>
+
+### [E2E-TEST] <date> — <test name>
+
+- Status: PASS | FAIL
+- Duration: <time>
+- Details: <notes>
+
+### [BUG] <date> — <bug title>
+
+- File: <path:line>
+- Severity: CRITICAL | HIGH | MEDIUM | LOW
+- Root cause: <analysis>
+- Fix recommendation: <suggestion>
+```
+
+#### progress.md
+
+```markdown
+# Test: <Scope> - Execution Log
+
+> For context recovery.
+
+---
+
+<Empty initially>
+```
+
+---
+
+### Review Folder (reviewer)
+
+```
+.plans/<project>/reviewer/review-<target>/
+```
+
+#### findings.md
+
+```markdown
+# Review: <Target> - Report
+
+> Code review results.
+> Agent: reviewer
+> Requested by: <dev-agent-name>
+> Status: in_progress
+> Created: <date>
+
+---
+
+## Verdict: [OK] | [WARN] | [BLOCK]
+
+## Issues
+
+<Add issues found during review>
+
+### [CRITICAL] <title>
+
+- File: <path:line>
+- Issue: <description>
+- Fix: <recommendation with code example>
+
+### [HIGH] <title>
+
+- File: <path:line>
+- Issue: <description>
+- Fix: <recommendation>
+
+## Summary
+
+- CRITICAL: 0
+- HIGH: 0
+- MEDIUM: 0
+- LOW: 0
+```
+
+#### progress.md
+
+```markdown
+# Review: <Target> - Notes
+
+> Review process notes.
+
+---
+
+<Empty initially>
+```
+
+---
+
+### Root findings.md as Index (All Roles)
+
+Every agent's root findings.md should serve as an index. Example:
+
+```markdown
+# <Agent Name> - Findings Index
+
+> Links to task-specific findings. Quick one-off notes also go here.
+
+---
+
+## task-auth
+- Status: complete
+- Report: [findings.md](task-auth/findings.md)
+- Summary: Auth module implemented with JWT + refresh tokens
+
+## task-payments
+- Status: in_progress
+- Report: [findings.md](task-payments/findings.md)
+- Summary: Payment integration with Stripe
+
+---
+
+## Quick Notes
+
+<One-off observations that don't belong to any specific task>
 ```
