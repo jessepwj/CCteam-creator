@@ -21,7 +21,7 @@ CCteam-creator 帮助你在 Claude Code 中搭建和管理并行 AI 智能体团
 
 ## 它做什么
 
-当你调用 `/team-project-setup` 时，CCteam-creator 会：
+当你调用 `/CCteam-creator` 时，CCteam-creator 会：
 
 1. **先跟你沟通** — 解释智能体团队的运作方式，了解你的项目需求，推荐团队配置
 2. **搭建团队** — 创建规划文件、工作目录，并为每个智能体生成入职指令
@@ -58,7 +58,7 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 /plugin install https://github.com/jessepwj/CCteam-creator
 ```
 
-这会将 CCteam-creator 作为 Claude Code 插件安装。默认使用**英文版** skill（`team-project-setup`）。中文版（`team-project-setup-cn`）也包含在插件中。
+这会将 CCteam-creator 作为 Claude Code 插件安装。默认使用**英文版** skill（`CCteam-creator`）。中文版（`CCteam-creator-cn`）也包含在插件中。
 
 如果你只想用中文版，安装插件后可以删除英文 skill 目录并重命名中文版。
 
@@ -66,17 +66,17 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/team-project-setup ~/.claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 ```
 
 ### 方式 3：手动复制 — 中文版
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/team-project-setup-cn ~/.claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator
 ```
 
-> **注意**：两个版本都复制到相同的目标目录（`~/.claude/skills/team-project-setup`）。这确保同一时间只有一个版本处于激活状态。
+> **注意**：两个版本都复制到相同的目标目录（`~/.claude/skills/CCteam-creator`）。这确保同一时间只有一个版本处于激活状态。
 
 ### 方式 4：项目级安装
 
@@ -84,10 +84,10 @@ cp -r CCteam-creator/skills/team-project-setup-cn ~/.claude/skills/team-project-
 
 ```bash
 # 英文版（默认）
-cp -r CCteam-creator/skills/team-project-setup .claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 
 # 或中文版
-cp -r CCteam-creator/skills/team-project-setup-cn .claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator-cn .claude/skills/CCteam-creator
 ```
 
 ## 使用方法
@@ -96,7 +96,7 @@ cp -r CCteam-creator/skills/team-project-setup-cn .claude/skills/team-project-se
 
 ```
 > 帮我为电商项目搭建一个团队
-> /team-project-setup
+> /CCteam-creator
 > 我想做一个 REST API，能创建一个团队吗？
 ```
 
@@ -176,13 +176,13 @@ CCteam-creator/
   .claude-plugin/
     plugin.json                       -- 插件元数据
   skills/
-    team-project-setup/               -- 英文版（默认）
+    CCteam-creator/                   -- 英文版（默认）
       SKILL.md
       references/
         roles.md
         onboarding.md
         templates.md
-    team-project-setup-cn/            -- 中文版
+    CCteam-creator-cn/                -- 中文版
       SKILL.md
       references/
         roles.md

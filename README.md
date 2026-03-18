@@ -21,7 +21,7 @@ CCteam-creator helps you set up and manage parallel AI agent teams in Claude Cod
 
 ## What It Does
 
-When you invoke `/team-project-setup`, CCteam-creator:
+When you invoke `/CCteam-creator`, CCteam-creator:
 
 1. **Consults with you first** — explains how agent teams work, understands your project needs, and recommends a team configuration
 2. **Sets up the team** — creates planning files, work directories, and spawns agents with proper onboarding
@@ -58,7 +58,7 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 /plugin install https://github.com/jessepwj/CCteam-creator
 ```
 
-This installs CCteam-creator as a Claude Code plugin. The default skill is in **English** (`team-project-setup`). A Chinese version (`team-project-setup-cn`) is also included in the plugin — Claude will use the English one by default.
+This installs CCteam-creator as a Claude Code plugin. The default skill is in **English** (`CCteam-creator`). A Chinese version (`CCteam-creator-cn`) is also included in the plugin — Claude will use the English one by default.
 
 If you prefer Chinese only, after installing the plugin, you can remove the English skill directory and rename the Chinese one.
 
@@ -66,17 +66,17 @@ If you prefer Chinese only, after installing the plugin, you can remove the Engl
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/team-project-setup ~/.claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 ```
 
 ### Option 3: Manual Copy — Chinese
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/team-project-setup-cn ~/.claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator
 ```
 
-> **Note**: Both versions copy into the same target directory (`~/.claude/skills/team-project-setup`). This ensures only one version is active at a time.
+> **Note**: Both versions copy into the same target directory (`~/.claude/skills/CCteam-creator`). This ensures only one version is active at a time.
 
 ### Option 4: Project-level Install
 
@@ -84,10 +84,10 @@ Share the skill with your team by placing it in your project:
 
 ```bash
 # English (default)
-cp -r CCteam-creator/skills/team-project-setup .claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 
 # Or Chinese
-cp -r CCteam-creator/skills/team-project-setup-cn .claude/skills/team-project-setup
+cp -r CCteam-creator/skills/CCteam-creator-cn .claude/skills/CCteam-creator
 ```
 
 ## Usage
@@ -96,7 +96,7 @@ Simply tell Claude Code that you want to set up a team:
 
 ```
 > Set up a team for my e-commerce project
-> /team-project-setup
+> /CCteam-creator
 > I want to build a REST API, can you create a team?
 ```
 
@@ -176,13 +176,13 @@ CCteam-creator/
   .claude-plugin/
     plugin.json                       -- Plugin metadata
   skills/
-    team-project-setup/               -- English version (default)
+    CCteam-creator/                   -- English version (default)
       SKILL.md
       references/
         roles.md
         onboarding.md
         templates.md
-    team-project-setup-cn/            -- Chinese version
+    CCteam-creator-cn/                -- Chinese version
       SKILL.md
       references/
         roles.md
