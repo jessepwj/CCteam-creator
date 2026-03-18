@@ -181,6 +181,32 @@ Example structure with multiple roles:
 
 Quick one-off notes (bug fixes, config changes) can go directly in root files without a task folder.
 
+## Step 3.5: Generate Project CLAUDE.md
+
+CLAUDE.md in the project working directory is **always loaded into the main session's context** by Claude Code. This is the mechanism that keeps team-lead operational knowledge persistent across context compressions.
+
+### What to Generate
+
+Create (or append to) a `CLAUDE.md` file in the **project working directory** (not inside `.plans/`).
+
+See [references/templates.md](references/templates.md) for the CLAUDE.md template. The template must be **dynamically filled** based on the actual roles chosen in Step 2:
+- Only list the roles that were confirmed
+- Fill in the project name and directory paths
+- Include custom roles if any were defined
+
+### If CLAUDE.md Already Exists
+
+If the project directory already has a CLAUDE.md, **append** the team operations section at the end (with a clear separator), do not overwrite the existing content.
+
+### Why This Matters
+
+Without this file, after context compression the team-lead loses all knowledge of:
+- Which agents exist and their names
+- How to dispatch tasks and check status
+- Core protocols (3-Strike handling, code review triggers, phase advancement)
+
+The CLAUDE.md solves this by keeping a concise operations guide permanently in context.
+
 ## Step 4: Create Memory Files
 
 In the project memory directory:

@@ -1,5 +1,106 @@
 # 规划文件模板
 
+## 项目 CLAUDE.md（团队运营手册）
+
+此文件生成在**项目工作目录**下（不是 `.plans/` 里面）。Claude Code 会始终将其加载到主会话上下文中，确保 team-lead 在上下文压缩后不会丢失团队运营知识。
+
+**动态生成**：只包含第 2 步确认的角色。下面的示例展示了全部角色，实际使用时删掉未选的行。
+
+```markdown
+# <项目名> - 团队运营手册
+
+> 由 team-project-setup 自动生成，可按需修改。
+> 此文件让 team-lead 的团队知识在上下文压缩后仍然保持。
+
+## 团队花名册
+
+| 名称 | 角色 | 模型 | 核心能力 |
+|------|------|------|---------|
+| backend-dev | 后端开发 | opus | 服务端代码 + TDD |
+| frontend-dev | 前端开发 | opus | 客户端代码 + TDD |
+| researcher | 探索/研究 | sonnet | 代码搜索 + 网页调研（只读） |
+| e2e-tester | 联调测试 | sonnet | Playwright 测试 + 浏览器自动化 |
+| reviewer | 代码审查 | opus | 安全/质量/性能审查（只读） |
+| cleaner | 代码清理 | sonnet | 死代码清理 + 重构 |
+
+## 任务下发协议
+
+### 大任务（功能开发、新模块）-- 重要！
+
+给任何智能体下发大任务时，消息中**必须包含**：
+1. **范围和目标**：要做什么、验收标准
+2. **文档提醒**："请创建 `<前缀>-<任务名>/` 任务文件夹（含 task_plan.md + findings.md + progress.md），并在你的根 findings.md 中添加索引条目"
+3. **依赖说明**：依赖哪些调研/任务的结论，关键文件路径和行号
+4. **审查预期**：完成后是否需要代码审查
+
+示例：
+```
+SendMessage(to: "backend-dev", message:
+  "新任务：实现认证模块。
+   范围：JWT 登录 + refresh token + 认证中间件。
+   依赖：researcher 的调研结论在 .plans/<project>/researcher/research-auth/findings.md
+   请创建 task-auth/ 文件夹，并更新你的根 findings.md 索引。
+   这是大功能——完成后请找 reviewer 审查。")
+```
+
+各角色的任务文件夹前缀：
+- backend-dev / frontend-dev：`task-<名称>/`
+- researcher：`research-<主题>/`
+- e2e-tester：`test-<范围>/`
+- reviewer：`review-<目标>/`
+
+### 小任务（Bug 修复、配置变更）
+
+直接发消息说明改动即可，不需要任务文件夹，也不需要审查。
+```
+SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见 src/auth/login.tsx:42")
+```
+
+## 通信速查
+
+| 操作 | 命令 |
+|------|------|
+| 给单个智能体分配任务 | `SendMessage(to: "<名称>", message: "...")` |
+| 广播给所有人（慎用） | `SendMessage(to: "*", message: "...")` |
+| dev 请求代码审查 | dev 直接联系 reviewer（不经过 team-lead） |
+
+## 状态检查
+
+| 要检查什么 | 怎么做 |
+|-----------|--------|
+| 快速扫描 | 并行读取各 agent 的 `progress.md` |
+| 深入了解 | 读 agent 的 `findings.md`（索引）→ 再看具体任务文件夹 |
+| 方向检查 | 读 `.plans/<project>/task_plan.md` |
+
+读取顺序：**progress**（到哪了）→ **findings**（遇到什么）→ **task_plan**（目标是什么）
+
+## 核心协议
+
+| 协议 | 触发时机 | 操作 |
+|------|---------|------|
+| 3-Strike 上报 | 智能体报告 3 次失败 | 读其 progress.md，给新方向或重新分配 |
+| 代码审查 | 大功能/新模块完成 | dev 在 findings.md 写改动摘要，发给 reviewer |
+| 阶段推进 | 阶段完成 | 调研完：读 findings 更新主计划。开发完：等 reviewer [OK]/[WARN] |
+| 上下文溢出 | 智能体报告上下文过长 | 进度已存文件，恢复或生成后继者 |
+
+## 文件结构
+
+```
+.plans/<project>/
+  task_plan.md          -- 主计划（team-lead 维护）
+  findings.md           -- 团队级发现
+  progress.md           -- 工作日志
+  <agent-name>/         -- 各智能体目录
+    task_plan.md        -- 智能体任务清单
+    findings.md         -- 索引：链接到各任务文件夹
+    progress.md         -- 智能体工作日志
+    <前缀>-<任务>/      -- 任务文件夹（每个分配的任务一个）
+      task_plan.md / findings.md / progress.md
+```
+```
+
+---
+
 ## 主 task_plan.md
 
 ```markdown
