@@ -1,6 +1,6 @@
 # CCteam-creator
 
-> Multi-agent team orchestration skill for [Claude Code](https://code.claude.com/).
+> Multi-agent team orchestration plugin for [Claude Code](https://code.claude.com/).
 
 [English](./README.md) | [中文](./README_CN.md)
 
@@ -21,7 +21,7 @@ CCteam-creator helps you set up and manage parallel AI agent teams in Claude Cod
 
 ## What It Does
 
-When you invoke `/CCteam-creator`, CCteam-creator:
+When you invoke `/CCteam-creator:setup`, CCteam-creator:
 
 1. **Consults with you first** — explains how agent teams work, understands your project needs, and recommends a team configuration
 2. **Sets up the team** — creates planning files, work directories, and spawns agents with proper onboarding
@@ -49,34 +49,34 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 ## Installation
 
-> **Important**: Install either the English version OR the Chinese version — not both. They are the same skill in different languages. Installing both will cause conflicts.
+> **Important**: Install either the English version OR the Chinese version — not both. They are the same plugin in different languages. Installing both will cause conflicts.
 
-### Option 1: Plugin Install (Recommended)
+### Option 1: Marketplace Install (Recommended)
 
 ```bash
-# In Claude Code, run:
-/plugin install https://github.com/jessepwj/CCteam-creator
+# Step 1: Add the marketplace (run in Claude Code)
+/plugin marketplace add jessepwj/CCteam-creator
+
+# Step 2: Install the plugin — choose ONE language
+/plugin install CCteam-creator@ccteam        # English
+/plugin install CCteam-creator-cn@ccteam     # Chinese
 ```
-
-This installs CCteam-creator as a Claude Code plugin. The default skill is in **English** (`CCteam-creator`). A Chinese version (`CCteam-creator-cn`) is also included in the plugin — Claude will use the English one by default.
-
-If you prefer Chinese only, after installing the plugin, you can remove the English skill directory and rename the Chinese one.
 
 ### Option 2: Manual Copy — English (Default)
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator/skills/setup ~/.claude/skills/CCteam-creator
 ```
 
 ### Option 3: Manual Copy — Chinese
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup ~/.claude/skills/CCteam-creator
 ```
 
-> **Note**: Both versions copy into the same target directory (`~/.claude/skills/CCteam-creator`). This ensures only one version is active at a time.
+> **Note**: Both manual options copy into the same target directory (`~/.claude/skills/CCteam-creator`). This ensures only one version is active at a time.
 
 ### Option 4: Project-level Install
 
@@ -84,10 +84,10 @@ Share the skill with your team by placing it in your project:
 
 ```bash
 # English (default)
-cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator/skills/setup .claude/skills/CCteam-creator
 
 # Or Chinese
-cp -r CCteam-creator/skills/CCteam-creator-cn .claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCteam-creator
 ```
 
 ## Usage
@@ -96,9 +96,11 @@ Simply tell Claude Code that you want to set up a team:
 
 ```
 > Set up a team for my e-commerce project
-> /CCteam-creator
+> /CCteam-creator:setup
 > I want to build a REST API, can you create a team?
 ```
+
+> **Note**: If installed manually (Options 2-4), the command is `/CCteam-creator` instead of `/CCteam-creator:setup`.
 
 CCteam-creator will:
 1. Explain how the agent team works
@@ -162,7 +164,7 @@ Every role uses task folders — the root `findings.md` serves as a clean index,
 ### Agent Protocols
 
 Every agent follows built-in protocols:
-- **2-Action Rule**: Write findings after every 2 search/read operations
+- **2-Action Rule**: Write findings after every 2 search/read operations (dev roles exempt during coding)
 - **3-Strike Protocol**: Escalate to team lead after 3 failures on the same issue
 - **Context Recovery**: On context compression, agents re-read their 3 planning files before continuing
 - **Periodic Self-Check**: Every ~10 tool calls, agents verify alignment with their task plan
@@ -171,6 +173,7 @@ Every agent follows built-in protocols:
 
 - Agents report progress to the team lead (you)
 - Developers request code review directly from the reviewer
+- Large task handoffs include documentation (findings.md location + summary)
 - The reviewer writes results to the developer's findings.md
 - All communication is transparent and tracked
 
@@ -187,20 +190,28 @@ You can customize:
 ```
 CCteam-creator/
   .claude-plugin/
-    plugin.json                       -- Plugin metadata
-  skills/
-    CCteam-creator/                   -- English version (default)
-      SKILL.md
-      references/
-        roles.md
-        onboarding.md
-        templates.md
-    CCteam-creator-cn/                -- Chinese version
-      SKILL.md
-      references/
-        roles.md
-        onboarding.md
-        templates.md
+    marketplace.json                  -- Marketplace catalog
+  plugins/
+    CCteam-creator/                   -- English plugin
+      .claude-plugin/
+        plugin.json                   -- Plugin manifest
+      skills/
+        setup/                        -- The skill
+          SKILL.md
+          references/
+            roles.md
+            onboarding.md
+            templates.md
+    CCteam-creator-cn/                -- Chinese plugin
+      .claude-plugin/
+        plugin.json                   -- Plugin manifest
+      skills/
+        setup/                        -- The skill
+          SKILL.md
+          references/
+            roles.md
+            onboarding.md
+            templates.md
   README.md                           -- English documentation
   README_CN.md                        -- Chinese documentation
   LICENSE                             -- MIT License

@@ -1,6 +1,6 @@
 # CCteam-creator
 
-> 面向 [Claude Code](https://code.claude.com/) 的多智能体团队编排技能。
+> 面向 [Claude Code](https://code.claude.com/) 的多智能体团队编排插件。
 
 [English](./README.md) | [中文](./README_CN.md)
 
@@ -21,7 +21,7 @@ CCteam-creator 帮助你在 Claude Code 中搭建和管理并行 AI 智能体团
 
 ## 它做什么
 
-当你调用 `/CCteam-creator` 时，CCteam-creator 会：
+当你调用 `/CCteam-creator-cn:setup` 时，CCteam-creator 会：
 
 1. **先跟你沟通** — 解释智能体团队的运作方式，了解你的项目需求，推荐团队配置
 2. **搭建团队** — 创建规划文件、工作目录，并为每个智能体生成入职指令
@@ -51,29 +51,29 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 > **重要提示**：英文版和中文版只需安装其中一个，不要同时安装两个。两者功能完全相同，只是语言不同。同时安装会导致冲突。
 
-### 方式 1：插件安装（推荐）
+### 方式 1：市场安装（推荐）
 
 ```bash
-# 在 Claude Code 中执行：
-/plugin install https://github.com/jessepwj/CCteam-creator
+# 第 1 步：添加市场（在 Claude Code 中执行）
+/plugin marketplace add jessepwj/CCteam-creator
+
+# 第 2 步：安装插件 — 选择一个语言版本
+/plugin install CCteam-creator@ccteam        # 英文版
+/plugin install CCteam-creator-cn@ccteam     # 中文版
 ```
-
-这会将 CCteam-creator 作为 Claude Code 插件安装。默认使用**英文版** skill（`CCteam-creator`）。中文版（`CCteam-creator-cn`）也包含在插件中。
-
-如果你只想用中文版，安装插件后可以删除英文 skill 目录并重命名中文版。
 
 ### 方式 2：手动复制 — 英文版（默认）
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator/skills/setup ~/.claude/skills/CCteam-creator
 ```
 
 ### 方式 3：手动复制 — 中文版
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
-cp -r CCteam-creator/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup ~/.claude/skills/CCteam-creator
 ```
 
 > **注意**：两个版本都复制到相同的目标目录（`~/.claude/skills/CCteam-creator`）。这确保同一时间只有一个版本处于激活状态。
@@ -84,10 +84,10 @@ cp -r CCteam-creator/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator
 
 ```bash
 # 英文版（默认）
-cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator/skills/setup .claude/skills/CCteam-creator
 
 # 或中文版
-cp -r CCteam-creator/skills/CCteam-creator-cn .claude/skills/CCteam-creator
+cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCteam-creator
 ```
 
 ## 使用方法
@@ -96,9 +96,11 @@ cp -r CCteam-creator/skills/CCteam-creator-cn .claude/skills/CCteam-creator
 
 ```
 > 帮我为电商项目搭建一个团队
-> /CCteam-creator
+> /CCteam-creator-cn:setup
 > 我想做一个 REST API，能创建一个团队吗？
 ```
+
+> **注意**：如果通过手动复制安装（方式 2-4），命令为 `/CCteam-creator`，而非 `/CCteam-creator-cn:setup`。
 
 CCteam-creator 会：
 1. 解释智能体团队的工作方式
@@ -122,7 +124,7 @@ CCteam-creator 会：
 | 代码审查 | `reviewer` | opus | 安全/质量/性能深度审查（只读源码） |
 | 代码清理 | `cleaner` | sonnet | 死代码清理 + 安全重构 |
 
-不是每个项目都需要全部角色。CCteam-creator 会根据你的需求推荐合适的组合。
+不是每个项目都需要全部角色。CCteam-creator 会根据你的需求推荐合适的��合。
 
 ## 工作原理
 
@@ -162,7 +164,7 @@ CCteam-creator 会：
 ### 智能体协议
 
 每个智能体遵循内置协议：
-- **2-Action Rule**：每 2 次搜索/读取操作后，必须更新 findings.md
+- **2-Action Rule**：每 2 次搜索/读取操作后，必须更新 findings.md（开发角色编码中读代码豁免）
 - **3-Strike 协议**：同一问题失败 3 次后，上报 team-lead
 - **上下文恢复**：压缩后，智能体先重读自己的 3 个规划文件再继续工作
 - **定期自检**：约每 10 次工具调用，智能体验证是否偏离任务计划
@@ -171,6 +173,7 @@ CCteam-creator 会：
 
 - 智能体向 team-lead（你）汇报进度
 - 开发者直接找 reviewer 请求代码审查
+- 大任务交接时包含文档（findings.md 位置 + 摘要）
 - reviewer 将审查结果写入开发者的 findings.md
 - 所有沟通透明且有记录
 
@@ -187,20 +190,28 @@ CCteam-creator 会：
 ```
 CCteam-creator/
   .claude-plugin/
-    plugin.json                       -- 插件元数据
-  skills/
-    CCteam-creator/                   -- 英文版（默认）
-      SKILL.md
-      references/
-        roles.md
-        onboarding.md
-        templates.md
-    CCteam-creator-cn/                -- 中文版
-      SKILL.md
-      references/
-        roles.md
-        onboarding.md
-        templates.md
+    marketplace.json                  -- 市场目录
+  plugins/
+    CCteam-creator/                   -- 英文版插件
+      .claude-plugin/
+        plugin.json                   -- 插件清单
+      skills/
+        setup/                        -- 技能
+          SKILL.md
+          references/
+            roles.md
+            onboarding.md
+            templates.md
+    CCteam-creator-cn/                -- 中文版插件
+      .claude-plugin/
+        plugin.json                   -- 插件清单
+      skills/
+        setup/                        -- 技能
+          SKILL.md
+          references/
+            roles.md
+            onboarding.md
+            templates.md
   README.md                           -- 英文文档
   README_CN.md                        -- 中文文档
   LICENSE                             -- MIT 许可证

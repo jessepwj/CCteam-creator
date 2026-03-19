@@ -1,9 +1,9 @@
 {
   "name": "CCteam-creator",
-  "description": "Multi-agent team orchestration skill for Claude Code. Set up parallel AI agent teams with file-based planning, progress tracking, and role-based collaboration.",
-  "version": "1.0.0",
+  "description": "Multi-agent team orchestration for Claude Code. Set up parallel AI agent teams with file-based planning, progress tracking, and role-based collaboration.",
+  "version": "1.1.0",
   "author": {
-    "name": "CCteam-creator contributors"
+    "name": "jessepwj"
   },
   "homepage": "https://github.com/jessepwj/CCteam-creator",
   "license": "MIT",

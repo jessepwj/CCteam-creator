@@ -1,10 +1,10 @@
 ---
-name: team-project-setup
+name: setup
 description: >
   Set up a complete agent team with file-based planning for complex multi-agent projects.
   Use when: (1) user asks to start a new complex project with a team/swarm, (2) user says
   "set up team", "create team", "build a team for X", "start project X", (3) user invokes
-  /team-project-setup with a project name, (4) user wants to organize a multi-phase project
+  /CCteam-creator-cn:setup with a project name, (4) user wants to organize a multi-phase project
   with parallel agent workers and persistent progress tracking. Creates TeamCreate, planning
   files (.plans/project/), memory files, per-agent work directories, and spawns configured
   teammates. TRIGGER on: "team", "swarm", "start project", "set up project", "create team
