@@ -1,45 +1,40 @@
 # CCteam-creator
 
-> Multi-agent team orchestration plugin for [Claude Code](https://code.claude.com/).
+> Multi-agent team orchestration skill for [Claude Code](https://code.claude.com/).
 
 [English](./README.md) | [中文](./README_CN.md)
 
 ## Standing on the Shoulders of Giants
 
-CCteam-creator is built upon two outstanding open-source projects:
+CCteam-creator is built upon outstanding open-source projects:
 
-| Project | Stars | What We Learned |
-|---------|-------|-----------------|
-| [**planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 16,000+ | Manus-style persistent markdown planning — the 3-file pattern (task_plan.md / findings.md / progress.md) that survives context compression. The "context window = RAM, file system = disk" philosophy is the backbone of our state persistence. Born from the workflow pattern behind the [$2B Manus acquisition](https://github.com/OthmanAdi/planning-with-files). |
-| [**everything-claude-code**](https://github.com/affaan-m/everything-claude-code) | 50,000+ | The agent harness performance optimization system by Anthropic hackathon winner [@affaan-m](https://github.com/affaan-m). 13 expert agents, 40+ skills, 98% test coverage. Inspired our skill structure, role-based agent design, and plugin distribution approach. |
-
-CCteam-creator extends their ideas into the **multi-agent coordination** domain — orchestrating multiple specialized agents working in parallel with structured communication and file-based progress tracking.
+| Project | What We Learned |
+|---------|-----------------|
+| [**planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | Manus-style persistent markdown planning — the 3-file pattern (task_plan.md / findings.md / progress.md) that survives context compression. The "context window = RAM, file system = disk" philosophy. |
+| [**everything-claude-code**](https://github.com/affaan-m/everything-claude-code) | Agent harness optimization by Anthropic hackathon winner. 13 expert agents, 40+ skills. Inspired our role-based agent design and skill structure. |
+| [**mattpocock/skills**](https://github.com/mattpocock/skills) | TDD vertical-slice philosophy, "design it twice" parallel sub-agent pattern, interface durability principles, and plan stress-testing methodology. |
 
 ---
 
-CCteam-creator helps you set up and manage parallel AI agent teams in Claude Code. Instead of working with a single AI assistant, you can orchestrate multiple specialized agents — developers, researchers, testers, reviewers — all working together on your project.
-
 ## What It Does
 
-When you invoke `/CCteam-creator:setup`, CCteam-creator:
+CCteam-creator sets up parallel AI agent teams in Claude Code. Instead of a single AI assistant, you orchestrate multiple specialized agents — developers, researchers, testers, reviewers — working together on your project.
 
-1. **Consults with you first** — explains how agent teams work, understands your project needs, and recommends a team configuration
-2. **Sets up the team** — creates planning files, work directories, and spawns agents with proper onboarding
-3. **Manages collaboration** — agents communicate directly (dev asks reviewer for code review), report progress to the team lead (you), and persist all state to files
+When invoked, CCteam-creator:
+
+1. **Consults with you** — explains how agent teams work, understands your project, recommends a team
+2. **Sets up everything** — planning files, work directories, CLAUDE.md operations guide, agent onboarding
+3. **Manages collaboration** — agents communicate directly, persist state to files, follow built-in protocols
 
 ## Prerequisites
 
-### Enable Agent Teams
+Agent teams are an experimental feature in Claude Code. Enable them first:
 
-Agent teams are an experimental feature in Claude Code. You **must** enable them first:
-
-**Option A: In your shell**
 ```bash
+# Option A: Environment variable
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
-```
 
-**Option B: In settings.json** (`~/.claude/settings.json`)
-```json
+# Option B: In ~/.claude/settings.json
 {
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
@@ -49,172 +44,163 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 ## Installation
 
-> **Important**: Install either the English version OR the Chinese version — not both. They are the same plugin in different languages. Installing both will cause conflicts.
+> **Important**: Install either the English OR Chinese version — not both.
 
-### Option 1: Marketplace Install (Recommended)
+### Option 1: Marketplace (Recommended)
 
 ```bash
-# Step 1: Add the marketplace (run in Claude Code)
+# Step 1: Add the marketplace (in Claude Code)
 /plugin marketplace add jessepwj/CCteam-creator
 
-# Step 2: Install the plugin — choose ONE language
+# Step 2: Install — choose ONE language
 /plugin install CCteam-creator@ccteam        # English
 /plugin install CCteam-creator-cn@ccteam     # Chinese
 ```
 
-### Option 2: Manual Copy — English (Default)
+### Option 2: Manual Install
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
+
+# English
 cp -r CCteam-creator/plugins/CCteam-creator/skills/setup ~/.claude/skills/CCteam-creator
-```
 
-### Option 3: Manual Copy — Chinese
-
-```bash
-git clone https://github.com/jessepwj/CCteam-creator.git
+# Or Chinese
 cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup ~/.claude/skills/CCteam-creator
 ```
 
-> **Note**: Both manual options copy into the same target directory (`~/.claude/skills/CCteam-creator`). This ensures only one version is active at a time.
-
-### Option 4: Project-level Install
-
-Share the skill with your team by placing it in your project:
+### Option 3: Project-level Install
 
 ```bash
-# English (default)
+# Share with your team via project directory
 cp -r CCteam-creator/plugins/CCteam-creator/skills/setup .claude/skills/CCteam-creator
-
-# Or Chinese
-cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCteam-creator
 ```
 
 ## Usage
 
-Simply tell Claude Code that you want to set up a team:
-
 ```
 > Set up a team for my e-commerce project
 > /CCteam-creator:setup
-> I want to build a REST API, can you create a team?
+> Build a REST API with a team
 ```
 
-> **Note**: If installed manually (Options 2-4), the command is `/CCteam-creator` instead of `/CCteam-creator:setup`.
+> If installed manually, the command is `/CCteam-creator` instead of `/CCteam-creator:setup`.
 
-CCteam-creator will:
-1. Explain how the agent team works
-2. Ask about your project goals, tech stack, and preferences
-3. Recommend which roles you need
-4. Confirm the plan with you
-5. Create all planning files and spawn agents
-
-### Trigger Keywords
-
-The skill auto-activates when you mention: `team`, `swarm`, `start project`, `set up project`, `create team`, `build team`, `organize project`, `multi-agent project`.
+**Trigger keywords**: `team`, `swarm`, `start project`, `set up project`, `create team`, `build team`, `multi-agent project`.
 
 ## Available Roles
 
-| Role | Name | Model | Capabilities |
-|------|------|-------|-------------|
-| Backend Dev | `backend-dev` | opus | Code + TDD + task-level file tracking |
-| Frontend Dev | `frontend-dev` | opus | Code + TDD + task-level file tracking |
-| Explorer/Researcher | `researcher` | sonnet | Code search + web research (read-only) |
-| E2E Tester | `e2e-tester` | sonnet | Playwright E2E + browser automation |
-| Code Reviewer | `reviewer` | opus | Security/quality/performance review (read-only on source) |
+| Role | Name | Model | Key Capabilities |
+|------|------|-------|-----------------|
+| Backend Dev | `backend-dev` | opus | Server code + TDD (vertical slices) + architecture-aware testing |
+| Frontend Dev | `frontend-dev` | opus | Client code + TDD (vertical slices) + component testing |
+| Researcher | `researcher` | sonnet | Code search + web research + plan stress-testing (read-only) |
+| E2E Tester | `e2e-tester` | sonnet | Playwright E2E + browser automation + bug tracking |
+| Code Reviewer | `reviewer` | opus | Security/quality/performance/architecture review (read-only on source) |
 | Code Cleaner | `cleaner` | sonnet | Dead code removal + safe refactoring |
 
-You don't need all roles for every project. CCteam-creator recommends the right combination based on your needs.
+You don't need all roles. CCteam-creator recommends the right combination for your project.
 
-## How It Works
+## Key Features
 
-### File-Based Planning
+### Requirements Alignment (Phase 0)
 
-All progress is persisted to `.plans/<project>/` — no state is lost when context compresses:
+Before any development starts, the team performs structured requirements alignment:
+- **Researcher** explores the existing codebase and documents architecture
+- **Team-lead** aligns detailed requirements with the user
+- Architecture decisions and scope are recorded in the plan before assigning dev tasks
+
+### Vertical Slice Task Decomposition
+
+Tasks are broken into **vertical slices** (tracer bullets), not horizontal layers. Each slice cuts through all layers end-to-end (schema → API → UI → tests) and is independently verifiable.
+
+Every task includes:
+- **[AFK]/[HITL]** — autonomous or needs human decision
+- **blocked-by** — explicit dependency chain
+- **Input/Output** — self-contained, minimizes inter-agent information loss
+- **Acceptance criteria** — agents know exactly when they're done
+
+### Plan Stress-Testing
+
+Before finalizing architecture, team-lead delegates the researcher to stress-test the plan — walking every branch of the decision tree, identifying gaps and risks before development starts.
+
+### TDD with Depth
+
+Developers follow enhanced TDD:
+- **Vertical slices**: one test → one implementation → repeat (never all tests first)
+- **Behavior testing**: test WHAT the system does through public interfaces, not HOW
+- **Mock boundaries**: only mock at system boundaries (external APIs, databases), never internal modules
+- **Testable interfaces**: dependency injection, return results over side effects
+
+### Architecture-Aware Code Review
+
+The reviewer checks not just security/quality/performance, but also:
+- **Shallow module detection** — interface complexity ≈ implementation complexity
+- **Dependency classification** — in-process / local-substitutable / remote-owned / true-external
+- **Test strategy assessment** — "replace, don't layer" redundant tests
+
+### Durable Research Output
+
+Researcher findings include both file paths (for immediate navigation) AND behavior descriptions (survive refactoring). Example:
+> Auth logic in `src/auth/middleware.ts:42` — intercepts all /api/* routes, validates JWT from Authorization header, attaches decoded user to req.user.
+
+### File-Based State Persistence
+
+All progress persists to `.plans/<project>/`:
 
 ```
 .plans/<project>/
-  task_plan.md          -- Master plan (phases, architecture, assignments)
+  task_plan.md          -- Master plan with vertical slices
   findings.md           -- Team-level summary
   progress.md           -- Work log
 
-  backend-dev/          -- Each agent's workspace
-    findings.md         -- INDEX linking to task-specific findings
-    task-auth/          -- Each assigned task gets its own folder
+  backend-dev/
+    findings.md         -- INDEX → task findings
+    task-auth/
       task_plan.md / findings.md / progress.md
 
   researcher/
-    findings.md         -- INDEX linking to research reports
-    research-tech-stack/ -- Each research topic
-      findings.md       -- THE research report (main deliverable)
-
-  e2e-tester/
-    findings.md         -- INDEX linking to test results
-    test-auth-flow/     -- Each test scope
-      findings.md       -- Test results and bugs
+    findings.md         -- INDEX → research reports
+    research-tech-stack/
+      findings.md       -- Research report (main deliverable)
 
   reviewer/
-    findings.md         -- INDEX linking to reviews
-    review-auth-module/ -- Each code review
+    findings.md         -- INDEX → review reports
+    review-auth-module/
       findings.md       -- Full review report
 ```
 
-Every role uses task folders — the root `findings.md` serves as a clean index, not a dump of all content.
+### Built-in Agent Protocols
 
-### Agent Protocols
-
-Every agent follows built-in protocols:
-- **2-Action Rule**: Write findings after every 2 search/read operations (dev roles exempt during coding)
-- **3-Strike Protocol**: Escalate to team lead after 3 failures on the same issue
-- **Context Recovery**: On context compression, agents re-read their 3 planning files before continuing
-- **Periodic Self-Check**: Every ~10 tool calls, agents verify alignment with their task plan
-
-### Team Communication
-
-- Agents report progress to the team lead (you)
-- Developers request code review directly from the reviewer
-- Large task handoffs include documentation (findings.md location + summary)
-- The reviewer writes results to the developer's findings.md
-- All communication is transparent and tracked
-
-## Customization
-
-You can customize:
-- **Role selection** — pick only the roles you need
-- **Custom roles** — define new roles with specific responsibilities
-- **Task phases** — organize your project into custom stages
-- **Review strictness** — enable/disable code review and security review gates
+| Protocol | Purpose |
+|----------|---------|
+| 2-Action Rule | Write findings after every 2 search operations |
+| 3-Strike Escalation | Escalate after 3 failures, never silent retry |
+| Context Recovery | Re-read planning files after context compression |
+| Periodic Self-Check | Verify alignment with plan every ~10 tool calls |
+| Task Handoff | File-based handoff with summary + document location |
 
 ## Project Structure
 
 ```
 CCteam-creator/
   .claude-plugin/
-    marketplace.json                  -- Marketplace catalog
+    marketplace.json              -- Marketplace catalog
   plugins/
-    CCteam-creator/                   -- English plugin
-      .claude-plugin/
-        plugin.json                   -- Plugin manifest
-      skills/
-        setup/                        -- The skill
-          SKILL.md
-          references/
-            roles.md
-            onboarding.md
-            templates.md
-    CCteam-creator-cn/                -- Chinese plugin
-      .claude-plugin/
-        plugin.json                   -- Plugin manifest
-      skills/
-        setup/                        -- The skill
-          SKILL.md
-          references/
-            roles.md
-            onboarding.md
-            templates.md
-  README.md                           -- English documentation
-  README_CN.md                        -- Chinese documentation
-  LICENSE                             -- MIT License
+    CCteam-creator/               -- English plugin
+      .claude-plugin/plugin.json
+      skills/setup/
+        SKILL.md
+        references/
+          roles.md / onboarding.md / templates.md
+    CCteam-creator-cn/            -- Chinese plugin
+      .claude-plugin/plugin.json
+      skills/setup/
+        SKILL.md
+        references/
+          roles.md / onboarding.md / templates.md
+  README.md / README_CN.md
+  LICENSE
 ```
 
 ## License

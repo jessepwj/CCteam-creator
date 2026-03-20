@@ -180,6 +180,37 @@ Append after the common template:
 5. Refactor (IMPROVE) — eliminate duplication, improve naming
 6. Verify coverage >= 80%
 
+### CRITICAL: Vertical Slices, Not Horizontal Slices
+
+DO NOT write all tests first, then all implementation. That is "horizontal slicing" and produces bad tests — tests written in bulk test imagined behavior, not actual behavior.
+
+CORRECT approach — vertical slices (one at a time):
+```
+RIGHT: test1→impl1, test2→impl2, test3→impl3
+WRONG: test1,test2,test3 → impl1,impl2,impl3
+```
+Each test responds to what you learned from the previous cycle. Because you just wrote the code, you know exactly what behavior matters.
+
+### Good Tests vs Bad Tests
+
+**Good tests** verify behavior through public interfaces. They describe WHAT the system does, not HOW. A good test survives internal refactors because it doesn't care about internal structure.
+
+**Bad tests** are coupled to implementation: mocking internal collaborators, testing private methods, asserting on call counts. Warning sign: test breaks when you refactor, but behavior hasn't changed.
+
+### Mock Boundaries
+
+Mock ONLY at system boundaries:
+- External APIs (payment, email, etc.)
+- Databases (prefer test DB when possible)
+- Time/randomness
+
+DO NOT mock your own modules or internal collaborators. If you control it, test it directly.
+
+### Interface Design for Testability
+1. **Accept dependencies, don't create them** — pass in via parameters, not `new` internally
+2. **Return results, don't produce side effects** — `calculateDiscount(cart): Discount` over `applyDiscount(cart): void`
+3. **Small surface area** — fewer methods = fewer tests needed, fewer params = simpler test setup
+
 ### Boundary Cases to Test
 null/undefined, empty values, invalid types, boundary values, error paths, concurrency, large data, special characters
 
@@ -258,6 +289,9 @@ This way, anyone looking for your research on a specific topic can find it insta
 
 ### Output Requirements
 - Cite exact file paths and line numbers for all findings
+- **Durability principle**: In addition to file paths, ALSO describe the module's behavior and contracts in plain language. Paths are for immediate navigation; behavior descriptions remain useful after refactoring. Example:
+  - Fragile: "Auth logic is in src/auth/middleware.ts:42"
+  - Durable: "Auth logic is in src/auth/middleware.ts:42 — this middleware intercepts all /api/* routes, validates JWT from Authorization header, and attaches decoded user to req.user. Rejects with 401 if token is missing/expired."
 - Tags: [RESEARCH] research findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
 - If a finding contradicts the main plan, clearly annotate it and notify team-lead
 - When research is complete, update the root index entry with status: complete and a final summary
@@ -266,6 +300,18 @@ This way, anyone looking for your research on a specific topic can find it insta
 - Broad to narrow: Glob to find files first, then Grep for keywords, then Read for deep reading
 - Multiple rounds: if the first round finds nothing, try different keywords/paths
 - Log the search path: record in the task's progress.md which keywords/paths were searched, to avoid redundant searches
+
+### Plan Stress-Testing (when assigned by team-lead)
+
+When team-lead asks you to stress-test / review a plan or design:
+1. Read the plan or design document thoroughly
+2. List every decision point and branch in the design tree
+3. For each decision, provide your recommended answer and flag risks
+4. Walk through edge cases: what happens if X fails? what if scale is 10x? what if requirements change?
+5. Identify any undecided or ambiguous points
+6. Write conclusions to your task findings.md with tag [PLAN-REVIEW]
+
+The goal is to find gaps BEFORE development starts, not after.
 
 ### 2-Action Rule Applies to Task findings.md
 Write to the TASK FOLDER's findings.md (not the root index) when applying the 2-Action Rule.
@@ -397,6 +443,15 @@ This keeps the dev's findings.md clean while providing a direct link to the full
 - Missing caching
 - N+1 queries
 - Oversized bundles
+
+### Architecture Health Checks (MEDIUM level)
+- **Shallow modules**: Interface complexity ≈ implementation complexity (large API surface hiding little logic). Flag as [ARCHITECTURE] and suggest deepening — merge related shallow modules into one with a smaller interface
+- **Dependency classification**: For external dependencies in reviewed code, note the type:
+  - In-process (pure computation) → test directly
+  - Local-substitutable (e.g., PGLite for Postgres) → test with local stand-in
+  - Remote-but-owned (own microservices) → ports & adapters pattern, inject adapters
+  - True-external (Stripe, Twilio) → mock at boundary
+- **Test strategy**: If boundary tests already exist for a deepened module, flag redundant shallow unit tests for deletion ("replace, don't layer")
 
 ### Output Format
 Each issue in review findings.md:

@@ -78,10 +78,19 @@ Reading order: **progress** (where are we) -> **findings** (what happened) -> **
 
 | Protocol | Trigger | Action |
 |----------|---------|--------|
+| Requirements alignment | After team setup, before development | Researcher explores codebase (T0a), then team-lead aligns with user (T0b). Update task_plan.md §1-§2 |
+| Plan stress-test | Before finalizing architecture | Delegate to researcher: "stress-test this plan, walk every decision branch". Read conclusions from findings.md |
 | 3-Strike escalation | Agent reports 3 failures | Read their progress.md, give new direction or reassign |
 | Code review | Large feature/module complete | Dev writes change summary in findings.md, sends to reviewer |
 | Phase advance | Phase complete | Research done: read findings, update main plan. Dev done: wait for reviewer [OK]/[WARN] |
 | Context overflow | Agent reports long context | Progress saved in files, resume agent or spawn successor |
+
+### Task Dispatch: Minimize Information Loss
+
+Inter-agent messages lose detail. Every task dispatch MUST be self-contained:
+- Reference file paths to findings/docs (agent reads the file, not your summary)
+- Include acceptance criteria in the message (agent knows when it's done)
+- Mark [AFK] or [HITL] so agents know if they can proceed autonomously
 
 ## File Structure
 
@@ -140,19 +149,64 @@ Reading order: **progress** (where are we) -> **findings** (what happened) -> **
 
 ## 5. Task Breakdown
 
-### Phase 1: Research
-- [ ] T1: <description> — Assigned to: researcher
+### Slicing Principle
 
-### Phase 2: Core Development
-- [ ] T2: <description> — Assigned to: backend-dev
-- [ ] T3: <description> — Assigned to: frontend-dev
+Break tasks into **vertical slices** (tracer bullets), NOT horizontal slices by tech layer.
+Each slice delivers a narrow but COMPLETE path through all layers (schema → API → UI → tests).
+A completed slice should be demoable or verifiable on its own.
+
+### Task Format
+
+Each task specifies: type [AFK] (autonomous) or [HITL] (needs user decision), dependencies,
+explicit input/output (to minimize information loss in inter-agent communication), and acceptance criteria.
+
+### Phase 0: Requirements Alignment
+- [ ] T0a: [AFK] Explore existing codebase and document current architecture — Assigned to: researcher
+  - Input: project repo
+  - Output: research-codebase/findings.md with architecture overview, key modules, patterns
+  - Acceptance: team-lead has reviewed the findings
+- [ ] T0b: [HITL] Align detailed requirements with user — Assigned to: team-lead
+  - Input: user's initial description + T0a findings
+  - Output: Updated "Project Overview" and "Key Architecture Decisions" sections above
+  - Acceptance: user has confirmed scope, key decisions are recorded
+
+### Phase 1: Research
+- [ ] T1: [AFK] <description> — Assigned to: researcher
+  - blocked-by: T0b
+  - Input: confirmed requirements from §1 + §2 above
+  - Output: research-<topic>/findings.md with conclusions and recommendations
+  - Acceptance: <specific criteria>
+
+### Phase 2: Core Development (vertical slices)
+- [ ] T2: [AFK] <end-to-end slice description> — Assigned to: backend-dev + frontend-dev
+  - blocked-by: T1
+  - Input: researcher findings → .plans/<project>/researcher/research-<topic>/findings.md
+  - Output: working feature slice + tests passing
+  - Acceptance: <specific criteria>
+- [ ] T3: [AFK] <next slice description> — Assigned to: backend-dev + frontend-dev
+  - blocked-by: T2
+  - Input: T2 completed code
+  - Output: working feature slice + tests passing
+  - Acceptance: <specific criteria>
 
 ### Phase 3: Integration Testing
-- [ ] T4: <description> — Assigned to: e2e-tester
+- [ ] T4: [AFK] <description> — Assigned to: e2e-tester
+  - blocked-by: T2, T3
+  - Input: deployed/running application
+  - Output: test-<scope>/findings.md with pass rates and bug reports
+  - Acceptance: critical paths 100% pass, overall >95%
 
 ### Phase 4: Review & Cleanup
-- [ ] T5: Code review — Assigned to: reviewer
-- [ ] T6: Dead code cleanup — Assigned to: cleaner
+- [ ] T5: [AFK] Code review — Assigned to: reviewer
+  - blocked-by: T2, T3
+  - Input: git diff of all development changes
+  - Output: review-<target>/findings.md with verdict
+  - Acceptance: no CRITICAL or HIGH issues (verdict [OK] or [WARN])
+- [ ] T6: [AFK] Dead code cleanup — Assigned to: cleaner
+  - blocked-by: T5
+  - Input: completed codebase + reviewer's findings
+  - Output: cleanup commits + updated test results
+  - Acceptance: tests pass, build succeeds
 
 ---
 

@@ -61,12 +61,19 @@
   - 代码库搜索：按模式查找文件（Glob）、按关键词搜索代码（Grep）
   - 源码分析：追踪 API 调用链、阅读库实现、理解架构
   - 网页搜索：查阅文档、搜索解决方案（WebSearch、WebFetch）
-  - 输出调研结论到 findings.md
+  - 输出调研结论到任务专属 findings.md
+  - **方案压测**：受 team-lead 委派时，走遍设计决策树的每个分支，在开发前识别漏洞和风险
 - **限制**:
   - **只读不改代码** -- 不能 Write/Edit 项目文件
   - 只做研究和文档记录
-- **输出标签**: [RESEARCH] 发现、[BUG] 发现的问题、[ARCHITECTURE] 架构分析
-- **文档结构**: 不分 task 文件夹，直接用根目录三文件
+- **输出原则**:
+  - **耐久性**：始终同时描述模块行为和契约以及文件路径。路径用于即时定位；行为描述在重构后仍然有效
+  - 标签：[RESEARCH] 发现、[BUG] 发现的问题、[ARCHITECTURE] 架构分析、[PLAN-REVIEW] 方案压测结论
+- **文档结构**:
+  - 每个分配的调研主题 → 创建 `research-<topic>/` 子文件夹（含 task_plan.md + findings.md + progress.md）
+  - findings.md 是每个调研任务的**核心交付物** — 其他人读这个来获取结论
+  - 根 findings.md 作为**索引**，链接到各调研报告
+  - 临时零散观察 → 直接记在根 findings.md 中
 
 ---
 
@@ -91,7 +98,11 @@
   - 总通过率 >95%
   - 测试套件 <10 分钟
 - **输出标签**: [E2E-TEST] 测试结果、[BUG] 发现的缺陷（含文件、严重度、根因、修复）
-- **文档结构**: 不分 task 文件夹，直接用根目录三文件
+- **文档结构**:
+  - 每个测试范围/轮次 → 创建 `test-<scope>/` 子文件夹（含 task_plan.md + findings.md + progress.md）
+  - findings.md 包含该范围的测试结果、Bug 和通过/失败汇总
+  - 根 findings.md 作为**索引**，链接到各测试轮次
+  - 快速回归检查 → 直接记在根 findings.md 中
 
 ---
 
@@ -127,12 +138,20 @@
   - React 不必要重渲染
   - 缺少缓存
   - N+1 查询
+- **架构健康检查** (MEDIUM 级别):
+  - 浅模块检测：接口复杂度 ≈ 实现复杂度 → 建议深化
+  - 依赖分类：in-process / local-substitutable / remote-but-owned / true-external
+  - 测试策略：如果边界测试已存在，标记冗余的浅层单元测试待删除（"替换而非叠加"）
 - **审批标准**:
   - [OK] 通过：无 CRITICAL 或 HIGH
   - [WARN] 警告：仅有 MEDIUM（可合并但需注意）
   - [BLOCK] 阻断：有 CRITICAL 或 HIGH 问题
-- **输出**: 结果写入请求方 dev 的 findings.md（标记 [CODE-REVIEW]）+ 摘要发 team-lead
-- **文档结构**: 不分 task 文件夹
+- **输出**: 完整审查写入自己的 `review-<target>/findings.md`；摘要 + 链接发送给请求方 dev 和 team-lead
+- **文档结构**:
+  - 每次审查 → 创建 `review-<target>/` 子文件夹（含 findings.md + progress.md）
+  - findings.md 包含完整审查报告（问题列表、严重度、修复建议）
+  - 根 findings.md 作为**索引**，链接到各审查记录
+  - Reviewer 还会在请求方 dev 的任务 findings.md 中追加简短摘要和交叉引用
 
 ---
 

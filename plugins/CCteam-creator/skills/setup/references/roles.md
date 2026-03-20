@@ -62,10 +62,13 @@
   - Source analysis: trace API call chains, read library implementations, understand architecture
   - Web research: consult documentation, search for solutions (WebSearch, WebFetch)
   - Output research conclusions to task-specific findings.md
+  - **Plan stress-testing**: when delegated by team-lead, walk every branch of a design decision tree, identify gaps and risks before development starts
 - **Constraints**:
   - **Read-only — no code edits** -- must not Write/Edit project files
   - Research and documentation only
-- **Output Tags**: [RESEARCH] findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
+- **Output Principles**:
+  - **Durability**: always describe module behavior and contracts alongside file paths. Paths are for immediate navigation; behavior descriptions survive refactoring
+  - Tags: [RESEARCH] findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis, [PLAN-REVIEW] plan stress-test conclusions
 - **Documentation Structure**:
   - Each assigned research topic → create a `research-<topic>/` subfolder (containing task_plan.md + findings.md + progress.md)
   - findings.md is the **main deliverable** of each research task — others read this to get the conclusions
@@ -135,6 +138,10 @@
   - Unnecessary React re-renders
   - Missing caching
   - N+1 queries
+- **Architecture Health Checks** (MEDIUM level):
+  - Shallow modules: interface complexity ≈ implementation complexity → suggest deepening
+  - Dependency classification: in-process / local-substitutable / remote-but-owned / true-external
+  - Test strategy: if boundary tests exist, flag redundant shallow unit tests for removal
 - **Approval Criteria**:
   - [OK] Pass: no CRITICAL or HIGH issues
   - [WARN] Warning: MEDIUM only (can merge but needs attention)

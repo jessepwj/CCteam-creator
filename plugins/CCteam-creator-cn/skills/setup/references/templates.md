@@ -78,10 +78,19 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 | 协议 | 触发时机 | 操作 |
 |------|---------|------|
+| 需求对齐 | 团队搭建后、开发前 | researcher 探索代码库（T0a），再由 team-lead 与用户对齐（T0b）。更新 task_plan.md §1-§2 |
+| 计划压力测试 | 架构定稿前 | 委托 researcher："压力测试此计划，走查每个决策分支"。从 findings.md 读取结论 |
 | 3-Strike 上报 | 智能体报告 3 次失败 | 读其 progress.md，给新方向或重新分配 |
 | 代码审查 | 大功能/新模块完成 | dev 在 findings.md 写改动摘要，发给 reviewer |
 | 阶段推进 | 阶段完成 | 调研完：读 findings 更新主计划。开发完：等 reviewer [OK]/[WARN] |
 | 上下文溢出 | 智能体报告上下文过长 | 进度已存文件，恢复或生成后继者 |
+
+### 任务下发：最小化信息损耗
+
+智能体间的消息会丢失细节。每次任务下发必须自包含：
+- 引用 findings/文档的文件路径（让智能体读文件，而不是读你的摘要）
+- 消息中包含验收标准（让智能体知道何时算完成）
+- 标注 [AFK] 或 [HITL]，让智能体知道是否可以自主推进
 
 ## 文件结构
 
@@ -140,19 +149,64 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 ## 5. 任务分解
 
-### 阶段 1: 调研
-- [ ] T1: <描述> — 分配给: researcher
+### 切片原则
 
-### 阶段 2: 核心开发
-- [ ] T2: <描述> — 分配给: backend-dev
-- [ ] T3: <描述> — 分配给: frontend-dev
+将任务分解为**垂直切片**（追踪子弹），而不是按技术层横向切片。
+每个切片提供一条贯穿所有层的窄而完整的路径（schema → API → UI → 测试）。
+一个完成的切片应该可以单独演示或验证。
+
+### 任务格式
+
+每个任务注明：类型 [AFK]（自主执行）或 [HITL]（需要用户决策）、依赖关系、
+明确的输入/输出（最小化智能体间通信的信息损耗），以及验收标准。
+
+### 阶段 0: 需求对齐
+- [ ] T0a: [AFK] 探索现有代码库并记录当前架构 — 分配给: researcher
+  - 输入: 项目仓库
+  - 输出: research-codebase/findings.md，含架构概述、关键模块、代码模式
+  - 验收: team-lead 已审阅发现
+- [ ] T0b: [HITL] 与用户对齐详细需求 — 分配给: team-lead
+  - 输入: 用户初始描述 + T0a 发现
+  - 输出: 更新上方"项目概述"和"关键架构决策"章节
+  - 验收: 用户已确认范围，关键决策已记录
+
+### 阶段 1: 调研
+- [ ] T1: [AFK] <描述> — 分配给: researcher
+  - blocked-by: T0b
+  - 输入: §1-§2 确认的需求
+  - 输出: research-<topic>/findings.md，含结论和建议
+  - 验收: <具体标准>
+
+### 阶段 2: 核心开发（垂直切片）
+- [ ] T2: [AFK] <端到端切片描述> — 分配给: backend-dev + frontend-dev
+  - blocked-by: T1
+  - 输入: researcher 发现 → .plans/<project>/researcher/research-<topic>/findings.md
+  - 输出: 可运行的功能切片 + 测试通过
+  - 验收: <具体标准>
+- [ ] T3: [AFK] <下一个切片描述> — 分配给: backend-dev + frontend-dev
+  - blocked-by: T2
+  - 输入: T2 完成的代码
+  - 输出: 可运行的功能切片 + 测试通过
+  - 验收: <具体标准>
 
 ### 阶段 3: 联调测试
-- [ ] T4: <描述> — 分配给: e2e-tester
+- [ ] T4: [AFK] <描述> — 分配给: e2e-tester
+  - blocked-by: T2, T3
+  - 输入: 已部署/运行的应用
+  - 输出: test-<scope>/findings.md，含通过率和 Bug 报告
+  - 验收: 关键路径 100% 通过，总体 >95%
 
-### 阶段 4: 审查清理
-- [ ] T5: 代码审查 — 分配给: reviewer
-- [ ] T6: 死代码清理 — 分配给: cleaner
+### 阶段 4: 审查与清理
+- [ ] T5: [AFK] 代码审查 — 分配给: reviewer
+  - blocked-by: T2, T3
+  - 输入: 所有开发变更的 git diff
+  - 输出: review-<target>/findings.md，含裁决结果
+  - 验收: 无 CRITICAL 或 HIGH 问题（裁决 [OK] 或 [WARN]）
+- [ ] T6: [AFK] 死代码清理 — 分配给: cleaner
+  - blocked-by: T5
+  - 输入: 完成的代码库 + reviewer 的发现
+  - 输出: 清理提交 + 更新后的测试结果
+  - 验收: 测试通过，构建成功
 
 ---
 
@@ -260,15 +314,27 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 ---
 
-## 大任务 task 文件夹模板（仅 backend-dev / frontend-dev 使用）
+## 任务文件夹模板
 
-当前后端开发智能体接到大功能/新模块时，在自己目录下创建：
+所有角色在接到独立任务时都会使用任务文件夹。文件夹前缀因角色而异：
+
+| 角色 | 前缀 | 示例 |
+|------|------|------|
+| backend-dev / frontend-dev | `task-` | `task-auth/`、`task-payments/` |
+| researcher | `research-` | `research-tech-stack/`、`research-auth-options/` |
+| e2e-tester | `test-` | `test-auth-flow/`、`test-checkout/` |
+| reviewer | `review-` | `review-auth-module/`、`review-payments/` |
+| cleaner | （使用根目录文件） | — |
+
+---
+
+### Dev 任务文件夹（backend-dev / frontend-dev）
 
 ```
-.plans/<project>/<agent-name>/task-<功能名>/
+.plans/<project>/<agent-name>/task-<feature-name>/
 ```
 
-### task 文件夹 task_plan.md
+#### task_plan.md
 
 ```markdown
 # <功能名> - 任务计划
@@ -297,11 +363,11 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 ## 依赖
 
-- 依赖 T1 调研结论（见 researcher findings.md）
+- 依赖 T1 调研结论（见 researcher/research-<topic>/findings.md）
 - 依赖 xxx API 设计（见主 task_plan.md §6）
 ```
 
-### task 文件夹 findings.md
+#### findings.md
 
 ```markdown
 # <功能名> - 发现记录
@@ -313,7 +379,7 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 <初始为空>
 ```
 
-### task 文件夹 progress.md
+#### progress.md
 
 ```markdown
 # <功能名> - 工作日志
@@ -323,4 +389,254 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 ---
 
 <初始为空>
+```
+
+---
+
+### 调研文件夹（researcher）
+
+```
+.plans/<project>/researcher/research-<topic>/
+```
+
+#### task_plan.md
+
+```markdown
+# 调研: <主题> - 计划
+
+> 智能体: researcher
+> 状态: in_progress
+> 创建: <日期>
+
+## 调研问题
+
+1. <需要回答什么？>
+2. <有哪些备选方案？>
+3. <各方案的权衡是什么？>
+
+## 方法
+
+- [ ] 1. <搜索/读取策略>
+- [ ] 2. <网页调研目标>
+- [ ] 3. <源码分析范围>
+- [ ] 4. 将结论整理到 findings.md
+- [ ] 5. 更新根索引
+
+## 范围
+
+<此次调研的范围内/范围外>
+```
+
+#### findings.md（核心交付物）
+
+```markdown
+# 调研: <主题> - 报告
+
+> 这是调研的核心交付物。其他人读此文件获取结论。
+> 智能体: researcher
+> 状态: in_progress
+> 创建: <日期>
+
+---
+
+## 摘要
+
+<执行摘要——调研完成后填写>
+
+## 详细发现
+
+<随调研进展按 2-Action Rule 添加发现>
+
+### [RESEARCH] <日期> — <发现标题>
+
+<内容，含确切文件路径、行号和证据>
+
+---
+
+## 结论与建议
+
+<调研完成后填写>
+```
+
+#### progress.md
+
+```markdown
+# 调研: <主题> - 搜索日志
+
+> 记录搜索了什么、找到了什么。用于上下文恢复和避免重复搜索。
+
+---
+
+<初始为空>
+```
+
+---
+
+### 测试文件夹（e2e-tester）
+
+```
+.plans/<project>/e2e-tester/test-<scope>/
+```
+
+#### task_plan.md
+
+```markdown
+# 测试: <范围> - 计划
+
+> 智能体: e2e-tester
+> 状态: in_progress
+> 创建: <日期>
+
+## 测试范围
+
+<要测试哪些用户流程/功能>
+
+## 测试用例
+
+- [ ] TC1: <描述> — 优先级: CRITICAL
+- [ ] TC2: <描述> — 优先级: HIGH
+- [ ] TC3: <描述> — 优先级: MEDIUM
+
+## 前提条件
+
+- <测试执行前必须部署/运行什么>
+```
+
+#### findings.md
+
+```markdown
+# 测试: <范围> - 结果
+
+> 此范围的测试结果和 Bug 报告。
+> 智能体: e2e-tester
+> 状态: in_progress
+
+---
+
+## 摘要
+
+| 指标 | 数值 |
+|------|------|
+| 总测试数 | — |
+| 通过 | — |
+| 失败 | — |
+| 通过率 | — |
+
+## 结果
+
+<随测试执行添加结果>
+
+### [E2E-TEST] <日期> — <测试名称>
+
+- 状态: PASS | FAIL
+- 耗时: <时间>
+- 详情: <备注>
+
+### [BUG] <日期> — <Bug 标题>
+
+- File: <路径:行号>
+- 严重度: CRITICAL | HIGH | MEDIUM | LOW
+- 根因: <分析>
+- 修复建议: <建议>
+```
+
+#### progress.md
+
+```markdown
+# 测试: <范围> - 执行日志
+
+> 用于上下文恢复。
+
+---
+
+<初始为空>
+```
+
+---
+
+### 审查文件夹（reviewer）
+
+```
+.plans/<project>/reviewer/review-<target>/
+```
+
+#### findings.md
+
+```markdown
+# 审查: <目标> - 报告
+
+> 代码审查结果。
+> 智能体: reviewer
+> 请求方: <dev-agent-name>
+> 状态: in_progress
+> 创建: <日期>
+
+---
+
+## 裁决: [OK] | [WARN] | [BLOCK]
+
+## 问题
+
+<添加审查中发现的问题>
+
+### [CRITICAL] <标题>
+
+- File: <路径:行号>
+- 问题: <描述>
+- 修复: <含代码示例的建议>
+
+### [HIGH] <标题>
+
+- File: <路径:行号>
+- 问题: <描述>
+- 修复: <建议>
+
+## 汇总
+
+- CRITICAL: 0
+- HIGH: 0
+- MEDIUM: 0
+- LOW: 0
+```
+
+#### progress.md
+
+```markdown
+# 审查: <目标> - 笔记
+
+> 审查过程笔记。
+
+---
+
+<初始为空>
+```
+
+---
+
+### 根目录 findings.md 作为索引（所有角色）
+
+每个智能体的根 findings.md 都应作为索引。示例：
+
+```markdown
+# <智能体名> - 发现索引
+
+> 链接到各任务专属发现。临时性的零散笔记也写在这里。
+
+---
+
+## task-auth
+- Status: complete
+- Report: [findings.md](task-auth/findings.md)
+- Summary: 认证模块已实现，使用 JWT + refresh token
+
+## task-payments
+- Status: in_progress
+- Report: [findings.md](task-payments/findings.md)
+- Summary: 与 Stripe 的支付集成
+
+---
+
+## 零散笔记
+
+<不属于任何具体任务的临时观察>
 ```

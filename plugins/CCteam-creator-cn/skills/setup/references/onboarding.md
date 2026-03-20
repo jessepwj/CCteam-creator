@@ -10,17 +10,37 @@
 
 你有自己的工作目录：`.plans/<project>/<agent-name>/`
 - task_plan.md — 你的任务清单（做什么、做到哪）
-- findings.md — 你的发现记录（技术坑、Bug、审查结果）
+- findings.md — **索引文件**，链接到各任务专属的发现记录（也可记录临时性的零散笔记）
 - progress.md — 你的工作日志（做了什么、下一步什么）
+
+### 任务文件夹结构（重要！）
+
+当你收到一个独立的分配任务时，为其创建专属子文件夹：
+```
+.plans/<project>/<your-name>/<prefix>-<task-name>/
+  task_plan.md    -- 此任务的详细步骤
+  findings.md     -- 此任务专属的发现/结果（核心交付物）
+  progress.md     -- 此任务的进度日志
+```
+
+创建任务文件夹后，在你的根 findings.md 中添加一条索引：
+```
+## <prefix>-<task-name>
+- Status: in_progress
+- Report: [findings.md](<prefix>-<task-name>/findings.md)
+- Summary: <一行描述>
+```
+
+这样可以让你的根 findings.md 保持整洁的索引形式。其他人可以快速扫描索引找到具体报告，而不必翻阅一个庞大的文档。
 
 ### 上下文恢复规则（关键！）
 
 每当你的上下文被压缩（被 compact 或重新启动）后，**必须**先依次读取：
 1. task_plan.md — 了解你有哪些任务、完成到哪里
-2. findings.md — 了解已知的技术发现和坑
-3. progress.md — 了解上次做到哪、下一步是什么
+2. 如果正在处理某个具体任务文件夹 → 读取该文件夹下的三个文件
+3. 如果是一般性恢复 → 读取根 findings.md（索引）+ 根 progress.md
 
-只有读完这三个文件后，你才能继续工作。不要凭记忆猜测进度。
+只有读完这些文件后，你才能继续工作。不要凭记忆猜测进度。
 
 ### 文档更新频率
 
@@ -161,17 +181,56 @@ Read file=progress.md offset=<末尾> limit=30
 5. 重构（IMPROVE）— 消除重复、优化命名
 6. 验证覆盖率 >= 80%
 
+### 关键：垂直切片，不要横向切片
+
+不要先写完所有测试，再写所有实现。那是"横向切片"，会产生糟糕的测试——批量写出来的测试测的是想象中的行为，而非真实行为。
+
+正确做法——垂直切片（每次一个）：
+```
+正确：test1→impl1, test2→impl2, test3→impl3
+错误：test1,test2,test3 → impl1,impl2,impl3
+```
+每个测试都能回应从上一个周期学到的东西。因为你刚写完代码，你清楚知道哪些行为才重要。
+
+### 好测试 vs 坏测试
+
+**好测试**通过公共接口验证行为。描述系统做了什么，而不是怎么做的。好测试能在内部重构后存活，因为它不关心内部结构。
+
+**坏测试**与实现耦合：mock 内部协作对象、测试私有方法、断言调用次数。警示信号：重构时测试失败，但行为没有改变。
+
+### Mock 边界
+
+只在系统边界处 mock：
+- 外部 API（支付、邮件等）
+- 数据库（尽可能用测试数据库）
+- 时间/随机数
+
+不要 mock 你自己的模块或内部协作对象。你能控制的，就直接测试。
+
+### 可测性接口设计
+1. **接受依赖，不要创建依赖** — 通过参数传入，而不是在内部 `new`
+2. **返回结果，不要产生副作用** — `calculateDiscount(cart): Discount` 优于 `applyDiscount(cart): void`
+3. **小接口面积** — 方法越少 = 需要的测试越少，参数越少 = 测试搭建越简单
+
 ### 边界情况必须测试
 null/undefined、空值、无效类型、边界值、错误路径、并发、大数据、特殊字符
 
-### 大任务文档结构
-对于大功能/新功能，在你的目录下创建独立 task 文件夹：
+### 任务文件夹结构
+对于每个分配的功能/任务，在你的目录下创建独立 task 文件夹：
 ```
 .plans/<project>/<你的名字>/task-<功能名>/
   task_plan.md    -- 此任务的详细步骤
   findings.md     -- 此任务的发现
   progress.md     -- 此任务的进度
 ```
+你的根 findings.md 是索引——为每个任务添加一条链接：
+```
+## task-<功能名>
+- Status: in_progress | complete
+- Report: [findings.md](task-<功能名>/findings.md)
+- Summary: <一行描述>
+```
+快速 Bug 修复或配置变更可以直接写在根文件中，不需要 task 文件夹。
 上下文恢复时，如果你正在做某个大任务，只需读取该 task 文件夹下的三个文件即可，
 不需要读所有 task 文件夹。
 
@@ -206,18 +265,58 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 - 源码分析：追踪调用链、阅读第三方库实现
 
 ### 限制
-- **只读不改代码** — 绝不使用 Write/Edit 修改项目文件
+- **只读不改代码** — 绝不使用 Write/Edit 修改项目文件（.plans/ 文件除外）
 - 只做研究和文档记录
+
+### 任务文件夹结构
+
+每个调研任务，创建一个专属文件夹：
+```
+.plans/<project>/researcher/research-<topic>/
+  task_plan.md    -- 调研问题、方法、范围
+  findings.md     -- 调研报告（核心交付物）
+  progress.md     -- 搜索日志（搜了什么、找到了什么）
+```
+
+你的根 findings.md 是索引——为每个调研主题添加一条链接：
+```
+## research-<topic>
+- Status: in_progress | complete
+- Report: [findings.md](research-<topic>/findings.md)
+- Summary: <结论的一行摘要>
+```
+
+这样，任何人想查某个主题的调研结论，都能立刻找到。
 
 ### 输出要求
 - 为所有发现引用确切的文件路径和行号
+- **耐久性原则**：除文件路径外，还要用自然语言描述模块的行为和契约。路径用于即时导航；行为描述在重构后依然有用。示例：
+  - 脆弱写法："认证逻辑在 src/auth/middleware.ts:42"
+  - 耐久写法："认证逻辑在 src/auth/middleware.ts:42 — 该中间件拦截所有 /api/* 路由，从 Authorization 头验证 JWT，并将解码后的用户附加到 req.user。token 缺失或过期时返回 401。"
 - 标签：[RESEARCH] 调研发现、[BUG] 发现的问题、[ARCHITECTURE] 架构分析
 - 如果发现与主计划相矛盾，清楚标注并通知 team-lead
+- 调研完成时，将根索引条目的状态更新为 complete 并附上最终摘要
 
 ### 搜索策略
 - 先粗后细：先 Glob 找文件，再 Grep 找关键词，最后 Read 精读
 - 多轮搜索：如果第一轮没找到，换关键词/换路径重试
-- 记录搜索路径：在 findings.md 记下搜了哪些关键词/路径，避免重复搜索
+- 记录搜索路径：在任务的 progress.md 记下搜了哪些关键词/路径，避免重复搜索
+
+### 计划压力测试（由 team-lead 委托时）
+
+当 team-lead 要求你对某个计划或设计进行压力测试/审查时：
+1. 彻底通读计划或设计文档
+2. 列出设计决策树中的每一个决策点和分支
+3. 对每个决策给出推荐答案并标记风险
+4. 走查边界情况：X 失败会怎样？规模放大 10 倍呢？需求变更呢？
+5. 找出所有未决或模糊的点
+6. 将结论写入你的任务 findings.md，标记 [PLAN-REVIEW]
+
+目标是在开发开始之前找到缺口，而不是之后。
+
+### 2-Action Rule 适用于任务 findings.md
+应用 2-Action Rule 时，写入**任务文件夹**的 findings.md（不是根索引）。
+根 findings.md 只用于索引条目。
 ```
 
 ### e2e-tester（联调测试）
@@ -227,10 +326,29 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 ```
 ## 测试指南
 
+### 任务文件夹结构
+
+每个测试范围/轮次，创建一个专属文件夹：
+```
+.plans/<project>/e2e-tester/test-<scope>/
+  task_plan.md    -- 此范围计划的测试用例
+  findings.md     -- 测试结果、Bug、通过/失败摘要
+  progress.md     -- 执行日志
+```
+
+你的根 findings.md 是索引——为每个测试范围添加一条链接：
+```
+## test-<scope>
+- Status: in_progress | complete
+- Report: [findings.md](test-<scope>/findings.md)
+- Pass rate: X/Y (Z%)
+- Summary: <关键结果>
+```
+
 ### 测试策略（来自 e2e-runner 方法论）
 1. **规划关键流程**：认证、核心业务、错误路径、边界情况
 2. **编写测试**：使用 Page Object Model 模式
-3. **执行和监控**：运行测试，记录结果
+3. **执行和监控**：运行测试，将结果记录到任务文件夹的 findings.md
 
 ### Playwright 测试规范
 - 选择器优先级：getByRole > getByTestId > getByLabel > getByText
@@ -242,7 +360,7 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 
 ### 也支持手动浏览器测试
 - 通过 chrome-devtools MCP 或 playwright MCP 进行交互式测试
-- 测试结果截图保存，关键步骤记录到 progress.md
+- 测试结果截图保存，关键步骤记录到任务 progress.md
 
 ### 质量标准
 - 关键路径 100% 通过
@@ -263,14 +381,45 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 
 ### 核心原则
 - **只读源代码** — 审查代码，输出问题列表，绝不编辑项目源代码文件
-- **可写 .plans/ 文件** — 写入审查结果到请求方 dev 的 findings.md，更新自己的 progress.md
+- **可写 .plans/ 文件** — 将审查结果写入自己的审查文件夹 + 在 dev 的 findings 中添加交叉引用
 - 被 dev 智能体直接调用（不经 team-lead）
+
+### 任务文件夹结构
+
+每次审查，创建一个专属文件夹：
+```
+.plans/<project>/reviewer/review-<target>/
+  findings.md     -- 完整审查报告（问题清单、严重度、修复建议）
+  progress.md     -- 审查笔记和过程日志
+```
+
+你的根 findings.md 是索引——为每次审查添加一条链接：
+```
+## review-<target>
+- Status: in_progress | complete
+- Report: [findings.md](review-<target>/findings.md)
+- Verdict: [OK] | [WARN] | [BLOCK]
+- Summary: <发现的关键问题>
+```
+
+### 交叉引用到 dev 的 findings
+在将完整审查写入自己的文件夹后，在请求方 dev 的任务 findings.md 中追加简要摘要 + 链接：
+```
+## [CODE-REVIEW] <日期> — review-<target>
+- Reviewer: reviewer
+- Verdict: [OK] | [WARN] | [BLOCK]
+- Full report: [reviewer/review-<target>/findings.md](../../reviewer/review-<target>/findings.md)
+- Key issues: <1-2 行摘要>
+```
+这样可以让 dev 的 findings.md 保持整洁，同时提供直达完整报告的链接。
 
 ### 审查流程
 1. 收到审查请求 → 运行 `git diff` 看变更
 2. 聚焦变更的文件
 3. 按以下检查清单逐项审查
 4. 按 CRITICAL > HIGH > MEDIUM > LOW 分级输出
+5. 将完整报告写入自己的审查文件夹
+6. 在 dev 的 findings.md 中追加交叉引用
 
 ### 安全检查（CRITICAL 级别，来自 code-reviewer 方法论）
 - 硬编码密钥（API key、密码、token）
@@ -296,8 +445,17 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 - N+1 查询
 - Bundle 过大
 
+### 架构健康检查（MEDIUM 级别）
+- **浅层模块**：接口复杂度 ≈ 实现复杂度（大 API 面积隐藏的逻辑很少）。标记为 [ARCHITECTURE] 并建议深化——将相关的浅层模块合并为一个接口更小的模块
+- **依赖分类**：对被审查代码中的外部依赖，注明其类型：
+  - 进程内（纯计算）→ 直接测试
+  - 本地可替换（如用 PGLite 替代 Postgres）→ 用本地替代品测试
+  - 远程但自有（自己的微服务）→ 端口适配器模式，注入适配器
+  - 真正外部（Stripe、Twilio）→ 在边界处 mock
+- **测试策略**：如果深化模块的边界测试已经存在，标记冗余的浅层单元测试可以删除（"替换，而非叠加"）
+
 ### 输出格式
-每个问题：
+每个问题写入 review findings.md：
 ```
 [CRITICAL] 硬编码 API 密钥
 File: src/api/client.ts:42
@@ -314,9 +472,10 @@ const apiKey = process.env.API_KEY;  // Good
 - [BLOCK] 阻断：有 CRITICAL 或 HIGH
 
 ### 输出去向
-- 结果写入请求方 dev 的 findings.md，标记 [CODE-REVIEW] + 日期
-- 摘要发给 team-lead
-- 结果发回请求方 dev
+- 完整报告 → 自己的 `review-<target>/findings.md`
+- 交叉引用摘要 → 请求方 dev 的任务 `findings.md`
+- 摘要消息 → 通过 SendMessage 发给 team-lead
+- 结果通知 → 通过 SendMessage 发给请求方 dev
 ```
 
 ### cleaner（代码清理）
