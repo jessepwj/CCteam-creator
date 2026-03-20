@@ -61,19 +61,19 @@
   - 代码库搜索：按模式查找文件（Glob）、按关键词搜索代码（Grep）
   - 源码分析：追踪 API 调用链、阅读库实现、理解架构
   - 网页搜索：查阅文档、搜索解决方案（WebSearch、WebFetch）
-  - 输出调研结论到任务专属 findings.md
-  - **方案压测**：受 team-lead 委派时，走遍设计决策树的每个分支，在开发前识别漏洞和风险
+  - 将调研结论输出到任务专属的 findings.md
+  - **计划压力测试**：由 team-lead 委托时，走查设计决策树的每个分支，在开发开始前找出缺口和风险
 - **限制**:
   - **只读不改代码** -- 不能 Write/Edit 项目文件
   - 只做研究和文档记录
 - **输出原则**:
-  - **耐久性**：始终同时描述模块行为和契约以及文件路径。路径用于即时定位；行为描述在重构后仍然有效
-  - 标签：[RESEARCH] 发现、[BUG] 发现的问题、[ARCHITECTURE] 架构分析、[PLAN-REVIEW] 方案压测结论
+  - **耐久性**：始终在文件路径旁配上对模块行为和契约的自然语言描述。路径用于即时导航；行为描述在重构后依然有用
+  - 标签：[RESEARCH] 发现、[BUG] 发现的问题、[ARCHITECTURE] 架构分析、[PLAN-REVIEW] 计划压力测试结论
 - **文档结构**:
   - 每个分配的调研主题 → 创建 `research-<topic>/` 子文件夹（含 task_plan.md + findings.md + progress.md）
-  - findings.md 是每个调研任务的**核心交付物** — 其他人读这个来获取结论
+  - findings.md 是每个调研任务的**核心交付物**——其他人读此文件获取结论
   - 根 findings.md 作为**索引**，链接到各调研报告
-  - 临时零散观察 → 直接记在根 findings.md 中
+  - 临时性的零散观察 → 直接记录在根 findings.md 中
 
 ---
 
@@ -100,9 +100,9 @@
 - **输出标签**: [E2E-TEST] 测试结果、[BUG] 发现的缺陷（含文件、严重度、根因、修复）
 - **文档结构**:
   - 每个测试范围/轮次 → 创建 `test-<scope>/` 子文件夹（含 task_plan.md + findings.md + progress.md）
-  - findings.md 包含该范围的测试结果、Bug 和通过/失败汇总
-  - 根 findings.md 作为**索引**，链接到各测试轮次
-  - 快速回归检查 → 直接记在根 findings.md 中
+  - findings.md 包含该范围的测试结果、Bug 和通过/失败摘要
+  - 根 findings.md 作为**索引**，链接到各轮测试
+  - 快速回归检查 → 直接记录在根 findings.md 中
 
 ---
 
@@ -115,7 +115,7 @@
 - **为什么不用 `code-reviewer` 类型**: code-reviewer 只有 Read/Grep/Glob/Bash，无法 Write/Edit。但 reviewer 需要写入 dev 的 findings.md 和自己的 progress.md。所以用 general-purpose + prompt 约束只读源代码。
 - **核心职责**:
   - **只读源代码** -- 审查代码、输出问题列表，绝不编辑项目源代码文件
-  - **可写 .plans/ 文件** -- 写入审查结果到 dev 的 findings.md，更新自己的 progress.md
+  - **可写 .plans/ 文件** -- 将审查结果写入请求方 dev 的 findings.md，更新自己的 progress.md
   - 接收 dev 智能体的审查请求，读取相关代码
   - 按 CRITICAL / HIGH / MEDIUM / LOW 分级输出问题
   - 给出具体修复建议（含代码示例）
@@ -139,9 +139,9 @@
   - 缺少缓存
   - N+1 查询
 - **架构健康检查** (MEDIUM 级别):
-  - 浅模块检测：接口复杂度 ≈ 实现复杂度 → 建议深化
-  - 依赖分类：in-process / local-substitutable / remote-but-owned / true-external
-  - 测试策略：如果边界测试已存在，标记冗余的浅层单元测试待删除（"替换而非叠加"）
+  - 浅层模块：接口复杂度 ≈ 实现复杂度 → 建议深化
+  - 依赖分类：进程内 / 本地可替换 / 远程但自有 / 真正外部
+  - 测试策略：如果边界测试已存在，标记冗余的浅层单元测试可以删除
 - **审批标准**:
   - [OK] 通过：无 CRITICAL 或 HIGH
   - [WARN] 警告：仅有 MEDIUM（可合并但需注意）
@@ -149,9 +149,9 @@
 - **输出**: 完整审查写入自己的 `review-<target>/findings.md`；摘要 + 链接发送给请求方 dev 和 team-lead
 - **文档结构**:
   - 每次审查 → 创建 `review-<target>/` 子文件夹（含 findings.md + progress.md）
-  - findings.md 包含完整审查报告（问题列表、严重度、修复建议）
-  - 根 findings.md 作为**索引**，链接到各审查记录
-  - Reviewer 还会在请求方 dev 的任务 findings.md 中追加简短摘要和交叉引用
+  - findings.md 包含完整审查报告（问题清单、严重度、修复建议）
+  - 根 findings.md 作为**索引**，链接到各次审查
+  - reviewer 还会在请求方 dev 的任务 findings.md 中追加一行简要摘要和交叉引用链接
 
 ---
 
@@ -180,7 +180,7 @@
   - [ ] 删除后测试通过
   - [ ] 删除后构建成功
 - **禁止使用场景**: 活跃功能开发中、生产部署前、没有足够测试覆盖时
-- **文档结构**: 不分 task 文件夹
+- **文档结构**: 不使用任务子文件夹
 
 ---
 
