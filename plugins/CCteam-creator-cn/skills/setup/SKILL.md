@@ -6,7 +6,7 @@ description: >
   "set up team", "create team", "build a team for X", "start project X", (3) user invokes
   /CCteam-creator-cn:setup with a project name, (4) user wants to organize a multi-phase project
   with parallel agent workers and persistent progress tracking. Creates TeamCreate, planning
-  files (.plans/project/), memory files, per-agent work directories, and spawns configured
+  files (.plans/project/), memory index, per-agent work directories, and spawns configured
   teammates. TRIGGER on: "team", "swarm", "start project", "set up project", "create team
   for", "build team", "organize project", "multi-agent project".
 ---
@@ -20,7 +20,7 @@ description: >
 1. **需求咨询** — 向用户介绍团队机制、了解需求
 2. **确认方案** — 汇总需求，让用户确认团队配置
 3. 创建规划文件（含智能体子目录）
-4. 创建记忆文件
+4. 创建记忆索引 + 决策文件
 5. 创建团队 + 生成智能体
 6. 确认设置
 
@@ -121,6 +121,7 @@ Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
   task_plan.md                -- 主计划
   findings.md                 -- 发现、Bug、审查结果
   progress.md                 -- 工作日志
+  decisions.md                -- 架构决策记录
 
   <agent-name>/               -- 每个智能体一个目录
     task_plan.md              -- 智能体任务清单
@@ -178,18 +179,18 @@ Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
 
 CLAUDE.md 通过把精简的运营手册永久保留在上下文中来解决这个问题。
 
-## 第 4 步：创建记忆文件
+## 第 4 步：创建记忆索引 + 决策文件
 
-在项目记忆目录中：
-
-1. 创建 `memory/<project>-decisions.md`，仅包含标题
-2. 将项目条目追加到 `memory/MEMORY.md`：
+1. 创建 `.plans/<project>/decisions.md`，仅包含标题（架构决策记录）
+2. 在 `memory/MEMORY.md` 中追加一条**轻量索引条目**：
    ```
    ## Project: <Name>
    - Status: PLANNING
-   - Plans: .plans/<project>/
-   - Decisions: [<project>-decisions.md](<project>-decisions.md)
+   - Plans: .plans/<project>/task_plan.md
+   - Decisions: .plans/<project>/decisions.md
    ```
+
+**MEMORY.md 只做索引**：每条记录只写 1-2 行摘要 + 指向 `.plans/` 中实际文件的路径。绝不在此写详细内容。这样可以在多个项目共存时保持在 200 行自动加载限制以内。
 
 ## 第 5 步：创建团队 + 生成智能体
 

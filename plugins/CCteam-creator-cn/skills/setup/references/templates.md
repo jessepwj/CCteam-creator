@@ -99,6 +99,7 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
   task_plan.md          -- 主计划（team-lead 维护）
   findings.md           -- 团队级发现
   progress.md           -- 工作日志
+  decisions.md          -- 架构决策记录
   <agent-name>/         -- 各智能体目录
     task_plan.md        -- 智能体任务清单
     findings.md         -- 索引：链接到各任务文件夹
@@ -119,7 +120,7 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 > 创建: <日期>
 > 更新: <日期>
 > 团队: <team-name> (<角色列表>)
-> 决策记录: memory/<project>-decisions.md
+> 决策记录: .plans/<project>/decisions.md
 
 ---
 
@@ -640,3 +641,45 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 <不属于任何具体任务的临时观察>
 ```
+
+---
+
+## 项目 decisions.md
+
+```markdown
+# <项目名> - 架构决策记录
+
+> 记录每个决策及其理由。位于 .plans/<project>/decisions.md。
+
+---
+
+<在规划和开发过程中添加决策>
+
+## D1: <决策标题>
+
+- 日期: <日期>
+- 决策: <决定了什么>
+- 理由: <为什么>
+- 考虑过的替代方案: <还评估了什么>
+```
+
+---
+
+## MEMORY.md 索引条目模板
+
+MEMORY.md **只做索引** — 绝不在此写详细内容。每个项目只记一条简短条目，指向 `.plans/` 中的文件。
+
+```markdown
+## Project: <Name>
+- Status: PLANNING | IN_PROGRESS | COMPLETE
+- Plans: .plans/<project>/task_plan.md
+- Decisions: .plans/<project>/decisions.md
+```
+
+完成重要交付物后，智能体可追加一行摘要：
+
+```markdown
+- <一句话摘要> → .plans/<project>/<agent>/<file> (L<起始行>-<结束行>)
+```
+
+这样可以在多个项目共存时保持 MEMORY.md 在 200 行自动加载限制以内。

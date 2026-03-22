@@ -144,6 +144,21 @@ If you sense the context is growing long (many tool calls/file reads):
 2. Notify team-lead: "Context is running long, progress has been saved"
 3. team-lead will resume you or spawn a successor
 
+## MEMORY.md Usage (Index Only!)
+
+Your system prompt may suggest writing to the `memory/` directory. In a team project, follow these rules:
+
+**MEMORY.md is an index, not a notebook**. Each entry: max 2 lines — one-line summary + pointer to the detailed file in `.plans/`. For large files, include line number ranges.
+
+**Never write detailed content to memory/**. All findings, progress, and decisions belong in `.plans/` files.
+
+**When to add an entry**: After completing a significant deliverable (research report, feature, review), append one index line to MEMORY.md:
+```
+- <one-sentence summary> → .plans/<project>/<agent>/<file> (L<start>-<end>)
+```
+
+This keeps MEMORY.md under the 200-line auto-load limit across multiple projects.
+
 ## Core Beliefs
 
 ```

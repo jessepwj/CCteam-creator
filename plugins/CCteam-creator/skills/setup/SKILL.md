@@ -6,7 +6,7 @@ description: >
   "set up team", "create team", "build a team for X", "start project X", (3) user invokes
   /CCteam-creator:setup with a project name, (4) user wants to organize a multi-phase project
   with parallel agent workers and persistent progress tracking. Creates TeamCreate, planning
-  files (.plans/project/), memory files, per-agent work directories, and spawns configured
+  files (.plans/project/), memory index, per-agent work directories, and spawns configured
   teammates. TRIGGER on: "team", "swarm", "start project", "set up project", "create team
   for", "build team", "organize project", "multi-agent project".
 ---
@@ -20,7 +20,7 @@ Set up a multi-agent team for complex projects, using persistent files for plann
 1. **Requirements Consultation** — Introduce the team mechanism to the user and gather requirements
 2. **Confirm the Plan** — Summarize requirements and let the user confirm the team configuration
 3. Create planning files (including per-agent subdirectories)
-4. Create memory files
+4. Create memory index + decisions file
 5. Create the team + spawn agents
 6. Confirm setup
 
@@ -121,6 +121,7 @@ See [references/templates.md](references/templates.md) for file templates.
   task_plan.md                -- Main plan
   findings.md                 -- Team-level summary
   progress.md                 -- Work log
+  decisions.md                -- Architecture decision log
 
   <agent-name>/               -- One directory per agent
     task_plan.md              -- Agent task list
@@ -207,18 +208,18 @@ Without this file, after context compression the team-lead loses all knowledge o
 
 The CLAUDE.md solves this by keeping a concise operations guide permanently in context.
 
-## Step 4: Create Memory Files
+## Step 4: Create Memory Index + Decisions File
 
-In the project memory directory:
-
-1. Create `memory/<project>-decisions.md` with only a title
-2. Append the project entry to `memory/MEMORY.md`:
+1. Create `.plans/<project>/decisions.md` with only a title (architecture decision log)
+2. Append a **lightweight index entry** to `memory/MEMORY.md`:
    ```
    ## Project: <Name>
    - Status: PLANNING
-   - Plans: .plans/<project>/
-   - Decisions: [<project>-decisions.md](<project>-decisions.md)
+   - Plans: .plans/<project>/task_plan.md
+   - Decisions: .plans/<project>/decisions.md
    ```
+
+**MEMORY.md is index-only**: Each entry is a 1-2 line summary pointing to actual files in `.plans/`. Never write detailed content here. This keeps it under the 200-line auto-load limit across multiple projects.
 
 ## Step 5: Create Team + Spawn Agents
 

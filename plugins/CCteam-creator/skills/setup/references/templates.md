@@ -99,6 +99,7 @@ Inter-agent messages lose detail. Every task dispatch MUST be self-contained:
   task_plan.md          -- Main plan (team-lead maintains)
   findings.md           -- Team-level findings
   progress.md           -- Work log
+  decisions.md          -- Architecture decision log
   <agent-name>/         -- Per-agent directory
     task_plan.md        -- Agent task list
     findings.md         -- INDEX linking to task folders
@@ -119,7 +120,7 @@ Inter-agent messages lose detail. Every task dispatch MUST be self-contained:
 > Created: <date>
 > Updated: <date>
 > Team: <team-name> (<role list>)
-> Decision Log: memory/<project>-decisions.md
+> Decision Log: .plans/<project>/decisions.md
 
 ---
 
@@ -640,3 +641,45 @@ Every agent's root findings.md should serve as an index. Example:
 
 <One-off observations that don't belong to any specific task>
 ```
+
+---
+
+## Project decisions.md
+
+```markdown
+# <Project Name> - Architecture Decisions
+
+> Record each decision with rationale. Located at .plans/<project>/decisions.md.
+
+---
+
+<Add decisions during planning and development>
+
+## D1: <decision title>
+
+- Date: <date>
+- Decision: <what was decided>
+- Rationale: <why>
+- Alternatives considered: <what else was evaluated>
+```
+
+---
+
+## MEMORY.md Index Entry Template
+
+MEMORY.md is **index-only** — never write detailed content here. Each project gets a short entry pointing to its `.plans/` files.
+
+```markdown
+## Project: <Name>
+- Status: PLANNING | IN_PROGRESS | COMPLETE
+- Plans: .plans/<project>/task_plan.md
+- Decisions: .plans/<project>/decisions.md
+```
+
+After completing significant deliverables, agents may append one-line summaries:
+
+```markdown
+- <one-sentence summary> → .plans/<project>/<agent>/<file> (L<start>-<end>)
+```
+
+This keeps MEMORY.md under the 200-line auto-load limit across multiple projects.
