@@ -663,23 +663,3 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 - 考虑过的替代方案: <还评估了什么>
 ```
 
----
-
-## MEMORY.md 索引条目模板
-
-MEMORY.md **只做索引** — 绝不在此写详细内容。每个项目只记一条简短条目，指向 `.plans/` 中的文件。
-
-```markdown
-## Project: <Name>
-- Status: PLANNING | IN_PROGRESS | COMPLETE
-- Plans: .plans/<project>/task_plan.md
-- Decisions: .plans/<project>/decisions.md
-```
-
-完成重要交付物后，智能体可追加一行摘要：
-
-```markdown
-- <一句话摘要> → .plans/<project>/<agent>/<file> (L<起始行>-<结束行>)
-```
-
-这样可以在多个项目共存时保持 MEMORY.md 在 200 行自动加载限制以内。

@@ -663,23 +663,3 @@ Every agent's root findings.md should serve as an index. Example:
 - Alternatives considered: <what else was evaluated>
 ```
 
----
-
-## MEMORY.md Index Entry Template
-
-MEMORY.md is **index-only** — never write detailed content here. Each project gets a short entry pointing to its `.plans/` files.
-
-```markdown
-## Project: <Name>
-- Status: PLANNING | IN_PROGRESS | COMPLETE
-- Plans: .plans/<project>/task_plan.md
-- Decisions: .plans/<project>/decisions.md
-```
-
-After completing significant deliverables, agents may append one-line summaries:
-
-```markdown
-- <one-sentence summary> → .plans/<project>/<agent>/<file> (L<start>-<end>)
-```
-
-This keeps MEMORY.md under the 200-line auto-load limit across multiple projects.

@@ -6,7 +6,7 @@ description: >
   "set up team", "create team", "build a team for X", "start project X", (3) user invokes
   /CCteam-creator:setup with a project name, (4) user wants to organize a multi-phase project
   with parallel agent workers and persistent progress tracking. Creates TeamCreate, planning
-  files (.plans/project/), memory index, per-agent work directories, and spawns configured
+  files (.plans/project/), per-agent work directories, and spawns configured
   teammates. TRIGGER on: "team", "swarm", "start project", "set up project", "create team
   for", "build team", "organize project", "multi-agent project".
 ---
@@ -20,9 +20,8 @@ Set up a multi-agent team for complex projects, using persistent files for plann
 1. **Requirements Consultation** — Introduce the team mechanism to the user and gather requirements
 2. **Confirm the Plan** — Summarize requirements and let the user confirm the team configuration
 3. Create planning files (including per-agent subdirectories)
-4. Create memory index + decisions file
-5. Create the team + spawn agents
-6. Confirm setup
+4. Create the team + spawn agents
+5. Confirm setup
 
 ## Step 1: Requirements Consultation (Talk First, Then Act)
 
@@ -208,27 +207,14 @@ Without this file, after context compression the team-lead loses all knowledge o
 
 The CLAUDE.md solves this by keeping a concise operations guide permanently in context.
 
-## Step 4: Create Memory Index + Decisions File
-
-1. Create `.plans/<project>/decisions.md` with only a title (architecture decision log)
-2. Append a **lightweight index entry** to `memory/MEMORY.md`:
-   ```
-   ## Project: <Name>
-   - Status: PLANNING
-   - Plans: .plans/<project>/task_plan.md
-   - Decisions: .plans/<project>/decisions.md
-   ```
-
-**MEMORY.md is index-only**: Each entry is a 1-2 line summary pointing to actual files in `.plans/`. Never write detailed content here. This keeps it under the 200-line auto-load limit across multiple projects.
-
-## Step 5: Create Team + Spawn Agents
+## Step 4: Create Team + Spawn Agents
 
 1. `TeamCreate(team_name: "<project>")`
 2. Spawn each role in parallel, `run_in_background: true`
 
 See [references/onboarding.md](references/onboarding.md) for the onboarding prompt for each role.
 
-## Step 6: Confirm
+## Step 5: Confirm
 
 Show the user a table of team members and the file locations.
 
