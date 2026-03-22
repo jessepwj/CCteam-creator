@@ -228,6 +228,7 @@ Show the user a table of team members and the file locations.
 - **Spawn in parallel**: Launch all independent agents simultaneously
 - **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
 - **Code is the source of truth**: Documentation follows the code
+- **No archiving**: Completed task folders stay in place — just mark `Status: complete` in the root findings.md index. Do not rename, move, or prefix folders with `_archive_`. The index is the navigation layer; folder location must remain stable so cross-references don't break
 
 ## Team-Lead Operations Guide
 
