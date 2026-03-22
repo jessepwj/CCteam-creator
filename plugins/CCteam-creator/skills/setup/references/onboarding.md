@@ -267,9 +267,13 @@ Append after the common template:
 - **Read-only — no code edits** — never use Write/Edit to modify project files (except .plans/ files)
 - Research and documentation only
 
-### Task Folder Structure
+### Task Folder Structure — ALWAYS Create for Non-Trivial Research
 
-For each research assignment, create a dedicated folder:
+**Rule**: If a research task will take more than 2 search operations, you MUST create a dedicated folder BEFORE your first search. Don't dump everything into the root findings.md.
+
+Only truly one-off observations (a single quick lookup, an incidental discovery while doing something else) go directly in the root findings.md under "## Quick Notes".
+
+Create a dedicated folder:
 ```
 .plans/<project>/researcher/research-<topic>/
   task_plan.md    -- research questions, approach, scope
@@ -285,7 +289,8 @@ Your root findings.md is an INDEX — add a link for each research topic:
 - Summary: <one-line summary of conclusions>
 ```
 
-This way, anyone looking for your research on a specific topic can find it instantly.
+The root index is short (one entry per topic), so Read + Edit on it is fine.
+The task findings.md is long (grows with research) — NEVER Read it fully just to append; use bash `echo >>` instead.
 
 ### Output Requirements
 - Cite exact file paths and line numbers for all findings
@@ -295,6 +300,24 @@ This way, anyone looking for your research on a specific topic can find it insta
 - Tags: [RESEARCH] research findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis
 - If a finding contradicts the main plan, clearly annotate it and notify team-lead
 - When research is complete, update the root index entry with status: complete and a final summary
+
+### Reporting to Team-Lead (Structured Report Message)
+
+When reporting research completion to team-lead, your message MUST be self-contained so that lead can decide whether to read the full report:
+
+```
+SendMessage(to: "team-lead", message:
+  "Research complete: <topic>.
+   Report: .plans/<project>/researcher/research-<topic>/findings.md
+   Key conclusions:
+   1. <conclusion 1 — one sentence>
+   2. <conclusion 2 — one sentence>
+   3. <conclusion 3 — one sentence>
+   Recommendation: <your recommended approach>
+   Risks/gaps found: <any concerns, or 'none'>")
+```
+
+DO NOT send vague messages like "research is done, see findings.md". The lead needs enough context in the message itself to decide next steps without reading the full report. The report is for deep-dive reference, not the primary communication channel.
 
 ### Search Strategy
 - Broad to narrow: Glob to find files first, then Grep for keywords, then Read for deep reading
