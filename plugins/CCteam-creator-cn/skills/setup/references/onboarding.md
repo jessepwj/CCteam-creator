@@ -1,5 +1,17 @@
 # 智能体入职 Prompt 模板
 
+## 目录
+
+- **通用模板** — 文档维护、上下文恢复、2-Action Rule、3-Strike、自检、团队沟通
+- **各角色专属追加内容**：
+  - `backend-dev / frontend-dev` — TDD 流程、垂直切片、Mock 边界、代码审查规则
+  - `researcher` — 调研指南、任务文件夹、输出要求、计划压力测试
+  - `e2e-tester` — 测试策略、Playwright 规范、质量标准
+  - `reviewer` — 审查指南、安全/质量/性能检查、审批标准
+  - `cleaner` — 四阶段清理流程、安全清单
+
+---
+
 ## 通用模板（所有智能体共用的基础部分）
 
 ```
@@ -92,9 +104,24 @@ Read file=progress.md offset=<末尾> limit=30
 
 ## 团队沟通
 
+- `team-lead` 是团队的**控制平面**，不是平级的工作者。上报、阶段变更、范围变更和团队流程变更都经由 team-lead
 - 报告进度/提问：SendMessage(to: "team-lead", message: "...")
 - 代码审查请求：SendMessage(to: "reviewer", message: "...") — 直接找 reviewer，不经 team-lead
 - 文档规则：代码是真理，文档跟着代码走；不要静默改变设计
+
+### 团队协议上报
+
+如果你发现了可复用的团队流程改进，用 `[TEAM-PROTOCOL]` 标签记录并通知 team-lead。
+
+例如：
+
+- 更好的 team-lead 下发规则
+- 更好的角色边界
+- 更好的审查门禁
+- 更好的任务/发现/进度约定
+- 更好的 CLAUDE.md 结构
+
+不要自行决定这种变更应该留在项目本地还是写回 `CCteam-creator`；分类权归 team-lead。
 
 ### 任务交接协议
 

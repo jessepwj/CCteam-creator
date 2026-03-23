@@ -33,6 +33,7 @@ In a natural, conversational tone (do not copy this text verbatim — adapt to c
 
 **What a team is**:
 - You (Claude) act as team-lead, simultaneously directing multiple AI agents working in parallel
+- Team-lead is the **main conversation control plane**, not a spawned teammate
 - Each agent has a clearly defined role (development, research, testing, review, etc.)
 - Agents can communicate directly with each other (e.g., dev reaching out to reviewer directly)
 - All progress is persisted via the file system, so context loss is not a concern
@@ -48,6 +49,7 @@ In a natural, conversational tone (do not copy this text verbatim — adapt to c
 
 **How it works**:
 - The team-lead (you) assigns tasks, coordinates progress, and makes decisions
+- The team-lead also owns user alignment, phase transitions, and the team's durable operating rules
 - Each agent has its own working directory (`.plans/<project>/`), recording tasks, findings, and progress
 - Agents escalate blockers to the team-lead, who provides direction after review
 - After development, devs automatically request a code review from the reviewer
@@ -97,6 +99,18 @@ Inform the user that the following can all be adjusted as needed:
 - **Review strictness**: Whether code review or security review is required
 
 Team-lead = the main conversation (you). Do not generate a team-lead agent.
+
+If the user is improving an **existing team system** rather than starting from scratch, explicitly decide whether the change belongs in:
+
+- the current project's docs only, or
+- the `CCteam-creator` source templates themselves
+
+Rule of thumb:
+
+- project-specific workflow tweaks → update project docs
+- durable team protocol changes (team-lead responsibilities, role boundaries, onboarding prompts, CLAUDE.md template, task/finding/progress conventions) → update `CCteam-creator` first
+
+Do not recommend immediately rebuilding an active team unless the template changes are already written back and a phase boundary has been chosen.
 
 ## Step 2: Confirm the Plan
 
@@ -222,6 +236,7 @@ Show the user a table of team members and the file locations.
 ## Key Rules
 
 - **Dual-system, no duplication**: .plans/ files are the source of truth (persistent, project-scoped); native TaskCreate is the live dispatch layer (fast queries, auto-unblocking dependencies, but session-scoped — stored in `~/.claude/tasks/`, not in project). TaskCreate description = one-line summary + `.plans/` path. When resuming a project in a new session, reconstruct tasks from each agent's findings.md index
+- **Team-lead is the control plane**: the main conversation owns user alignment, task decomposition, phase gates, main-plan maintenance, and CLAUDE.md upkeep
 - **Context recovery**: After an agent is compacted, it must first read its task folder's files (or root files if no active task folder)
 - **All roles use task folders**: Every assigned task gets a dedicated folder with its own findings/progress files; root findings.md is an index
 - **Code review trigger**: Call reviewer after completing a feature/new module; small changes/bug fixes do not require review
@@ -229,6 +244,8 @@ Show the user a table of team members and the file locations.
 - **Spawn in parallel**: Launch all independent agents simultaneously
 - **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
 - **Code is the source of truth**: Documentation follows the code
+- **Template-first for durable workflow changes**: if a discovered improvement affects role definitions, onboarding, CLAUDE.md structure, or dispatch protocols, update `CCteam-creator` source files before recommending a rebuild
+- **Rebuild at phase boundaries**: do not rebuild an active team mid-stream unless necessary; prefer syncing templates first, then syncing project docs, then rebuilding between major phases
 - **No archiving**: Completed task folders stay in place — just mark `Status: complete` in the root findings.md index. Do not rename, move, or prefix folders with `_archive_`. The index is the navigation layer; folder location must remain stable so cross-references don't break
 
 ## Team-Lead Operations Guide
@@ -272,6 +289,50 @@ Read .plans/<project>/task_plan.md
 ```
 
 Reading order: **progress (where are we) → findings (what was encountered) → task_plan (what is the goal)**
+
+### Team-Lead Owns the Control Plane
+
+The team-lead is responsible for more than dispatch:
+
+- user requirement alignment and scope control
+- task decomposition with explicit inputs, outputs, and acceptance criteria
+- maintaining `.plans/<project>/task_plan.md`, `decisions.md`, and project `CLAUDE.md`
+- deciding phase gates: research → dev → review → e2e → cleanup
+- deciding whether a workflow change is project-local or should be written back into `CCteam-creator`
+
+If these responsibilities are not kept in the main conversation, the team may continue operating, but it will drift.
+
+### Template Sync vs Project-Local Docs
+
+When a team-level improvement is discovered, team-lead should classify it:
+
+- **Project-local**: only this project needs it → update project docs
+- **Template-level**: future teams should inherit it → update `CCteam-creator` source files first
+
+Examples of template-level changes:
+
+- team-lead responsibilities
+- role boundaries
+- onboarding protocol
+- CLAUDE.md structure
+- task/finding/progress conventions
+- rebuild timing rules
+
+Recommended order:
+
+1. update `CCteam-creator`
+2. sync the current project's docs
+3. rebuild the team only if the change materially affects spawned-agent behavior
+
+### Rebuild Timing
+
+Do not default to "edit template then rebuild immediately".
+
+Prefer rebuilding:
+
+- after a major phase completes
+- before the next major development cycle starts
+- when role prompts changed enough that continuing with existing agents would cause inconsistent behavior
 
 ### Handling Agent 3-Strike Escalations
 

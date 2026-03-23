@@ -1,5 +1,18 @@
 # 规划文件模板
 
+## 目录
+
+- **项目 CLAUDE.md** — 团队运营手册（始终在上下文中），花名册、下发协议、状态检查、核心协议
+- **主 task_plan.md** — 项目规划：概述、架构、技术栈、阶段概览
+- **主 findings.md** — 团队级发现日志（带标签条目）
+- **主 progress.md** — 按时间顺序的工作日志
+- **智能体根目录文件** — task_plan.md（智能体总览）、findings.md（索引）、progress.md（工作日志）
+- **任务文件夹模板** — 各角色模板：dev（`task-`）、researcher（`research-`）、e2e-tester（`test-`）、reviewer（`review-`）
+- **根目录 findings.md 索引模式** — 所有角色的索引示例
+- **项目 decisions.md** — 架构决策记录
+
+---
+
 ## 项目 CLAUDE.md（团队运营手册）
 
 此文件生成在**项目工作目录**下（不是 `.plans/` 里面）。Claude Code 会始终将其加载到主会话上下文中，确保 team-lead 在上下文压缩后不会丢失团队运营知识。
@@ -11,6 +24,13 @@
 
 > 由 team-project-setup 自动生成，可按需修改。
 > 此文件让 team-lead 的团队知识在上下文压缩后仍然保持。
+
+## Team-Lead 控制平面
+
+- team-lead = 主对话，不是生成的 agent
+- team-lead 负责用户对齐、范围控制、任务分解和阶段推进
+- team-lead 维护项目全局真相：主 `task_plan.md`、`decisions.md` 和此 `CLAUDE.md`
+- team-lead 决定某个流程改进是项目本地的还是需要写回 `CCteam-creator` 的
 
 ## 团队花名册
 
@@ -82,6 +102,15 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 读取顺序：**progress**（到哪了）→ **findings**（遇到什么）→ **task_plan**（目标是什么）
 
+## Harness 清单
+
+这些是 team-lead 的职责，即使实施被委托给其他角色：
+
+- **文档 harness**：文档与代码和运营规则保持一致
+- **可观测性 harness**：重要失败留下可检查的证据
+- **不变量 harness**：关键边界被转化为检查机制，而不仅仅是人工审查
+- **回放 harness**：高价值真实任务最终被转化为回归资产
+
 ## 核心协议
 
 | 协议 | 触发时机 | 操作 |
@@ -92,6 +121,8 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 | 代码审查 | 大功能/新模块完成 | dev 在 findings.md 写改动摘要，发给 reviewer |
 | 阶段推进 | 阶段完成 | 调研完：读 findings 更新主计划。开发完：等 reviewer [OK]/[WARN] |
 | 上下文溢出 | 智能体报告上下文过长 | 进度已存文件，恢复或生成后继者 |
+| 模板同步 | 发现持久流程改进 | 先更新 `CCteam-creator` 源文件，再同步项目文档 |
+| 团队重建时机 | 模板变更足以影响已生成智能体行为 | 优先在阶段边界重建，不要在开发中途 |
 
 ### 任务下发：最小化信息损耗
 
@@ -99,6 +130,22 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 - 引用 findings/文档的文件路径（让智能体读文件，而不是读你的摘要）
 - 消息中包含验收标准（让智能体知道何时算完成）
 - 标注 [AFK] 或 [HITL]，让智能体知道是否可以自主推进
+
+### 模板级 vs 项目本地变更
+
+按以下标准区分：
+
+- **项目本地**：只有当前项目的文档或流程需要变更
+- **模板级**：未来团队应继承该变更，需先更新 `CCteam-creator`
+
+典型的模板级变更：
+
+- team-lead 职责
+- 角色边界
+- 入职协议
+- CLAUDE.md 结构
+- 任务/发现/进度约定
+- 重建时机规则
 
 ## 文件结构
 

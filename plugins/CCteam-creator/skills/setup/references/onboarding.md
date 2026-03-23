@@ -92,9 +92,24 @@ The main plan is at `.plans/<project>/task_plan.md` (read-only for you; maintain
 
 ## Team Communication
 
+- `team-lead` is the **control plane** of the team, not a peer worker. Escalations, phase changes, scope changes, and team workflow changes route through team-lead
 - Report progress/ask questions: SendMessage(to: "team-lead", message: "...")
 - Request code review: SendMessage(to: "reviewer", message: "...") — go directly to reviewer, do not route through team-lead
 - Documentation rule: code is the source of truth, documentation follows code; do not silently change designs
+
+### Team-Protocol Escalation
+
+If you discover a reusable team workflow improvement, record it with tag `[TEAM-PROTOCOL]` and notify team-lead.
+
+Examples:
+
+- better team-lead dispatch rules
+- better role boundaries
+- better review gates
+- better task/finding/progress conventions
+- better CLAUDE.md structure
+
+Do not decide on your own whether such a change should stay project-local or be written back into `CCteam-creator`; that classification belongs to team-lead.
 
 ### Task Handoff Protocol
 

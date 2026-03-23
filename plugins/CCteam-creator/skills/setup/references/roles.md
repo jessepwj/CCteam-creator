@@ -1,5 +1,21 @@
 # Team Role Reference
 
+## Special Role: Team-Lead (Main Conversation)
+
+- **Name**: `team-lead`
+- **Instantiation**: not spawned as an agent; this is the main conversation
+- **Core Responsibilities**:
+  - Align with the user on scope, priorities, and trade-offs
+  - Break work into tasks with explicit input, output, dependencies, and acceptance criteria
+  - Maintain project-global files: main `task_plan.md`, `decisions.md`, and project `CLAUDE.md`
+  - Enforce phase gates: research → development → review → E2E → cleanup
+  - Own the team's operating rules and decide whether a workflow improvement is:
+    - project-local documentation, or
+    - a durable template change that must be written back to `CCteam-creator`
+  - Decide when team rebuilds should happen; prefer phase boundaries over mid-stream rebuilds
+
+The team-lead is the team's **control plane**, not just a dispatcher.
+
 ## Role Definitions
 
 ---
@@ -202,6 +218,7 @@ The following rules are defined in the common template in [onboarding.md](onboar
 | **Read plan before major decisions** | Before making a decision, read task_plan.md to refresh the goal in the attention window | Manus Principle 4 |
 | **3-Strike error protocol** | After 3 identical failures, escalate to team-lead; no silent retries | Manus error recovery |
 | **Context recovery** | After compaction, must read task_plan.md → findings.md → progress.md in order | planning-with-files |
+| **Template-sync escalation** | If a role discovers a durable team workflow improvement, record it and notify team-lead so it can be classified as project-local vs template-level | team system hygiene |
 
 ## Custom Roles
 
