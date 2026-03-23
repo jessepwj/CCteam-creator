@@ -6,13 +6,14 @@
 
 ## 站在巨人的肩膀上
 
-CCteam-creator 基于以下优秀的开源项目构建：
+CCteam-creator 基于以下优秀的开源项目和工程实践构建：
 
-| 项目 | 我们学到的 |
+| 来源 | 我们学到的 |
 |------|-----------|
 | [**planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | Manus 风格的持久化 Markdown 规划 — 三文件模式（task_plan.md / findings.md / progress.md），经得起上下文压缩。"上下文窗口 = 内存，文件系统 = 磁盘"的核心理念。 |
 | [**everything-claude-code**](https://github.com/affaan-m/everything-claude-code) | Anthropic 黑客松获奖者的智能体优化体系。13 个专家智能体，40+ 技能。启发了我们的角色化智能体设计和技能结构。 |
 | [**mattpocock/skills**](https://github.com/mattpocock/skills) | TDD 垂直切片哲学、"设计两次"并行子智能体模式、接口耐久性原则、以及方案压测方法论。 |
+| [**OpenAI Harness Engineering**](https://openai.com/index/harness-engineering/) | 设计约束、反馈循环和文档系统以使 AI 智能体在规模化下可靠运行的工程学科。启发了我们的 docs/ 知识库、不变量驱动审查、Doc-Code 同步、失败→护栏闭环、以及反膨胀原则。 |
 
 ---
 
@@ -23,7 +24,7 @@ CCteam-creator 在 Claude Code 中设置并行 AI 智能体团队。不再是单
 调用后，CCteam-creator 会：
 
 1. **先沟通** — 介绍团队机制，了解项目需求，推荐团队配置
-2. **完成搭建** — 创建规划文件、工作目录、CLAUDE.md 运营手册、智能体入职
+2. **完成搭建** — 创建规划文件、docs/ 知识库、CLAUDE.md 运营手册、智能体入职
 3. **管理协作** — 智能体直接沟通，状态持久化到文件，遵循内置协议
 
 ## 前置条件
@@ -92,16 +93,52 @@ cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCtea
 
 | 角色 | 名称 | 模型 | 核心能力 |
 |------|------|------|---------|
-| 后端开发 | `backend-dev` | opus | 服务端代码 + TDD（垂直切片）+ 架构感知测试 |
-| 前端开发 | `frontend-dev` | opus | 客户端代码 + TDD（垂直切片）+ 组件测试 |
+| 后端开发 | `backend-dev` | opus | 服务端代码 + TDD + Doc-Code 同步 + 可观测性（适用时） |
+| 前端开发 | `frontend-dev` | opus | 客户端代码 + TDD + Doc-Code 同步 + 组件测试 |
 | 探索/研究 | `researcher` | sonnet | 代码搜索 + 网页调研 + 方案压测（只读） |
-| 联调测试 | `e2e-tester` | sonnet | Playwright E2E + 浏览器自动化 + Bug 追踪 |
-| 代码审查 | `reviewer` | opus | 安全/质量/性能/架构审查（源码只读） |
-| 代码清理 | `cleaner` | sonnet | 死代码清理 + 安全重构 |
+| 联调测试 | `e2e-tester` | sonnet | Playwright E2E + 事件优先调试 + Bug 追踪 |
+| 代码审查 | `reviewer` | opus | 安全/质量/性能 + 文档一致性 + 不变量驱动审查 |
+| 代码清理 | `cleaner` | sonnet | 死代码清理 + 文档新鲜度扫描 + 安全重构 |
 
 不是每个项目都需要全部角色。CCteam-creator 会根据你的需求推荐合适的组合。
 
 ## 核心特性
+
+### Team-Lead 作为控制平面
+
+主对话作为 team-lead——不只是任务派发器，而是**控制平面**，负责用户对齐、阶段门禁和团队持久化运营规则。Team-lead 维护项目 CLAUDE.md（始终在上下文中）、task_plan.md 和 decisions.md。
+
+### docs/ 知识库（Harness Engineering）
+
+受 OpenAI Harness Engineering 方法启发，每个项目都有结构化的 `docs/` 目录作为知识的唯一真理源：
+
+```
+.plans/<project>/docs/
+  architecture.md     -- 系统架构、组件、数据流
+  api-contracts.md    -- 前后端 API 定义（字段级规范）
+  invariants.md       -- 不可违反的系统边界（安全、数据隔离、接口契约）
+```
+
+**Doc-Code 同步**：代码变更 API 或架构时，dev 必须同步更新对应的 docs/ 文件。Reviewer 每次审查都检查这一点。未文档化的 API 对其他智能体来说不存在。
+
+### 精简导航图
+
+task_plan.md 是一张**导航图**，不是百科全书。架构、API 规范和技术栈细节放在 `docs/` 中。主计划保持聚焦可读，即使大项目也不会膨胀。
+
+### 不变量驱动审查
+
+反复出现的 Bug 模式从 Known Pitfalls 提升为 `docs/invariants.md` 中的正式不变量。Reviewer 对照不变量检查代码，并建议将重复模式转为自动化测试。目标：自动化测试是第一道防线，reviewer 是第二道。
+
+### 失败→护栏闭环
+
+当 3-Strike 上报解决或 reviewer [BLOCK] 修复后，team-lead 会问："会再发生吗？"如果会，就记入 CLAUDE.md 的 Known Pitfalls——确保同样的错误不再发生。这是 Harness Engineering 的核心洞察：每次失败都变成永久性护栏。
+
+### 反膨胀原则
+
+源自文件膨胀到 50,000+ token 的实战教训：
+- **根 findings.md** 是纯索引——不堆内容
+- **progress.md** 太长时归档旧条目
+- **task_plan.md** 保持精简——细节属于 docs/
 
 ### 需求对齐（阶段 0）
 
@@ -114,35 +151,24 @@ cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCtea
 
 任务按**垂直切片**（tracer bullet）拆分，不按技术层水平拆。每个切片贯穿所有层（schema → API → UI → 测试），可独立验证。
 
-每个任务包含：
-- **[AFK]/[HITL]** — 可自主完成 / 需要用户决策
-- **blocked-by** — 明确依赖链
-- **输入/输出** — 自包含，最小化智能体间信息损失
-- **验收标准** — 智能体明确知道何时完成
-
-### 方案压测
-
-确定架构前，team-lead 委派 researcher 对方案进行压力测试 — 走遍决策树的每个分支，在开发前发现漏洞和风险。
-
 ### 深度 TDD
 
 开发者遵循增强版 TDD：
 - **垂直切片**：一个测试 → 一个实现 → 重复（绝不先写所有测试）
 - **行为测试**：通过公开接口测试系统做什么，而非怎么做
 - **Mock 边界**：只在系统边界 mock（外部 API、数据库），不 mock 内部模块
-- **可测试接口**：依赖注入、返回结果优于副作用
 
 ### 架构感知代码审查
 
 Reviewer 不仅检查安全/质量/性能，还检查：
+- **Doc-Code 一致性** — API/架构文档是否同步更新？
+- **不变量违反** — 变更是否突破了系统边界？
 - **浅模块检测** — 接口复杂度 ≈ 实现复杂度
-- **依赖分类** — in-process / local-substitutable / remote-owned / true-external
-- **测试策略评估** — "替换而非叠加"冗余测试
+- **测试策略** — "替换而非叠加"冗余测试
 
-### 耐久性研究输出
+### 可观测性支持（适用时）
 
-Researcher 的发现同时包含文件路径（当前定位）和行为描述（重构后仍有效）。示例：
-> 认证逻辑在 `src/auth/middleware.ts:42` — 拦截所有 /api/* 路由，验证 Authorization header 中的 JWT，将解码后的用户信息附加到 req.user。
+对于 Web 应用和服务，引导 dev 发出结构化事件。E2E tester 使用**事件优先调试**：先查事件日志，再看浏览器控制台，最后才截图。可观测性不足标记为 `[OBSERVABILITY-GAP]`——比 Bug 本身更高优先级的发现。
 
 ### 文件持久化
 
@@ -150,9 +176,10 @@ Researcher 的发现同时包含文件路径（当前定位）和行为描述（
 
 ```
 .plans/<project>/
-  task_plan.md          -- 主计划（含垂直切片）
-  findings.md           -- 团队级摘要
-  progress.md           -- 工作日志
+  task_plan.md          -- 精简导航图
+  docs/                 -- 项目知识库
+    architecture.md / api-contracts.md / invariants.md
+  archive/              -- 归档历史
 
   backend-dev/
     findings.md         -- 索引 → 各任务 findings
@@ -176,9 +203,15 @@ Researcher 的发现同时包含文件路径（当前定位）和行为描述（
 |------|------|
 | 2-Action Rule | 每 2 次搜索操作后写 findings |
 | 3-Strike 上报 | 3 次失败后上报，绝不静默重试 |
-| 上下文恢复 | 压缩后先读规划文件再继续 |
+| 护栏捕获 | 将已解决的失败转化为 Known Pitfalls |
+| 上下文恢复 | 渐进式展开：docs/ → 任务文件 → progress |
 | 定期自检 | 每 ~10 次工具调用检查是否偏离计划 |
-| 任务交接 | 基于文件的交接（摘要 + 文档位置） |
+| Doc-Code 同步 | Dev 代码变更时更新 docs/；reviewer 验证 |
+| 阶段健康检查 | 阶段边界时检查文档新鲜度、过期任务、索引完整性 |
+
+### 活文档 CLAUDE.md
+
+CLAUDE.md 不是一次性生成物——它是一份**活文档**，随项目演进。当捕获到失败模式、团队名单变动或建立新协议时更新。
 
 ## 项目结构
 

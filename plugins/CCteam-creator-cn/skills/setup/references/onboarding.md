@@ -2,13 +2,13 @@
 
 ## 目录
 
-- **通用模板** — 文档维护、上下文恢复、2-Action Rule、3-Strike、自检、团队沟通
+- **通用模板** — 文档维护、纯索引规则、progress.md 归档、上下文恢复、2-Action Rule、3-Strike、自检、团队沟通
 - **各角色专属追加内容**：
-  - `backend-dev / frontend-dev` — TDD 流程、垂直切片、Mock 边界、代码审查规则
+  - `backend-dev / frontend-dev` — TDD 流程、垂直切片、Mock 边界、代码审查规则、Doc-Code Sync、可观测性
   - `researcher` — 调研指南、任务文件夹、输出要求、计划压力测试
-  - `e2e-tester` — 测试策略、Playwright 规范、质量标准
-  - `reviewer` — 审查指南、安全/质量/性能检查、审批标准
-  - `cleaner` — 四阶段清理流程、安全清单
+  - `e2e-tester` — 测试策略、Playwright 规范、质量标准、事件优先调试
+  - `reviewer` — 审查指南、安全/质量/性能检查、Doc-Code 一致性、不变量驱动审查、审批标准
+  - `cleaner` — 四阶段清理流程、安全清单、文档新鲜度扫描
 
 ---
 
@@ -45,14 +45,30 @@
 
 这样可以让你的根 findings.md 保持整洁的索引形式。其他人可以快速扫描索引找到具体报告，而不必翻阅一个庞大的文档。
 
+### 根 findings.md = 纯索引（所有角色必须遵守）
+
+根 findings.md 是**纯索引**，不是内容堆场。每条应简短（Status + Report 链接 + Summary）。
+
+膨胀迹象：如果你的根 findings.md 变得又长又难以快速浏览——说明内容在往里泄漏。立即拆分到任务文件夹中。"Quick Notes" 区域仅用于简短观察；任何有实质内容的 → 创建任务文件夹。
+
+### progress.md 归档
+
+当 progress.md 长到难以快速浏览时（例如积累了多个 session 的历史），归档旧内容：
+1. 将旧条目移到 `archive/progress-<period>.md`（如 `progress-s1-s10.md`）
+2. progress.md 中只保留最近几个 session
+3. 在顶部添加链接：`> 旧条目：[archive/progress-<period>.md](archive/progress-<period>.md)`
+
+此规则同时适用于智能体级和项目根目录的 progress.md（team-lead 负责归档根文件）。
+
 ### 上下文恢复规则（关键！）
 
-每当你的上下文被压缩（被 compact 或重新启动）后，**必须**先依次读取：
-1. task_plan.md — 了解你有哪些任务、完成到哪里
-2. 如果正在处理某个具体任务文件夹 → 读取该文件夹下的三个文件
-3. 如果是一般性恢复 → 读取根 findings.md（索引）+ 根 progress.md
+每当你的上下文被压缩（被 compact 或重新启动）后，**必须**按以下顺序读取：
+1. `.plans/<project>/docs/` — 读取相关 docs 文件（architecture.md、api-contracts.md）获取系统上下文
+2. 你自己的 task_plan.md — 了解你有哪些任务、完成到哪里
+3. 如果正在处理某个具体任务文件夹 → 读取该文件夹下的三个文件
+4. 如果是一般性恢复 → 读取根 findings.md（索引）+ 根 progress.md（最后 30 行）
 
-只有读完这些文件后，你才能继续工作。不要凭记忆猜测进度。
+这是**渐进式展开**：docs/ 给你系统全貌，然后你自己的文件给你任务状态。不要 Read 完整的项目 progress.md 或完整的主 task_plan.md——它们是导航图，不是参考资料。
 
 ### 文档更新频率
 
@@ -272,6 +288,20 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 - 小修改、Bug 修复、配置变更 → 不需要审查，直接继续
 - 审查结果修复后，在 findings.md 标记 [REVIEW-FIX]
 
+### Doc-Code Sync（强制要求）
+当你变更了 API（新端点、修改响应格式、新增字段）：
+- **必须**在同一任务中更新 `.plans/<project>/docs/api-contracts.md`
+- 未文档化的 API 对其他智能体来说不存在——他们看不到的就不能用
+
+当你变更了架构（新组件、修改数据流）：
+- **必须**更新 `.plans/<project>/docs/architecture.md`
+
+### 可观测性（适用时）
+如果项目需要结构化事件日志：
+- 重要操作**必须**发出结构化事件（time, event_name, status, detail）
+- 如果操作不发出事件，e2e-tester 将无法调试——这是一个 Bug
+- 前端关键错误（SSE 失败、渲染崩溃、API 错误）应上报到后端事件端点
+
 ### 代码质量
 - 函数 <50 行，文件 <800 行
 - 不可变模式（spread 而非 mutation）
@@ -417,9 +447,18 @@ SendMessage(to: "team-lead", message:
 - 总通过率 >95%
 - Flaky 测试率 <5%
 
+### 事件优先调试（当项目有可观测性时）
+如果项目有结构化事件端点（如 /admin/ops/events）：
+1. **首先**：查询结构化事件日志
+2. **然后**：检查浏览器控制台（browser_console_messages）
+3. **最后**：截图（仅用于视觉确认，不是主要调试工具）
+
+如果事件日志不足以诊断问题 → 标记为 `[OBSERVABILITY-GAP]` 并上报 team-lead。这比 Bug 本身优先级更高——它意味着系统的可观测性不够。
+
 ### 输出标签
 - [E2E-TEST] 测试结果
 - [BUG] 缺陷（必须包含：文件、严重度 CRITICAL/HIGH/MEDIUM/LOW、根因、修复方案）
+- [OBSERVABILITY-GAP] 事件日志不足以诊断问题（适用时）
 ```
 
 ### reviewer（代码审查）
@@ -516,6 +555,21 @@ const apiKey = "sk-abc123";  // Bad
 const apiKey = process.env.API_KEY;  // Good
 ```
 
+### Doc-Code 一致性检查（每次审查必做，HIGH 级别）
+标准安全/质量/性能/架构检查完成后：
+- [ ] 如果 API 变更了 → dev 更新了 `docs/api-contracts.md` 吗？
+- [ ] 如果架构变更了 → dev 更新了 `docs/architecture.md` 吗？
+- [ ] 变更是否违反了 `docs/invariants.md`？
+- [ ] 如果项目有可观测性要求 → 新端点是否发出了结构化事件？
+
+如果文档未更新 → 标记为 HIGH（文档漂移是团队级风险，不仅仅是风格问题）。
+
+### 不变量驱动审查
+- 依据 `docs/invariants.md` 审查——检查每条相关不变量
+- 如果某个 Bug 模式反复出现 → 建议将其转化为自动化测试
+- 用优先级标记建议：`[INV-TEST] P0/P1/P2: <自动化什么>`
+- 目标：reviewer 是**第二道**防线；自动化测试是**第一道**
+
 ### 审批标准
 - [OK] 通过：无 CRITICAL 或 HIGH
 - [WARN] 警告：仅 MEDIUM（可合并但需注意）
@@ -566,6 +620,15 @@ const apiKey = process.env.API_KEY;  // Good
 - [ ] 不在测试中使用
 - [ ] 删除后测试通过
 - [ ] 删除后构建成功
+
+### 文档新鲜度扫描（代码清理之外的附加职责）
+在每个阶段开始时（不只是结束时），扫描 `docs/` 是否过时：
+- `docs/api-contracts.md` 中的 API 路由是否与实际代码一致？
+- `docs/architecture.md` 是否反映当前组件结构？
+- 环境变量和目录结构是否仍然准确？
+- 向 team-lead 报告不一致之处
+
+Cleaner 是团队的**文档园丁**——防止文档腐化与防止代码腐化同等重要。
 
 ### 禁止使用场景
 - 活跃功能开发中（会造成合并冲突）

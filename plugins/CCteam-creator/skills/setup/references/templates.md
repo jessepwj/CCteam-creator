@@ -89,6 +89,16 @@ SendMessage(to: "frontend-dev", message: "Fix XSS in login form, see src/auth/lo
 
 Reading order: **progress** (where are we) -> **findings** (what happened) -> **task_plan** (what's the goal)
 
+## Docs Index (Knowledge Base)
+
+| Document | Location | Updated By |
+|----------|----------|-----------|
+| Architecture | .plans/<project>/docs/architecture.md | team-lead, devs |
+| API Contracts | .plans/<project>/docs/api-contracts.md | devs (MUST sync on API change) |
+| Invariants | .plans/<project>/docs/invariants.md | team-lead, reviewer |
+
+**Doc-Code Sync rule**: When code changes an API or architecture, the corresponding docs/ file MUST be updated in the same task. Undocumented APIs do not exist for other agents.
+
 ## Harness Checklist
 
 Team-lead reviews at phase boundaries (not every task):
@@ -146,14 +156,19 @@ Typical template-level changes:
 
 ```
 .plans/<project>/
-  task_plan.md          -- Main plan (team-lead maintains)
+  task_plan.md          -- Main plan: lean navigation map (team-lead maintains)
   findings.md           -- Team-level findings
   progress.md           -- Work log
   decisions.md          -- Architecture decision log
+  docs/                 -- Project knowledge base (source of truth for architecture, APIs, etc.)
+    architecture.md     -- System architecture, components, data flow
+    api-contracts.md    -- Frontend-backend API definitions, field specs, state machines
+    invariants.md       -- System invariants (unbreakable boundaries)
+  archive/              -- Archived history (not deleted, but not read daily)
   <agent-name>/         -- Per-agent directory
     task_plan.md        -- Agent task list
-    findings.md         -- INDEX linking to task folders
-    progress.md         -- Agent work log
+    findings.md         -- INDEX linking to task folders (keep lean, no content dumping)
+    progress.md         -- Agent work log (archive old entries when bloated)
     <prefix>-<task>/    -- Task folder (per assigned task)
       task_plan.md / findings.md / progress.md
 ```
@@ -176,38 +191,29 @@ Typical template-level changes:
 
 ## 1. Project Overview
 
-<1-2 paragraph project description>
+<1-2 sentences describing what the project does>
+Detailed product definition → [docs/product.md](docs/product.md) (if created)
 
 ---
 
-## 2. Key Architecture Decisions
+## 2. Docs Index
 
-<Fill in during planning phase; record each decision and its rationale>
-
----
-
-## 3. Tech Stack
-
-<List of technologies, frameworks, and versions>
+| Document | Location | Content |
+|----------|----------|---------|
+| Architecture | docs/architecture.md | System components, data flow, key design decisions |
+| API Contracts | docs/api-contracts.md | Frontend-backend interface definitions |
+| Invariants | docs/invariants.md | Unbreakable system boundaries |
 
 ---
 
-## 4. Directory Structure
-
-<Project file layout>
-
----
-
-## 5. Phases Overview
+## 3. Phases Overview
 
 Task dispatch is managed via native TaskCreate/TaskList (dependencies auto-unblock).
-Below is the high-level phase sequence — individual tasks live in the task system.
 
 ### Slicing Principle
 
 Break tasks into **vertical slices** (tracer bullets), NOT horizontal slices by tech layer.
 Each slice delivers a narrow but COMPLETE path through all layers (schema → API → UI → tests).
-A completed slice should be demoable or verifiable on its own.
 
 ### Phases
 
@@ -219,10 +225,20 @@ A completed slice should be demoable or verifiable on its own.
 
 ---
 
-## 6. API Documentation
+## 4. Task Summary
 
-<Fill in incrementally as APIs are designed/discovered>
+| # | Task | Owner | Status | Plan File |
+|---|------|-------|--------|-----------|
+| T1 | ... | ... | ... | .plans/<project>/<agent>/... |
+
+---
+
+## 5. Current Phase
+
+<What is currently happening, what is the next milestone>
 ```
+
+**Lean map principle**: task_plan.md is a **navigation map**, not an encyclopedia. Architecture, API specs, tech stack details, and directory structure belong in `docs/` files. Keep this file focused on "where to look" and "what to do next".
 
 ## Main findings.md
 
@@ -629,7 +645,8 @@ Every agent's root findings.md should serve as an index. Example:
 ```markdown
 # <Agent Name> - Findings Index
 
-> Links to task-specific findings. Quick one-off notes also go here.
+> Pure index — each entry should be brief (Status + Report link + Summary).
+> If this file is growing long, content is leaking in — split to task folders.
 
 ---
 
@@ -647,7 +664,97 @@ Every agent's root findings.md should serve as an index. Example:
 
 ## Quick Notes
 
-<One-off observations that don't belong to any specific task>
+> Keep minimal. Anything longer than a brief observation → create a task folder instead.
+```
+
+---
+
+## docs/ Templates
+
+The `docs/` directory is the project's **knowledge base** — structured reference documents that agents read for context recovery. Unlike task_plan.md (navigation) or findings.md (event log), docs/ files contain **stable, curated knowledge** that is actively maintained as the project evolves.
+
+Create during Step 3. Start with the files relevant to the project; not all are required.
+
+### docs/architecture.md
+
+```markdown
+# <Project Name> - Architecture
+
+> System architecture and key design decisions.
+> Updated by: team-lead, devs (after architecture changes)
+
+## System Overview
+
+<High-level description: what components exist, how they interact>
+
+## Component Map
+
+<Key components/modules and their responsibilities>
+
+## Data Flow
+
+<How data moves through the system for key operations>
+
+## Tech Stack
+
+<Technologies, frameworks, and versions>
+
+## Directory Structure
+
+<Project file layout>
+```
+
+### docs/api-contracts.md
+
+```markdown
+# <Project Name> - API Contracts
+
+> Frontend-backend interface definitions. Source of truth for field names and types.
+> Updated by: devs (MUST update when adding/changing endpoints)
+
+## Endpoints
+
+### POST /api/example
+
+Request:
+\`\`\`json
+{ "field": "type — description" }
+\`\`\`
+
+Response:
+\`\`\`json
+{ "field": "type — description" }
+\`\`\`
+
+---
+
+<Add endpoints as they are designed/implemented>
+```
+
+### docs/invariants.md
+
+```markdown
+# <Project Name> - System Invariants
+
+> Unbreakable system boundaries. Violating any of these = CRITICAL bug.
+> Each invariant should note: can it be automated? current status (has test / no test / manual check)
+
+## Security Boundaries
+
+- INV-1: <description> — Status: no test
+- INV-2: <description> — Status: has test
+
+## Data Isolation
+
+- INV-N: <description> — Status: no test
+
+## Interface Contracts
+
+- INV-M: Frontend-backend API field names MUST match api-contracts.md — Status: manual check
+
+---
+
+When a recurring bug pattern is identified (via reviewer or Known Pitfalls), consider adding it here as a formal invariant. The goal: reviewer becomes the **second** line of defense; automated tests are the **first**.
 ```
 
 ---

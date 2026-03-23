@@ -143,15 +143,20 @@ See [references/templates.md](references/templates.md) for file templates.
 
 ```
 .plans/<project>/
-  task_plan.md                -- Main plan
+  task_plan.md                -- Main plan (lean navigation map, not encyclopedia)
   findings.md                 -- Team-level summary
-  progress.md                 -- Work log
+  progress.md                 -- Work log (archive old entries when bloated)
   decisions.md                -- Architecture decision log
+  docs/                       -- Project knowledge base
+    architecture.md           -- System architecture, components, data flow
+    api-contracts.md          -- Frontend-backend API definitions
+    invariants.md             -- Unbreakable system boundaries
+  archive/                    -- Archived history (old progress, old plans)
 
   <agent-name>/               -- One directory per agent
     task_plan.md              -- Agent task list
-    findings.md               -- INDEX linking to task-specific findings
-    progress.md               -- Agent work log
+    findings.md               -- INDEX only (keep lean, no content dumping)
+    progress.md               -- Agent work log (archive old entries when bloated)
     <prefix>-<task>/          -- Task folder (one per assigned task)
       task_plan.md / findings.md / progress.md
 ```
@@ -271,7 +276,9 @@ Then **guide the user to run `/compact`** to free up context. Explain why:
 - **researcher uses sonnet model**: Research requires sufficient depth
 - **Spawn in parallel**: Launch all independent agents simultaneously
 - **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
-- **Code is the source of truth**: Documentation follows the code
+- **Code is the source of truth**: Documentation follows the code. Devs MUST update `docs/api-contracts.md` and `docs/architecture.md` when code changes — undocumented APIs do not exist for other agents
+- **Invariant-first for high-risk boundaries**: Recurring bugs should be promoted from Known Pitfalls to `docs/invariants.md`, then converted to automated tests. Reviewer is the second line of defense; automated tests are the first
+- **Anti-bloat principle**: Root findings.md is a pure index (no content dumping). progress.md should be archived when it gets too long to scan quickly. task_plan.md is a lean navigation map — architecture, API specs, and tech details belong in `docs/`, not here
 - **Template-first for durable workflow changes**: if a discovered improvement affects role definitions, onboarding, CLAUDE.md structure, or dispatch protocols, update `CCteam-creator` source files before recommending a rebuild
 - **Rebuild at phase boundaries**: do not rebuild an active team mid-stream unless necessary; prefer syncing templates first, then syncing project docs, then rebuilding between major phases
 - **No archiving**: Completed task folders stay in place — just mark `Status: complete` in the root findings.md index. Do not rename, move, or prefix folders with `_archive_`. The index is the navigation layer; folder location must remain stable so cross-references don't break

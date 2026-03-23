@@ -2,13 +2,14 @@
 
 ## 目录
 
-- **项目 CLAUDE.md** — 团队运营手册（始终在上下文中），花名册、下发协议、状态检查、核心协议
-- **主 task_plan.md** — 项目规划：概述、架构、技术栈、阶段概览
+- **项目 CLAUDE.md** — 团队运营手册（始终在上下文中），花名册、下发协议、状态检查、文档索引、核心协议
+- **主 task_plan.md** — 精简导航图：概述、文档索引、阶段概览、任务汇总、当前阶段
 - **主 findings.md** — 团队级发现日志（带标签条目）
 - **主 progress.md** — 按时间顺序的工作日志
 - **智能体根目录文件** — task_plan.md（智能体总览）、findings.md（索引）、progress.md（工作日志）
 - **任务文件夹模板** — 各角色模板：dev（`task-`）、researcher（`research-`）、e2e-tester（`test-`）、reviewer（`review-`）
 - **根目录 findings.md 索引模式** — 所有角色的索引示例
+- **docs/ 模板** — 项目知识库：architecture.md、api-contracts.md、invariants.md
 - **项目 decisions.md** — 架构决策记录
 
 ---
@@ -102,6 +103,16 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 读取顺序：**progress**（到哪了）→ **findings**（遇到什么）→ **task_plan**（目标是什么）
 
+## 文档索引（知识库）
+
+| 文档 | 位置 | 维护者 |
+|------|------|--------|
+| 架构 | .plans/<project>/docs/architecture.md | team-lead, devs |
+| API 契约 | .plans/<project>/docs/api-contracts.md | devs（API 变更时**必须**同步） |
+| 不变量 | .plans/<project>/docs/invariants.md | team-lead, reviewer |
+
+**Doc-Code Sync 规则**：当代码变更了 API 或架构时，对应的 docs/ 文件**必须**在同一个任务中同步更新。未文档化的 API 对其他智能体来说不存在。
+
 ## Harness 检查清单
 
 team-lead 在阶段边界检查（不是每个任务都查）：
@@ -159,14 +170,19 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 
 ```
 .plans/<project>/
-  task_plan.md          -- 主计划（team-lead 维护）
+  task_plan.md          -- 主计划：精简导航图（team-lead 维护）
   findings.md           -- 团队级发现
   progress.md           -- 工作日志
   decisions.md          -- 架构决策记录
+  docs/                 -- 项目知识库（架构、API 等的真理源头）
+    architecture.md     -- 系统架构、组件、数据流
+    api-contracts.md    -- 前后端 API 定义、字段规范、状态机
+    invariants.md       -- 系统不变量（不可违反的边界）
+  archive/              -- 归档历史（不删除，但不需要每天读取）
   <agent-name>/         -- 各智能体目录
     task_plan.md        -- 智能体任务清单
-    findings.md         -- 索引：链接到各任务文件夹
-    progress.md         -- 智能体工作日志
+    findings.md         -- 索引：链接到各任务文件夹（保持精简，不堆内容）
+    progress.md         -- 智能体工作日志（条目过多时归档旧内容）
     <前缀>-<任务>/      -- 任务文件夹（每个分配的任务一个）
       task_plan.md / findings.md / progress.md
 ```
@@ -189,38 +205,29 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 
 ## 1. 项目概述
 
-<1-2 段项目描述>
+<1-2 句话描述项目做什么>
+详细产品定义 → [docs/product.md](docs/product.md)（如已创建）
 
 ---
 
-## 2. 关键架构决策
+## 2. 文档索引
 
-<规划阶段填写，记录每个决策及理由>
-
----
-
-## 3. 技术栈
-
-<技术、框架、版本列表>
+| 文档 | 位置 | 内容 |
+|------|------|------|
+| 架构 | docs/architecture.md | 系统组件、数据流、关键设计决策 |
+| API 契约 | docs/api-contracts.md | 前后端接口定义 |
+| 不变量 | docs/invariants.md | 不可违反的系统边界 |
 
 ---
 
-## 4. 目录结构
-
-<项目文件布局>
-
----
-
-## 5. 阶段概览
+## 3. 阶段概览
 
 任务调度通过原生 TaskCreate/TaskList 管理（依赖自动解锁）。
-以下是高层阶段描述——具体任务在任务系统中。
 
 ### 切片原则
 
 将任务分解为**垂直切片**（追踪子弹），而不是按技术层横向切片。
 每个切片提供一条贯穿所有层的窄而完整的路径（schema → API → UI → 测试）。
-一个完成的切片应该可以单独演示或验证。
 
 ### 阶段
 
@@ -232,10 +239,20 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 
 ---
 
-## 6. API 文档
+## 4. 任务汇总
 
-<随着 API 设计/发现逐步填写>
+| # | 任务 | 负责人 | 状态 | 计划文件 |
+|---|------|--------|------|----------|
+| T1 | ... | ... | ... | .plans/<project>/<agent>/... |
+
+---
+
+## 5. 当前阶段
+
+<当前正在做什么，下一个里程碑是什么>
 ```
+
+**精简导航图原则**：task_plan.md 是一张**导航图**，不是百科全书。架构、API 规范、技术栈细节和目录结构属于 `docs/` 文件。保持此文件专注于"去哪找"和"下一步做什么"。
 
 ## 主 findings.md
 
@@ -642,7 +659,8 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 ```markdown
 # <智能体名> - 发现索引
 
-> 链接到各任务专属发现。临时性的零散笔记也写在这里。
+> 纯索引——每个条目应简短（Status + Report 链接 + Summary）。
+> 如果此文件越来越长，说明内容在往里泄漏——应拆分到任务文件夹中。
 
 ---
 
@@ -660,7 +678,97 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 
 ## 零散笔记
 
-<不属于任何具体任务的临时观察>
+> 保持最少。任何比简短观察更长的内容 → 创建任务文件夹。
+```
+
+---
+
+## docs/ 模板
+
+`docs/` 目录是项目的**知识库**——结构化的参考文档，智能体读取它们来恢复上下文。不同于 task_plan.md（导航）或 findings.md（事件日志），docs/ 文件包含**稳定的、经过整理的知识**，随项目演进主动维护。
+
+在第 3 步创建。根据项目需要选择相关文件，不是所有文件都必须创建。
+
+### docs/architecture.md
+
+```markdown
+# <项目名> - 架构
+
+> 系统架构和关键设计决策。
+> 维护者：team-lead, devs（架构变更后更新）
+
+## 系统概览
+
+<高层描述：有哪些组件，它们如何交互>
+
+## 组件图
+
+<关键组件/模块及其职责>
+
+## 数据流
+
+<关键操作中数据如何流转>
+
+## 技术栈
+
+<技术、框架、版本>
+
+## 目录结构
+
+<项目文件布局>
+```
+
+### docs/api-contracts.md
+
+```markdown
+# <项目名> - API 契约
+
+> 前后端接口定义。字段名和类型的真理源头。
+> 维护者：devs（添加/变更端点时**必须**更新）
+
+## 端点
+
+### POST /api/example
+
+Request:
+\`\`\`json
+{ "field": "type — description" }
+\`\`\`
+
+Response:
+\`\`\`json
+{ "field": "type — description" }
+\`\`\`
+
+---
+
+<随设计/实现逐步添加端点>
+```
+
+### docs/invariants.md
+
+```markdown
+# <项目名> - 系统不变量
+
+> 不可违反的系统边界。违反其中任何一条 = CRITICAL Bug。
+> 每条不变量应注明：能否自动化？当前状态（已有测试 / 无测试 / 人工检查）
+
+## 安全边界
+
+- INV-1: <描述> — 状态：无测试
+- INV-2: <描述> — 状态：已有测试
+
+## 数据隔离
+
+- INV-N: <描述> — 状态：无测试
+
+## 接口契约
+
+- INV-M: 前后端 API 字段名必须与 api-contracts.md 一致 — 状态：人工检查
+
+---
+
+当识别到反复出现的 Bug 模式（通过 reviewer 或 Known Pitfalls），考虑将其添加为正式不变量。目标：reviewer 成为**第二道**防线；自动化测试是**第一道**。
 ```
 
 ---

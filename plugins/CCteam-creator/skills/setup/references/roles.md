@@ -40,6 +40,13 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Required boundary cases: null/undefined, empty values, invalid types, boundary values, error paths, concurrency, large data, special characters
   - Unit tests (required) + integration tests (required) + E2E tests (critical paths)
   - Avoid: testing implementation details instead of behavior, shared state between tests, insufficient assertions, unmocked external services
+- **Doc-Code Sync** (mandatory):
+  - API changes → MUST update `docs/api-contracts.md`
+  - Architecture changes → MUST update `docs/architecture.md`
+  - Undocumented APIs do not exist for other agents
+- **Observability** (when applicable):
+  - Important operations must emit structured events
+  - Missing events = a bug (e2e-tester cannot debug what it cannot observe)
 - **Code Quality**:
   - Functions <50 lines, files <800 lines
   - Immutable patterns (spread, no mutation)
@@ -59,6 +66,8 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - 80%+ test coverage
 - **Documentation Structure**: Same as backend-dev (large tasks use task folders)
 - **Code Review Rules**: Same as backend-dev (large features require review, small changes do not)
+- **Doc-Code Sync** (mandatory): Same as backend-dev (API changes → update docs/api-contracts.md)
+- **Observability** (when applicable): Frontend critical errors must report to backend event endpoint
 - **Additional Focus**:
   - Unnecessary React re-renders
   - Missing memoization
@@ -113,7 +122,8 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Critical paths 100% passing
   - Overall pass rate >95%
   - Test suite completes in <10 minutes
-- **Output Tags**: [E2E-TEST] test results, [BUG] discovered defects (including file, severity, root cause, fix)
+- **Event-First Debugging** (when project has observability): Query structured event logs FIRST → browser console SECOND → screenshot LAST. If events are insufficient → tag `[OBSERVABILITY-GAP]`
+- **Output Tags**: [E2E-TEST] test results, [BUG] discovered defects (including file, severity, root cause, fix), [OBSERVABILITY-GAP] insufficient event logging
 - **Documentation Structure**:
   - Each test scope/round → create a `test-<scope>/` subfolder (containing task_plan.md + findings.md + progress.md)
   - findings.md contains test results, bugs, and pass/fail summaries for that scope
@@ -154,6 +164,14 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Unnecessary React re-renders
   - Missing caching
   - N+1 queries
+- **Doc-Code Consistency Checks** (HIGH level):
+  - API changed → `docs/api-contracts.md` updated?
+  - Architecture changed → `docs/architecture.md` updated?
+  - Change violates `docs/invariants.md`? → CRITICAL
+  - Doc not updated → HIGH (doc drift is a team-level risk)
+- **Invariant-Driven Review**:
+  - Review against `docs/invariants.md`; recurring bug patterns → recommend automated test (`[INV-TEST] P0/P1/P2`)
+  - Goal: reviewer = second line of defense, automated tests = first
 - **Architecture Health Checks** (MEDIUM level):
   - Shallow modules: interface complexity ≈ implementation complexity → suggest deepening
   - Dependency classification: in-process / local-substitutable / remote-but-owned / true-external
@@ -181,7 +199,9 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Identify and remove dead code (unused imports, variables, functions, files)
   - Merge duplicate code into shared utility functions
   - Address technical debt
+  - **Doc freshness scan**: verify `docs/` files match actual code (API routes, architecture, env vars)
   - **Must verify before every deletion**, must run tests after every deletion
+- **When to run**: Not just at project end. Run doc freshness scan at the START of each phase (can parallel with other tasks). Cleaner is the team's **doc-gardening agent**
 - **Four-Phase Process** (from refactor-cleaner):
   1. **Analyze**: Run detection tools (knip, depcheck, ts-prune), categorize by risk (Safe/Careful/Risky)
   2. **Validate**: Grep to confirm no references, not a public API, not a dynamic import

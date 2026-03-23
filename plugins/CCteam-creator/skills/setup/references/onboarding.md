@@ -33,14 +33,30 @@ After creating a task folder, add a link entry to your root findings.md:
 
 This keeps your root findings.md as a clean index. Others can quickly scan the index to find specific reports without wading through a giant document.
 
+### Root findings.md = Pure Index (All Roles MUST Follow)
+
+Root findings.md is a **pure index**, not a content dump. Each entry should be brief (Status + Report link + Summary).
+
+Signs of bloat: if your root findings.md is getting long and hard to scan — content is leaking in. Split it to task folders immediately. The "Quick Notes" section is for brief observations only; anything substantial → create a task folder.
+
+### progress.md Archival
+
+When progress.md gets too long to scan quickly (e.g., many sessions of history), archive old content:
+1. Move old entries to `archive/progress-<period>.md` (e.g., `progress-s1-s10.md`)
+2. Keep only the most recent sessions in progress.md
+3. Add a link at the top: `> Older entries: [archive/progress-<period>.md](archive/progress-<period>.md)`
+
+This applies to both agent-level and project-root progress.md (team-lead archives the root file).
+
 ### Context Recovery Rules (Critical!)
 
 Whenever your context is compacted (compacted or restarted), you **must** first read, in order:
-1. task_plan.md — understand what tasks you have and how far they are completed
-2. If working on a specific task folder → read that folder's three files
-3. If resuming generally → read root findings.md (index) + root progress.md
+1. `.plans/<project>/docs/` — read relevant docs files (architecture.md, api-contracts.md) for system context
+2. Your own task_plan.md — understand what tasks you have and how far along
+3. If working on a specific task folder → read that folder's three files
+4. If resuming generally → read root findings.md (index) + root progress.md (last 30 lines)
 
-Only after reading these files may you continue working. Do not guess progress from memory.
+This is **progressive disclosure**: docs/ gives you the system picture, then your own files give you task state. Do NOT read the entire project progress.md or the full main task_plan.md — they are navigation maps, not reference material.
 
 ### Documentation Update Frequency
 
@@ -259,6 +275,20 @@ you do not need to read all task folders.
 - Small changes, bug fixes, config changes → no review needed, continue directly
 - After fixing review issues, mark [REVIEW-FIX] in findings.md
 
+### Doc-Code Sync (Mandatory)
+When you change an API (new endpoint, modified response format, new fields):
+- MUST update `.plans/<project>/docs/api-contracts.md` in the same task
+- Undocumented APIs do not exist for other agents — they cannot use what they cannot see
+
+When you change architecture (new component, modified data flow):
+- MUST update `.plans/<project>/docs/architecture.md`
+
+### Observability (When Applicable)
+If the project requires structured event logging:
+- Important operations MUST emit structured events (time, event_name, status, detail)
+- If an operation does not emit events, e2e-tester cannot debug it — this is a bug
+- Frontend critical errors (SSE failures, render crashes, API errors) should report to a backend event endpoint
+
 ### Code Quality
 - Functions <50 lines, files <800 lines
 - Immutable patterns (spread rather than mutation)
@@ -404,9 +434,18 @@ Your root findings.md is an INDEX — add a link for each test scope:
 - Overall pass rate >95%
 - Flaky test rate <5%
 
+### Event-First Debugging (When Project Has Observability)
+If the project has structured event endpoints (e.g., /admin/ops/events):
+1. **FIRST**: Query structured event logs
+2. **THEN**: Check browser console (browser_console_messages)
+3. **LAST**: Screenshot (visual confirmation only, not primary debug tool)
+
+If event logs are insufficient to diagnose a problem → tag as `[OBSERVABILITY-GAP]` and report to team-lead. This is a higher-priority finding than the bug itself — it means the system is not observable enough.
+
 ### Output Tags
 - [E2E-TEST] test results
 - [BUG] defects (must include: file, severity CRITICAL/HIGH/MEDIUM/LOW, root cause, fix recommendation)
+- [OBSERVABILITY-GAP] event logging insufficient to diagnose an issue (when applicable)
 ```
 
 ### reviewer (Code Reviewer)
@@ -503,6 +542,21 @@ const apiKey = "sk-abc123";  // Bad
 const apiKey = process.env.API_KEY;  // Good
 ```
 
+### Doc-Code Consistency Checks (Every Review, HIGH level)
+After the standard security/quality/performance/architecture checks:
+- [ ] If API changed → did dev update `docs/api-contracts.md`?
+- [ ] If architecture changed → did dev update `docs/architecture.md`?
+- [ ] Does any change violate `docs/invariants.md`?
+- [ ] If project has observability requirements → do new endpoints emit structured events?
+
+If docs not updated → mark as HIGH (doc drift is a team-level risk, not just a style issue).
+
+### Invariant-Driven Review
+- Review against `docs/invariants.md` — check each relevant invariant
+- If a bug pattern appears repeatedly → recommend converting it to an automated test
+- Tag recommendation with priority: `[INV-TEST] P0/P1/P2: <what to automate>`
+- Goal: reviewer is the **second** line of defense; automated tests are the **first**
+
 ### Approval Criteria
 - [OK] Pass: no CRITICAL or HIGH issues
 - [WARN] Warning: MEDIUM only (can merge but needs attention)
@@ -553,6 +607,15 @@ Append after the common template:
 - [ ] Not used in tests
 - [ ] Tests pass after deletion
 - [ ] Build succeeds after deletion
+
+### Doc Freshness Scan (In Addition to Code Cleanup)
+At the start of each phase (not just at the end), scan `docs/` for staleness:
+- Do API routes in `docs/api-contracts.md` match actual code?
+- Does `docs/architecture.md` reflect the current component structure?
+- Are environment variables and directory structures still accurate?
+- Report discrepancies to team-lead
+
+Cleaner is the team's **doc-gardening agent** — preventing documentation decay is as important as preventing code decay.
 
 ### Prohibited Scenarios
 - Active feature development (will cause merge conflicts)
