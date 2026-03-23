@@ -102,14 +102,21 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 读取顺序：**progress**（到哪了）→ **findings**（遇到什么）→ **task_plan**（目标是什么）
 
-## Harness 清单
+## Harness 检查清单
 
-这些是 team-lead 的职责，即使实施被委托给其他角色：
+team-lead 在阶段边界检查（不是每个任务都查）：
 
-- **文档 harness**：文档与代码和运营规则保持一致
-- **可观测性 harness**：重要失败留下可检查的证据
-- **不变量 harness**：关键边界被转化为检查机制，而不仅仅是人工审查
-- **回放 harness**：高价值真实任务最终被转化为回归资产
+- **文档 harness**：读 CLAUDE.md + 主 task_plan.md——还准确吗？如果过时 → 在下发下一阶段任务前更新
+- **可观测性 harness**：Grep progress.md 搜索 "error|fail"——失败记录是否有足够细节（尝试步骤、具体错误、根因）？
+- **不变量 harness**：检查下方 Known Pitfalls——是否有条目应提升为 reviewer 检查项或自动化测试断言？
+- **回放 harness**：本阶段是否产生了可复用的模式（搜索策略、架构模板、测试方案）？如果有，用 [TEAM-PROTOCOL] 记录供未来参考
+
+## Known Pitfalls
+
+> 当识别到反复出现的失败模式时追加到这里。每个条目都是一次"防火"。
+> 格式：症状、根因、修复方法、预防措施。
+
+（初始为空——team-lead 从 3-Strike 解决方案、reviewer [BLOCK] 修复或任何重复失败中添加条目）
 
 ## 核心协议
 
@@ -121,6 +128,7 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 | 代码审查 | 大功能/新模块完成 | dev 在 findings.md 写改动摘要，发给 reviewer |
 | 阶段推进 | 阶段完成 | 调研完：读 findings 更新主计划。开发完：等 reviewer [OK]/[WARN] |
 | 上下文溢出 | 智能体报告上下文过长 | 进度已存文件，恢复或生成后继者 |
+| 护栏捕获 | 3-Strike 上报解决后，或 reviewer [BLOCK] 修复后 | 问：会复现吗？如果会 → 追加到 Known Pitfalls；如果通用 → [TEAM-PROTOCOL] |
 | 模板同步 | 发现持久流程改进 | 先更新 `CCteam-creator` 源文件，再同步项目文档 |
 | 团队重建时机 | 模板变更足以影响已生成智能体行为 | 优先在阶段边界重建，不要在开发中途 |
 

@@ -91,12 +91,19 @@ Reading order: **progress** (where are we) -> **findings** (what happened) -> **
 
 ## Harness Checklist
 
-These are team-lead responsibilities, even if implementation is delegated:
+Team-lead reviews at phase boundaries (not every task):
 
-- **Docs harness**: docs remain aligned with code and operating rules
-- **Observability harness**: important failures leave inspectable evidence
-- **Invariant harness**: critical boundaries are turned into checks, not just human review
-- **Replay harness**: high-value real tasks are eventually turned into regression assets
+- **Docs harness**: Read CLAUDE.md + main task_plan.md — still accurate? If stale → update before dispatching next phase
+- **Observability harness**: Grep progress.md for "error|fail" — are failures logged with enough detail (steps tried, exact error, root cause)?
+- **Invariant harness**: Review Known Pitfalls below — should any entry become a reviewer checklist item or an automated test assertion?
+- **Replay harness**: Did this phase produce a reusable pattern (search strategy, architecture template, test plan)? If so, note with [TEAM-PROTOCOL] for future reference
+
+## Known Pitfalls
+
+> Append here when a recurring failure pattern is identified. Each entry prevents the same mistake from happening again.
+> Format: symptom, root cause, fix, prevention.
+
+(empty initially — team-lead adds entries from 3-Strike resolutions, reviewer [BLOCK] fixes, or any repeated failure)
 
 ## Key Protocols
 
@@ -108,6 +115,7 @@ These are team-lead responsibilities, even if implementation is delegated:
 | Code review | Large feature/module complete | Dev writes change summary in findings.md, sends to reviewer |
 | Phase advance | Phase complete | Research done: read findings, update main plan. Dev done: wait for reviewer [OK]/[WARN] |
 | Context overflow | Agent reports long context | Progress saved in files, resume agent or spawn successor |
+| Guardrail capture | 3-Strike escalation resolved, or reviewer [BLOCK] fixed | Ask: will this recur? If yes → append to Known Pitfalls; if universal → [TEAM-PROTOCOL] |
 | Template sync | Durable workflow improvement found | Update `CCteam-creator` source first, then sync project docs |
 | Team rebuild timing | Template changed enough to affect spawned-agent behavior | Prefer rebuild at phase boundaries, not mid-stream |
 

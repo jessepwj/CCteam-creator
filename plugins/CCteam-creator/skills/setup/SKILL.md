@@ -221,6 +221,16 @@ Without this file, after context compression the team-lead loses all knowledge o
 
 The CLAUDE.md solves this by keeping a concise operations guide permanently in context.
 
+### When to Update CLAUDE.md
+
+CLAUDE.md is a **living document**, not a one-time generation. Update it when:
+- A recurring failure pattern is captured (→ append to `## Known Pitfalls`)
+- Team roster changes (agent added/removed/rebuilt)
+- A new protocol is established mid-project
+- An architecture decision affects team workflow
+
+Do NOT put task-level details here — only durable operational knowledge that survives context compression.
+
 ## Step 4: Create Team + Spawn Agents
 
 1. `TeamCreate(team_name: "<project>")`
@@ -340,9 +350,20 @@ When an agent reports "3 failures, escalating to team-lead":
 1. Read the attempted steps recorded in its progress.md
 2. Assess whether the main plan (task_plan.md) needs to be revised
 3. Provide a clear new direction, or reassign the task to another agent
+4. **Guardrail check**: Will this failure pattern recur?
+   - If YES for this project → append to CLAUDE.md `## Known Pitfalls` (symptom, root cause, fix, prevention)
+   - If YES for future teams → also record `[TEAM-PROTOCOL]` and consider template update
+   - If NO (one-off) → no further action
 
 ### Phase Advancement Cadence
 
 - Research phase complete → Read researcher findings.md → Update the architecture decisions section in the main task_plan.md
 - Development phase complete → Wait for reviewer results → Confirm [OK] or [WARN] before advancing to the next phase
 - All done → Read each agent's progress.md in parallel, confirm all tasks are marked complete
+
+**Phase boundary health check** (quick, do alongside phase advancement):
+- Are all agent root findings.md indexes up to date? (no orphan task folders missing an index entry)
+- Are there stale `in_progress` tasks in TaskList that should be completed or reassigned?
+- Does main task_plan.md phase status match actual progress?
+- Review CLAUDE.md Known Pitfalls — anything to include in next phase's task dispatch?
+- Run Harness Checklist (see CLAUDE.md template)
