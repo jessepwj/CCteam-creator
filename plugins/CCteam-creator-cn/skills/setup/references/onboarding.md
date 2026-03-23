@@ -44,7 +44,7 @@
 
 ### 文档更新频率
 
-- 完成一个步骤/子任务 → 立即更新 task_plan.md（勾选）+ progress.md（记录）
+- 完成一个任务 → TaskUpdate(status: "completed") + 更新 progress.md（记录）。任务文件夹内的子步骤：在该文件夹的 task_plan.md 中勾选
 - 发现技术问题或坑 → 立即写入 findings.md
 - 设计决策偏离预设方案 → findings.md 记录原因 + 通知 team-lead
 

@@ -44,7 +44,7 @@ Only after reading these files may you continue working. Do not guess progress f
 
 ### Documentation Update Frequency
 
-- Complete a step/subtask → immediately update task_plan.md (check it off) + progress.md (log it)
+- Complete a task → TaskUpdate(status: "completed") + update progress.md (log it). Sub-steps within a task folder: check off in that folder's task_plan.md
 - Discover a technical issue or pitfall → immediately write it to findings.md
 - Design decision deviates from the original plan → record the reason in findings.md + notify team-lead
 

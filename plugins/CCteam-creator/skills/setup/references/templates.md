@@ -25,6 +25,12 @@ This file is generated in the **project working directory** (not inside `.plans/
 
 ## Task Dispatch Protocol
 
+### TaskCreate Description Format (for team-lead reference after context compression)
+
+TaskCreate description: one-line scope + acceptance criteria + `.plans/` path.
+Example: `"JWT auth module. Input: researcher findings at .plans/x/researcher/research-auth/findings.md. Output: working auth + tests. See .plans/x/backend-dev/task-auth/task_plan.md"`
+Assign owner and dependencies via TaskUpdate. Teammates self-serve unblocked tasks via TaskList.
+
 ### Large Tasks (features, new modules) -- IMPORTANT
 
 When assigning a large task to any agent, your message MUST include:
@@ -68,9 +74,11 @@ SendMessage(to: "frontend-dev", message: "Fix XSS in login form, see src/auth/lo
 
 | What to Check | How |
 |---------------|-----|
+| Overview | `TaskList` — all tasks, owners, blockers at a glance |
 | Quick scan | Read each agent's `progress.md` in parallel |
 | Deep dive | Read agent's `findings.md` (index) then specific task folder |
 | Direction check | Read `.plans/<project>/task_plan.md` |
+| Resume project | Read each agent's `findings.md` index → recreate TaskCreate for remaining work |
 
 Reading order: **progress** (where are we) -> **findings** (what happened) -> **task_plan** (what's the goal)
 
@@ -148,7 +156,10 @@ Inter-agent messages lose detail. Every task dispatch MUST be self-contained:
 
 ---
 
-## 5. Task Breakdown
+## 5. Phases Overview
+
+Task dispatch is managed via native TaskCreate/TaskList (dependencies auto-unblock).
+Below is the high-level phase sequence — individual tasks live in the task system.
 
 ### Slicing Principle
 
@@ -156,58 +167,13 @@ Break tasks into **vertical slices** (tracer bullets), NOT horizontal slices by 
 Each slice delivers a narrow but COMPLETE path through all layers (schema → API → UI → tests).
 A completed slice should be demoable or verifiable on its own.
 
-### Task Format
+### Phases
 
-Each task specifies: type [AFK] (autonomous) or [HITL] (needs user decision), dependencies,
-explicit input/output (to minimize information loss in inter-agent communication), and acceptance criteria.
-
-### Phase 0: Requirements Alignment
-- [ ] T0a: [AFK] Explore existing codebase and document current architecture — Assigned to: researcher
-  - Input: project repo
-  - Output: research-codebase/findings.md with architecture overview, key modules, patterns
-  - Acceptance: team-lead has reviewed the findings
-- [ ] T0b: [HITL] Align detailed requirements with user — Assigned to: team-lead
-  - Input: user's initial description + T0a findings
-  - Output: Updated "Project Overview" and "Key Architecture Decisions" sections above
-  - Acceptance: user has confirmed scope, key decisions are recorded
-
-### Phase 1: Research
-- [ ] T1: [AFK] <description> — Assigned to: researcher
-  - blocked-by: T0b
-  - Input: confirmed requirements from §1 + §2 above
-  - Output: research-<topic>/findings.md with conclusions and recommendations
-  - Acceptance: <specific criteria>
-
-### Phase 2: Core Development (vertical slices)
-- [ ] T2: [AFK] <end-to-end slice description> — Assigned to: backend-dev + frontend-dev
-  - blocked-by: T1
-  - Input: researcher findings → .plans/<project>/researcher/research-<topic>/findings.md
-  - Output: working feature slice + tests passing
-  - Acceptance: <specific criteria>
-- [ ] T3: [AFK] <next slice description> — Assigned to: backend-dev + frontend-dev
-  - blocked-by: T2
-  - Input: T2 completed code
-  - Output: working feature slice + tests passing
-  - Acceptance: <specific criteria>
-
-### Phase 3: Integration Testing
-- [ ] T4: [AFK] <description> — Assigned to: e2e-tester
-  - blocked-by: T2, T3
-  - Input: deployed/running application
-  - Output: test-<scope>/findings.md with pass rates and bug reports
-  - Acceptance: critical paths 100% pass, overall >95%
-
-### Phase 4: Review & Cleanup
-- [ ] T5: [AFK] Code review — Assigned to: reviewer
-  - blocked-by: T2, T3
-  - Input: git diff of all development changes
-  - Output: review-<target>/findings.md with verdict
-  - Acceptance: no CRITICAL or HIGH issues (verdict [OK] or [WARN])
-- [ ] T6: [AFK] Dead code cleanup — Assigned to: cleaner
-  - blocked-by: T5
-  - Input: completed codebase + reviewer's findings
-  - Output: cleanup commits + updated test results
-  - Acceptance: tests pass, build succeeds
+- Phase 0: Requirements Alignment — researcher explores codebase, team-lead aligns with user
+- Phase 1: Research — deep dive into technical questions and architecture options
+- Phase 2: Core Development — vertical slice implementation with TDD
+- Phase 3: Integration Testing — E2E test critical user flows
+- Phase 4: Review & Cleanup — code review verdict + dead code removal
 
 ---
 

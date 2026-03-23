@@ -25,6 +25,12 @@
 
 ## 任务下发协议
 
+### TaskCreate 描述格式（team-lead 上下文压缩后参考）
+
+TaskCreate 描述：一句话范围 + 验收标准 + `.plans/` 路径。
+示例：`"JWT 认证模块。输入：researcher 调研在 .plans/x/researcher/research-auth/findings.md。输出：可用的认证 + 测试。详见 .plans/x/backend-dev/task-auth/task_plan.md"`
+通过 TaskUpdate 分配负责人和设置依赖。Teammate 可自行通过 TaskList 认领已解锁的任务。
+
 ### 大任务（功能开发、新模块）-- 重要！
 
 给任何智能体下发大任务时，消息中**必须包含**：
@@ -68,9 +74,11 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 | 要检查什么 | 怎么做 |
 |-----------|--------|
+| 全局概览 | `TaskList` — 所有任务、负责人、阻塞情况一览 |
 | 快速扫描 | 并行读取各 agent 的 `progress.md` |
 | 深入了解 | 读 agent 的 `findings.md`（索引）→ 再看具体任务文件夹 |
 | 方向检查 | 读 `.plans/<project>/task_plan.md` |
+| 恢复项目 | 读各 agent 的 `findings.md` 索引 → 为未完成任务重建 TaskCreate |
 
 读取顺序：**progress**（到哪了）→ **findings**（遇到什么）→ **task_plan**（目标是什么）
 
@@ -148,7 +156,10 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 ---
 
-## 5. 任务分解
+## 5. 阶段概览
+
+任务调度通过原生 TaskCreate/TaskList 管理（依赖自动解锁）。
+以下是高层阶段描述——具体任务在任务系统中。
 
 ### 切片原则
 
@@ -156,58 +167,13 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 每个切片提供一条贯穿所有层的窄而完整的路径（schema → API → UI → 测试）。
 一个完成的切片应该可以单独演示或验证。
 
-### 任务格式
+### 阶段
 
-每个任务注明：类型 [AFK]（自主执行）或 [HITL]（需要用户决策）、依赖关系、
-明确的输入/输出（最小化智能体间通信的信息损耗），以及验收标准。
-
-### 阶段 0: 需求对齐
-- [ ] T0a: [AFK] 探索现有代码库并记录当前架构 — 分配给: researcher
-  - 输入: 项目仓库
-  - 输出: research-codebase/findings.md，含架构概述、关键模块、代码模式
-  - 验收: team-lead 已审阅发现
-- [ ] T0b: [HITL] 与用户对齐详细需求 — 分配给: team-lead
-  - 输入: 用户初始描述 + T0a 发现
-  - 输出: 更新上方"项目概述"和"关键架构决策"章节
-  - 验收: 用户已确认范围，关键决策已记录
-
-### 阶段 1: 调研
-- [ ] T1: [AFK] <描述> — 分配给: researcher
-  - blocked-by: T0b
-  - 输入: §1-§2 确认的需求
-  - 输出: research-<topic>/findings.md，含结论和建议
-  - 验收: <具体标准>
-
-### 阶段 2: 核心开发（垂直切片）
-- [ ] T2: [AFK] <端到端切片描述> — 分配给: backend-dev + frontend-dev
-  - blocked-by: T1
-  - 输入: researcher 发现 → .plans/<project>/researcher/research-<topic>/findings.md
-  - 输出: 可运行的功能切片 + 测试通过
-  - 验收: <具体标准>
-- [ ] T3: [AFK] <下一个切片描述> — 分配给: backend-dev + frontend-dev
-  - blocked-by: T2
-  - 输入: T2 完成的代码
-  - 输出: 可运行的功能切片 + 测试通过
-  - 验收: <具体标准>
-
-### 阶段 3: 联调测试
-- [ ] T4: [AFK] <描述> — 分配给: e2e-tester
-  - blocked-by: T2, T3
-  - 输入: 已部署/运行的应用
-  - 输出: test-<scope>/findings.md，含通过率和 Bug 报告
-  - 验收: 关键路径 100% 通过，总体 >95%
-
-### 阶段 4: 审查与清理
-- [ ] T5: [AFK] 代码审查 — 分配给: reviewer
-  - blocked-by: T2, T3
-  - 输入: 所有开发变更的 git diff
-  - 输出: review-<target>/findings.md，含裁决结果
-  - 验收: 无 CRITICAL 或 HIGH 问题（裁决 [OK] 或 [WARN]）
-- [ ] T6: [AFK] 死代码清理 — 分配给: cleaner
-  - blocked-by: T5
-  - 输入: 完成的代码库 + reviewer 的发现
-  - 输出: 清理提交 + 更新后的测试结果
-  - 验收: 测试通过，构建成功
+- 阶段 0: 需求对齐 — researcher 探索代码库，team-lead 与用户对齐需求
+- 阶段 1: 调研 — 深入技术问题和架构选型
+- 阶段 2: 核心开发 — 垂直切片实现 + TDD
+- 阶段 3: 联调测试 — E2E 测试关键用户流程
+- 阶段 4: 审查与清理 — 代码审查裁决 + 死代码清理
 
 ---
 

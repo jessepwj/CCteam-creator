@@ -210,7 +210,8 @@ The CLAUDE.md solves this by keeping a concise operations guide permanently in c
 ## Step 4: Create Team + Spawn Agents
 
 1. `TeamCreate(team_name: "<project>")`
-2. Spawn each role in parallel, `run_in_background: true`
+2. Create tasks via TaskCreate — each with a one-line scope + acceptance criteria + `.plans/` path in the description. Set dependencies (`addBlockedBy`) and owners (`owner`) via TaskUpdate. Prefer [AFK] tasks; specify input/output to minimize inter-agent information loss
+3. Spawn each role in parallel, `run_in_background: true`
 
 See [references/onboarding.md](references/onboarding.md) for the onboarding prompt for each role.
 
@@ -220,7 +221,7 @@ Show the user a table of team members and the file locations.
 
 ## Key Rules
 
-- **Planning files are the progress tracker** -- Do not also use TaskCreate/TodoWrite
+- **Dual-system, no duplication**: .plans/ files are the source of truth (persistent, project-scoped); native TaskCreate is the live dispatch layer (fast queries, auto-unblocking dependencies, but session-scoped — stored in `~/.claude/tasks/`, not in project). TaskCreate description = one-line summary + `.plans/` path. When resuming a project in a new session, reconstruct tasks from each agent's findings.md index
 - **Context recovery**: After an agent is compacted, it must first read its task folder's files (or root files if no active task folder)
 - **All roles use task folders**: Every assigned task gets a dedicated folder with its own findings/progress files; root findings.md is an index
 - **Code review trigger**: Call reviewer after completing a feature/new module; small changes/bug fixes do not require review
