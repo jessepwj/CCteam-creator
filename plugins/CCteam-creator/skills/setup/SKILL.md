@@ -248,6 +248,19 @@ CLAUDE.md is a **living document**, not a one-time generation. Update it when:
 
 Do NOT put task-level details here — only durable operational knowledge that survives context compression.
 
+## Step 3.6: Create CI Script Skeleton (When Applicable)
+
+If the project has testable code (backend, frontend, or both), create a CI script skeleton in the project directory (e.g., `scripts/run_ci.py` or `scripts/ci.sh`). The script should:
+
+- Run all quality checks in one command (tests, type checks, contract validation, etc.)
+- Exit 0 = all pass, exit 1 = failures
+- Start with an empty check list — devs add checks as they write tests
+- The first check is usually contract validation (if `docs/api-contracts.md` exists)
+
+The skeleton does not need to be complete at project start — it grows as the project grows. But **the file must exist from day one**, otherwise no one will create it later.
+
+Add the CI command to the project CLAUDE.md Key Protocols table so it survives context compression.
+
 ## Step 4: Create Team + Spawn Agents
 
 1. `TeamCreate(team_name: "<project>")`
@@ -279,6 +292,7 @@ Then **guide the user to run `/compact`** to free up context. Explain why:
 - **Code is the source of truth**: Documentation follows the code. Devs MUST update `docs/api-contracts.md` and `docs/architecture.md` when code changes — undocumented APIs do not exist for other agents
 - **Invariant-first for high-risk boundaries**: Recurring bugs should be promoted from Known Pitfalls to `docs/invariants.md`, then converted to automated tests. Reviewer is the second line of defense; automated tests are the first
 - **Anti-bloat principle**: Root findings.md is a pure index (no content dumping). progress.md should be archived when it gets too long to scan quickly. task_plan.md is a lean navigation map — architecture, API specs, and tech details belong in `docs/`, not here
+- **CI gate before review**: When a CI script exists, dev must run it and confirm all checks pass before submitting for review. Reviewer may reject code that hasn't passed CI. Tests written but not run = tests not written
 - **Template-first for durable workflow changes**: if a discovered improvement affects role definitions, onboarding, CLAUDE.md structure, or dispatch protocols, update `CCteam-creator` source files before recommending a rebuild
 - **Rebuild at phase boundaries**: do not rebuild an active team mid-stream unless necessary; prefer syncing templates first, then syncing project docs, then rebuilding between major phases
 - **No archiving**: Completed task folders stay in place — just mark `Status: complete` in the root findings.md index. Do not rename, move, or prefix folders with `_archive_`. The index is the navigation layer; folder location must remain stable so cross-references don't break

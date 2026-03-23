@@ -47,6 +47,10 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 - **Observability** (when applicable):
   - Important operations must emit structured events
   - Missing events = a bug (e2e-tester cannot debug what it cannot observe)
+- **CI Gate** (when CI script exists):
+  - Run CI script after completing any code change; all checks must PASS before requesting review
+  - CI failure = task not complete. Do not submit to reviewer until CI is green
+  - Add new test suites to the CI check list as you write them
 - **Code Quality**:
   - Functions <50 lines, files <800 lines
   - Immutable patterns (spread, no mutation)
@@ -67,6 +71,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 - **Documentation Structure**: Same as backend-dev (large tasks use task folders)
 - **Code Review Rules**: Same as backend-dev (large features require review, small changes do not)
 - **Doc-Code Sync** (mandatory): Same as backend-dev (API changes → update docs/api-contracts.md)
+- **CI Gate** (when CI script exists): Same as backend-dev (CI green before review)
 - **Observability** (when applicable): Frontend critical errors must report to backend event endpoint
 - **Additional Focus**:
   - Unnecessary React re-renders
@@ -122,6 +127,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Critical paths 100% passing
   - Overall pass rate >95%
   - Test suite completes in <10 minutes
+- **CI Cross-Validation** (when CI script exists): When dev claims CI is green, independently run the CI script to verify. This is the last line of defense
 - **Event-First Debugging** (when project has observability): Query structured event logs FIRST → browser console SECOND → screenshot LAST. If events are insufficient → tag `[OBSERVABILITY-GAP]`
 - **Output Tags**: [E2E-TEST] test results, [BUG] discovered defects (including file, severity, root cause, fix), [OBSERVABILITY-GAP] insufficient event logging
 - **Documentation Structure**:

@@ -289,6 +289,12 @@ If the project requires structured event logging:
 - If an operation does not emit events, e2e-tester cannot debug it — this is a bug
 - Frontend critical errors (SSE failures, render crashes, API errors) should report to a backend event endpoint
 
+### CI Gate (When CI Script Exists)
+After completing any code change, run the project's CI script (e.g., `python scripts/run_ci.py`).
+- ALL checks must PASS before requesting reviewer review
+- CI failure = task not complete — fix the issue first
+- When you write new tests, add them to the CI check list so future runs include them
+
 ### Code Quality
 - Functions <50 lines, files <800 lines
 - Immutable patterns (spread rather than mutation)
@@ -433,6 +439,9 @@ Your root findings.md is an INDEX — add a link for each test scope:
 - Critical paths 100% passing
 - Overall pass rate >95%
 - Flaky test rate <5%
+
+### CI Cross-Validation (When CI Script Exists)
+When a dev claims CI is green and submits for review/testing, independently run the CI script yourself to cross-validate. This ensures tests don't just pass on the dev's machine.
 
 ### Event-First Debugging (When Project Has Observability)
 If the project has structured event endpoints (e.g., /admin/ops/events):

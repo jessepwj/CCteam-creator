@@ -125,6 +125,7 @@ Team-lead reviews at phase boundaries (not every task):
 | Code review | Large feature/module complete | Dev writes change summary in findings.md, sends to reviewer |
 | Phase advance | Phase complete | Research done: read findings, update main plan. Dev done: wait for reviewer [OK]/[WARN] |
 | Context overflow | Agent reports long context | Progress saved in files, resume agent or spawn successor |
+| CI gate | Any code change (dev completes a task) | Run CI script, all checks PASS before submitting for review. CI fail = task not done |
 | Guardrail capture | 3-Strike escalation resolved, or reviewer [BLOCK] fixed | Ask: will this recur? If yes → append to Known Pitfalls; if universal → [TEAM-PROTOCOL] |
 | Template sync | Durable workflow improvement found | Update `CCteam-creator` source first, then sync project docs |
 | Team rebuild timing | Template changed enough to affect spawned-agent behavior | Prefer rebuild at phase boundaries, not mid-stream |
