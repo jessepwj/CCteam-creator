@@ -15,13 +15,25 @@ description: >
 
 Set up a multi-agent team for complex projects, using persistent files for planning and progress tracking.
 
+## Prerequisites
+
+**Before starting Step 1**, you (team-lead) MUST read all reference files directly into your own context:
+
+```
+Read references/onboarding.md
+Read references/templates.md
+Read references/roles.md
+```
+
+Do NOT delegate this to a subagent (Explore, general-purpose, etc.). Subagents return summaries, losing critical detail — you need the full templates and onboarding prompts to generate files and spawn agents correctly.
+
 ## Process
 
 1. **Requirements Consultation** — Introduce the team mechanism to the user and gather requirements
 2. **Confirm the Plan** — Summarize requirements and let the user confirm the team configuration
 3. Create planning files (including per-agent subdirectories)
 4. Create the team + spawn agents
-5. Confirm setup
+5. Confirm setup + guide user to compact context
 
 ## Step 1: Requirements Consultation (Talk First, Then Act)
 
@@ -239,9 +251,15 @@ Do NOT put task-level details here — only durable operational knowledge that s
 
 See [references/onboarding.md](references/onboarding.md) for the onboarding prompt for each role.
 
-## Step 5: Confirm
+## Step 5: Confirm + Compact
 
 Show the user a table of team members and the file locations.
+
+Then **guide the user to run `/compact`** to free up context. Explain why:
+- The setup process consumed significant context (reading templates, creating files, spawning agents)
+- All operational knowledge is now persisted in CLAUDE.md (always loaded) and `.plans/` files
+- Compacting reclaims context space for actual team management work
+- After compaction, team-lead can resume immediately — CLAUDE.md keeps all protocols in context
 
 ## Key Rules
 
