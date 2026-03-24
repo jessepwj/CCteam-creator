@@ -103,7 +103,11 @@ See [references/roles.md](references/roles.md) for detailed role definitions and
 - More roles is not always better — choose based on actual project needs
 - Small projects may only need 1 dev + 1 researcher
 - Large projects can have the full set of roles
-- **Multi-instance researchers**: Only use when research directions are **fully independent and can run in parallel** (e.g., tech stack evaluation + codebase analysis + competitor research — each produces its own conclusions with no dependency on the others). Name them by focus area (`researcher-api`/`researcher-arch`) or by number (`researcher-1`/`researcher-2`). Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code. **When NOT to use**: If direction B depends on direction A's conclusions (e.g., "first figure out the auth approach, then research implementation libraries for that approach"), use a single researcher working sequentially — splitting into two would just create a blocking dependency chain that's slower than one agent doing both
+- **Multi-instance researchers**: Spawn multiple researchers when the research workload is large enough to benefit from parallelism. Two main patterns:
+  - **Volume splitting** (most common): Same type of work, split by quantity. E.g., 30 source files to analyze → researcher-1 takes modules A-M, researcher-2 takes N-Z. Same responsibilities, just faster through parallel processing
+  - **Direction splitting**: Fully independent research topics. E.g., tech stack evaluation + codebase analysis + competitor research — each produces its own conclusions with no dependency on the others
+  - Name by number (`researcher-1`/`researcher-2`) for volume splits, by focus (`researcher-api`/`researcher-arch`) for direction splits. Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code
+  - **Anti-pattern**: Do NOT split when direction B depends on A's output (e.g., "first determine auth approach, then research libraries for it") — a single researcher sequentially is faster than two in a blocking chain
 - Users can add custom roles (explain that custom roles require: name, responsibilities, model choice)
 
 **Adapting for Non-Software Projects**:

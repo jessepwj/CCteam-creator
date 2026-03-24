@@ -25,7 +25,7 @@ This file is generated in the **project working directory** (not inside `.plans/
 |------|------|-------|---------------|
 | backend-dev | Backend Developer | opus | Server-side code + TDD |
 | frontend-dev | Frontend Developer | opus | Client-side code + TDD |
-| researcher | Explorer/Researcher | sonnet | Code search + web research (read-only). Multi-instance for fully independent parallel directions only (not for sequential chains) |
+| researcher | Explorer/Researcher | sonnet | Code search + web research (read-only). Multi-instance: split by volume (most common) or by independent direction — never for sequential chains |
 | e2e-tester | E2E Tester | sonnet | Playwright tests + browser automation |
 | reviewer | Code Reviewer | opus | Security/quality/performance review (read-only) |
 | cleaner | Code Cleaner | sonnet | Dead code removal + refactoring |

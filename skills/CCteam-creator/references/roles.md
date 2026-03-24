@@ -84,7 +84,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 ### Explorer/Researcher (researcher)
 
 - **Name**: `researcher` (single) or `researcher-1`/`researcher-2`/`researcher-<focus>` (multi-instance)
-- **Multi-instance**: The only standard role designed for multiple simultaneous instances. Use **only** when research directions are fully independent and can run in parallel — each produces its own conclusions with no dependency on the others. Each instance gets its own `.plans/` directory. No race conditions — researchers are read-only on source code. **Anti-pattern**: If direction B needs direction A's output first, do NOT split them — a single researcher working sequentially is faster than two in a blocking dependency chain
+- **Multi-instance**: The only standard role designed for multiple simultaneous instances. Two patterns: (1) **Volume splitting** (most common) — same work type, split by quantity for parallel speedup; (2) **Direction splitting** — fully independent research topics. Each instance gets its own `.plans/` directory. No race conditions — researchers are read-only on source code. **Anti-pattern**: Do NOT split when B depends on A's output — sequential in one researcher is faster than a blocking chain across two
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
 - **Reference**: Code search + web research + architecture analysis

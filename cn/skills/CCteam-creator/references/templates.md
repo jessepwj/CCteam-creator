@@ -39,7 +39,7 @@
 |------|------|------|---------|
 | backend-dev | 后端开发 | opus | 服务端代码 + TDD |
 | frontend-dev | 前端开发 | opus | 客户端代码 + TDD |
-| researcher | 探索/研究 | sonnet | 代码搜索 + 网页调研（只读）。仅限完全独立的方向才用多实例并行（非串行依赖链） |
+| researcher | 探索/研究 | sonnet | 代码搜索 + 网页调研（只读）。可多实例：按量拆分（最常见）或按独立方向拆分——不用于串行依赖链 |
 | e2e-tester | 联调测试 | sonnet | Playwright 测试 + 浏览器自动化 |
 | reviewer | 代码审查 | opus | 安全/质量/性能审查（只读） |
 | cleaner | 代码清理 | sonnet | 死代码清理 + 重构 |
