@@ -27,6 +27,48 @@ When invoked, CCteam-creator:
 2. **Sets up everything** — planning files, docs/ knowledge base, CLAUDE.md operations guide, agent onboarding
 3. **Manages collaboration** — agents communicate directly, persist state to files, follow built-in protocols
 
+## In Action
+
+Screenshots from a real project session (ChatR — a full-stack chat application with event-driven observability).
+
+### 1. Team Roster & Dependency Chain
+
+After setup, team-lead summarizes the team roster, task assignments, and dependency graph. All agents receive their onboarding and begin preparing.
+
+![Team Roster](docs/images/01-team-roster.png)
+
+### 2. Parallel Task Dispatch
+
+Team-lead orchestrates 6 agents simultaneously — researcher and cleaner start immediately (no dependencies), while devs prepare and wait for research output. Each agent knows its dependencies.
+
+![Parallel Dispatch](docs/images/02-parallel-dispatch.png)
+
+### 3. Development Phase — 3 Agents Working in Parallel
+
+Backend-dev, frontend-dev, and e2e-tester all working concurrently. Team-lead tracks status, makes scheduling decisions (e.g., bypassing a dependency when enough info is available), and coordinates handoffs.
+
+![Development Phase](docs/images/03-development-phase.png)
+
+### 4. Code Review & Peer Coordination
+
+Agents communicate directly — frontend-dev submits to reviewer, reviewer reports completion, team-lead tracks the status table with real-time progress from all 6 agents.
+
+![Review Coordination](docs/images/04-review-coordination.png)
+
+### 5. Phase Harness Validation
+
+Team-lead runs a phase-level harness check — verifying each task's completion status, reviewer verdicts, e2e test results, and doc consistency before advancing to the next phase.
+
+![Harness Validation](docs/images/05-harness-validation.png)
+
+### 6. Final Dashboard — All Agents, One View
+
+The complete validation checklist with reviewer [OK], e2e-tester PASS/FAIL status, and doc consistency verification. Bottom shows Claude Code's real-time agent HUD with all 6 teammates and their token usage.
+
+![Final Dashboard](docs/images/06-final-dashboard.png)
+
+---
+
 ## Prerequisites
 
 Agent teams are an experimental feature in Claude Code. Enable them first:
@@ -101,48 +143,6 @@ cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 | Code Cleaner | `cleaner` | sonnet | Dead code removal + doc freshness scan + safe refactoring |
 
 You don't need all roles. CCteam-creator recommends the right combination for your project.
-
-## In Action
-
-Screenshots from a real project session (ChatR — a full-stack chat application with event-driven observability).
-
-### 1. Team Roster & Dependency Chain
-
-After setup, team-lead summarizes the team roster, task assignments, and dependency graph. All agents receive their onboarding and begin preparing.
-
-![Team Roster](docs/images/01-team-roster.png)
-
-### 2. Parallel Task Dispatch
-
-Team-lead orchestrates 6 agents simultaneously — researcher and cleaner start immediately (no dependencies), while devs prepare and wait for research output. Each agent knows its dependencies.
-
-![Parallel Dispatch](docs/images/02-parallel-dispatch.png)
-
-### 3. Development Phase — 3 Agents Working in Parallel
-
-Backend-dev, frontend-dev, and e2e-tester all working concurrently. Team-lead tracks status, makes scheduling decisions (e.g., bypassing a dependency when enough info is available), and coordinates handoffs.
-
-![Development Phase](docs/images/03-development-phase.png)
-
-### 4. Code Review & Peer Coordination
-
-Agents communicate directly — frontend-dev submits to reviewer, reviewer reports completion, team-lead tracks the status table with real-time progress from all 6 agents.
-
-![Review Coordination](docs/images/04-review-coordination.png)
-
-### 5. Phase Harness Validation
-
-Team-lead runs a phase-level harness check — verifying each task's completion status, reviewer verdicts, e2e test results, and doc consistency before advancing to the next phase.
-
-![Harness Validation](docs/images/05-harness-validation.png)
-
-### 6. Final Dashboard — All Agents, One View
-
-The complete validation checklist with reviewer [OK], e2e-tester PASS/FAIL status, and doc consistency verification. Bottom shows Claude Code's real-time agent HUD with all 6 teammates and their token usage.
-
-![Final Dashboard](docs/images/06-final-dashboard.png)
-
----
 
 ## Key Features
 
