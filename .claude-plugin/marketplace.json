@@ -5,17 +5,17 @@
   },
   "metadata": {
     "description": "Multi-agent team orchestration plugins for Claude Code. Create parallel AI agent teams with file-based planning and role-based collaboration.",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "CCteam-creator",
-      "source": "./plugins/CCteam-creator",
+      "source": "./",
       "description": "Multi-agent team orchestration for Claude Code (English)"
     },
     {
       "name": "CCteam-creator-cn",
-      "source": "./plugins/CCteam-creator-cn",
+      "source": "./cn",
       "description": "Multi-agent team orchestration for Claude Code (Chinese)"
     }
   ]
