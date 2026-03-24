@@ -64,17 +64,17 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 git clone https://github.com/jessepwj/CCteam-creator.git
 
 # English
-cp -r CCteam-creator/plugins/CCteam-creator/skills/setup ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 
 # Or Chinese
-cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/cn/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 ```
 
 ### Option 3: Project-level Install
 
 ```bash
 # Share with your team via project directory
-cp -r CCteam-creator/plugins/CCteam-creator/skills/setup .claude/skills/CCteam-creator
+cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 ```
 
 ## Usage
@@ -101,6 +101,48 @@ cp -r CCteam-creator/plugins/CCteam-creator/skills/setup .claude/skills/CCteam-c
 | Code Cleaner | `cleaner` | sonnet | Dead code removal + doc freshness scan + safe refactoring |
 
 You don't need all roles. CCteam-creator recommends the right combination for your project.
+
+## In Action
+
+Screenshots from a real project session (ChatR — a full-stack chat application with event-driven observability).
+
+### 1. Team Roster & Dependency Chain
+
+After setup, team-lead summarizes the team roster, task assignments, and dependency graph. All agents receive their onboarding and begin preparing.
+
+![Team Roster](docs/images/01-team-roster.png)
+
+### 2. Parallel Task Dispatch
+
+Team-lead orchestrates 6 agents simultaneously — researcher and cleaner start immediately (no dependencies), while devs prepare and wait for research output. Each agent knows its dependencies.
+
+![Parallel Dispatch](docs/images/02-parallel-dispatch.png)
+
+### 3. Development Phase — 3 Agents Working in Parallel
+
+Backend-dev, frontend-dev, and e2e-tester all working concurrently. Team-lead tracks status, makes scheduling decisions (e.g., bypassing a dependency when enough info is available), and coordinates handoffs.
+
+![Development Phase](docs/images/03-development-phase.png)
+
+### 4. Code Review & Peer Coordination
+
+Agents communicate directly — frontend-dev submits to reviewer, reviewer reports completion, team-lead tracks the status table with real-time progress from all 6 agents.
+
+![Review Coordination](docs/images/04-review-coordination.png)
+
+### 5. Phase Harness Validation
+
+Team-lead runs a phase-level harness check — verifying each task's completion status, reviewer verdicts, e2e test results, and doc consistency before advancing to the next phase.
+
+![Harness Validation](docs/images/05-harness-validation.png)
+
+### 6. Final Dashboard — All Agents, One View
+
+The complete validation checklist with reviewer [OK], e2e-tester PASS/FAIL status, and doc consistency verification. Bottom shows Claude Code's real-time agent HUD with all 6 teammates and their token usage.
+
+![Final Dashboard](docs/images/06-final-dashboard.png)
+
+---
 
 ## Key Features
 
@@ -219,19 +261,20 @@ CLAUDE.md is not a one-time generation — it's a **living document** that evolv
 CCteam-creator/
   .claude-plugin/
     marketplace.json              -- Marketplace catalog
-  plugins/
-    CCteam-creator/               -- English plugin
-      .claude-plugin/plugin.json
-      skills/setup/
+    plugin.json                   -- English plugin metadata
+  skills/
+    CCteam-creator/               -- English skill
+      SKILL.md
+      references/
+        roles.md / onboarding.md / templates.md
+  cn/                             -- Chinese variant
+    .claude-plugin/plugin.json
+    skills/
+      CCteam-creator/
         SKILL.md
         references/
           roles.md / onboarding.md / templates.md
-    CCteam-creator-cn/            -- Chinese plugin
-      .claude-plugin/plugin.json
-      skills/setup/
-        SKILL.md
-        references/
-          roles.md / onboarding.md / templates.md
+  docs/images/                    -- Screenshots
   README.md / README_CN.md
   LICENSE
 ```

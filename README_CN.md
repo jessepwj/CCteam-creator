@@ -64,17 +64,17 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 git clone https://github.com/jessepwj/CCteam-creator.git
 
 # 英文
-cp -r CCteam-creator/plugins/CCteam-creator/skills/setup ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 
 # 或中文
-cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/cn/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 ```
 
 ### 方式 3：项目级安装
 
 ```bash
 # 通过项目目录与团队共享
-cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCteam-creator
+cp -r CCteam-creator/cn/skills/CCteam-creator .claude/skills/CCteam-creator
 ```
 
 ## 使用方法
@@ -101,6 +101,48 @@ cp -r CCteam-creator/plugins/CCteam-creator-cn/skills/setup .claude/skills/CCtea
 | 代码清理 | `cleaner` | sonnet | 死代码清理 + 文档新鲜度扫描 + 安全重构 |
 
 不是每个项目都需要全部角色。CCteam-creator 会根据你的需求推荐合适的组合。
+
+## 实战演示
+
+以下截图来自真实项目会话（ChatR —— 全栈聊天应用，带事件驱动可观测性）。
+
+### 1. 团队花名册 & 依赖链
+
+搭建完成后，team-lead 汇总团队成员、任务分配和依赖图。所有智能体接收入职信息并开始准备。
+
+![团队花名册](docs/images/01-team-roster.png)
+
+### 2. 并行任务调度
+
+Team-lead 同时编排 6 个智能体 —— researcher 和 cleaner 立即启动（无依赖），dev 们准备就绪等待研究产出。每个智能体清楚自己的依赖关系。
+
+![并行调度](docs/images/02-parallel-dispatch.png)
+
+### 3. 开发阶段 — 3 个智能体并行工作
+
+Backend-dev、frontend-dev 和 e2e-tester 同时工作。Team-lead 跟踪状态、做调度决策（如跳过依赖阻塞）、协调交接。
+
+![开发阶段](docs/images/03-development-phase.png)
+
+### 4. 代码审查 & 对等协作
+
+智能体间直接通信 —— frontend-dev 提交审查给 reviewer，reviewer 报告完成，team-lead 通过状态表实时追踪全部 6 个智能体的进展。
+
+![审查协作](docs/images/04-review-coordination.png)
+
+### 5. 阶段 Harness 验收
+
+Team-lead 运行阶段级 harness 检查 —— 验证每个任务的完成状态、reviewer 裁定、e2e 测试结果和文档一致性，确认后才推进到下一阶段。
+
+![Harness 验收](docs/images/05-harness-validation.png)
+
+### 6. 最终面板 — 全员一览
+
+完整验收清单，含 reviewer [OK]、e2e-tester PASS/FAIL 状态、文档一致性验证。底部展示 Claude Code 的实时智能体 HUD，显示全部 6 个队友及 token 用量。
+
+![最终面板](docs/images/06-final-dashboard.png)
+
+---
 
 ## 核心特性
 
@@ -219,19 +261,20 @@ CLAUDE.md 不是一次性生成物——它是一份**活文档**，随项目演
 CCteam-creator/
   .claude-plugin/
     marketplace.json              -- Marketplace 目录
-  plugins/
-    CCteam-creator/               -- 英文插件
-      .claude-plugin/plugin.json
-      skills/setup/
+    plugin.json                   -- 英文插件元数据
+  skills/
+    CCteam-creator/               -- 英文技能
+      SKILL.md
+      references/
+        roles.md / onboarding.md / templates.md
+  cn/                             -- 中文变体
+    .claude-plugin/plugin.json
+    skills/
+      CCteam-creator/
         SKILL.md
         references/
           roles.md / onboarding.md / templates.md
-    CCteam-creator-cn/            -- 中文插件
-      .claude-plugin/plugin.json
-      skills/setup/
-        SKILL.md
-        references/
-          roles.md / onboarding.md / templates.md
+  docs/images/                    -- 截图
   README.md / README_CN.md
   LICENSE
 ```
