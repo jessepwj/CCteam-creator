@@ -103,7 +103,7 @@ Read references/roles.md
 - 不是角色越多越好，根据项目实际需要选择
 - 小项目可能只需要 1 个 dev + 1 个 researcher
 - 大项目可以配齐全部角色
-- **多实例 researcher**：当项目有多个独立调研方向（如技术选型 + 代码库分析 + 竞品调研），可并行启动多个 researcher。命名为 `researcher-1`/`researcher-2` 或按方向命名（`researcher-api`/`researcher-arch`）。每个有独立的 `.plans/` 目录。无竞态——researcher 对源代码只读，只写自己的目录
+- **多实例 researcher**：**仅当**调研方向完全独立、互不依赖时使用（如技术选型 + 代码库分析 + 竞品调研——各自产出结论，不需要等其他方向的结果）。按方向命名（`researcher-api`/`researcher-arch`）或按编号（`researcher-1`/`researcher-2`）。每个有独立的 `.plans/` 目录。无竞态——researcher 对源代码只读。**反模式**：如果方向 B 依赖方向 A 的结论（如"先确定认证方案，再调研实现库"），不要拆成两个——单个 researcher 按顺序做比两个排队等依赖更快
 - 用户可以添加自定义角色（解释自定义角色需要提供：名称、职责、模型选择）
 
 **非软件项目适配**：

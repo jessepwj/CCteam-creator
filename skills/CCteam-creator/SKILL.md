@@ -103,7 +103,7 @@ See [references/roles.md](references/roles.md) for detailed role definitions and
 - More roles is not always better — choose based on actual project needs
 - Small projects may only need 1 dev + 1 researcher
 - Large projects can have the full set of roles
-- **Multi-instance researchers**: For research-heavy projects with multiple independent directions (e.g., tech stack evaluation + codebase analysis + competitor research), spawn multiple researchers in parallel. Name them `researcher-1`/`researcher-2` or by focus area (`researcher-api`/`researcher-arch`). Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code and write only to their own directories
+- **Multi-instance researchers**: Only use when research directions are **fully independent and can run in parallel** (e.g., tech stack evaluation + codebase analysis + competitor research — each produces its own conclusions with no dependency on the others). Name them by focus area (`researcher-api`/`researcher-arch`) or by number (`researcher-1`/`researcher-2`). Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code. **When NOT to use**: If direction B depends on direction A's conclusions (e.g., "first figure out the auth approach, then research implementation libraries for that approach"), use a single researcher working sequentially — splitting into two would just create a blocking dependency chain that's slower than one agent doing both
 - Users can add custom roles (explain that custom roles require: name, responsibilities, model choice)
 
 **Adapting for Non-Software Projects**:
