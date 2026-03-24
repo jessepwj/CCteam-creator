@@ -107,17 +107,12 @@ See [references/roles.md](references/roles.md) for detailed role definitions and
 
 **Adapting for Non-Software Projects**:
 
-When the task is not pure software development (e.g., research reports, data analysis, content production, planning), design custom roles by mapping the **pattern** of standard roles to the actual work:
+The standard roles above are one proven configuration. For non-software or mixed tasks, design your own roles based on these principles:
 
-| Standard Pattern | Adapts To | Example |
-|-----------------|-----------|---------|
-| dev (creates deliverables) | writer, analyst, designer | `report-writer`, `data-analyst` |
-| researcher (gathers information) | researcher (same pattern, different scope) | `market-researcher`, `lit-reviewer` |
-| reviewer (quality gate) | editor, fact-checker, peer reviewer | `editor`, `fact-checker` |
-| e2e-tester (validates end result) | proofreader, UAT validator | `qa-validator` |
-| cleaner (reduces entropy) | formatter, deduplicator | `doc-cleaner` |
-
-The key: every team needs at least someone who **creates**, someone who **researches**, and someone who **reviews**. The framework (task folders, findings.md, progress.md, 3-Strike, phase gates) applies unchanged regardless of domain.
+1. **Separate creation from review** — whoever creates deliverables should not be the one reviewing them
+2. **Research can parallelize** — independent information-gathering directions should be separate agents (see multi-instance researcher)
+3. **Every team needs a quality gate** — someone whose job is to check the output before it's "done"
+4. **The framework is universal** — task folders, findings.md, progress.md, 3-Strike, phase gates, and context recovery all work regardless of what the team is doing. Only the role names and responsibilities change
 
 ### 1.4 What Users Can Customize
 
