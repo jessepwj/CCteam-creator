@@ -99,6 +99,7 @@ See [references/roles.md](references/roles.md) for detailed role definitions and
 - More roles is not always better — choose based on actual project needs
 - Small projects may only need 1 dev + 1 researcher
 - Large projects can have the full set of roles
+- **Multi-instance researchers**: For research-heavy projects with multiple independent directions (e.g., tech stack evaluation + codebase analysis + competitor research), spawn multiple researchers in parallel. Name them `researcher-1`/`researcher-2` or by focus area (`researcher-api`/`researcher-arch`). Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code and write only to their own directories
 - Users can add custom roles (explain that custom roles require: name, responsibilities, model choice)
 
 ### 1.4 What Users Can Customize

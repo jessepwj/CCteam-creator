@@ -83,7 +83,8 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 ### 探索/研究 (researcher)
 
-- **名称**: `researcher`
+- **名称**: `researcher`（单个时）或 `researcher-1`/`researcher-2`/`researcher-<方向>`（多实例时）
+- **多实例**: 这是唯一设计为可多实例的标准角色。当项目有多个独立调研方向可并行推进时使用。每个实例有独立的 `.plans/` 目录。无竞态——researcher 对源代码只读
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
 - **参考**: 代码搜索 + 网页调研 + 架构分析

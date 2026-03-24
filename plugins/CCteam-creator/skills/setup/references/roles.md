@@ -83,7 +83,8 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 
 ### Explorer/Researcher (researcher)
 
-- **Name**: `researcher`
+- **Name**: `researcher` (single) or `researcher-1`/`researcher-2`/`researcher-<focus>` (multi-instance)
+- **Multi-instance**: This is the only standard role designed for multiple simultaneous instances. Use when the project has multiple independent research directions that can proceed in parallel. Each instance gets its own `.plans/` directory. No race conditions — researchers are read-only on source code
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
 - **Reference**: Code search + web research + architecture analysis
