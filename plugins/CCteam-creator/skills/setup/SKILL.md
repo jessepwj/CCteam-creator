@@ -71,10 +71,11 @@ In a natural, conversational tone (do not copy this text verbatim — adapt to c
 
 After the introduction, learn the following through conversation:
 
-1. **What the user wants to build** — Project goals, feature requirements, technology preferences
-2. **Current state** — Is this a greenfield project or an existing codebase? Is there an existing tech stack?
-3. **User involvement** — Do they want to be involved in every decision, or prefer the team to work autonomously?
-4. **Special requirements** — Any specific coding standards, testing requirements, or deployment targets?
+1. **Task type** — Is this software development, research/analysis, content creation, data processing, or a mix? This determines whether standard roles apply directly or need adaptation
+2. **What the user wants to accomplish** — Project goals, deliverables, success criteria
+3. **Current state** — Is this a greenfield project or existing work? What tools/tech/resources are already in place?
+4. **User involvement** — Do they want to be involved in every decision, or prefer the team to work autonomously?
+5. **Special requirements** — Domain-specific standards, quality bars, deadlines, constraints
 
 **Note**: Do not fire all questions at once. Follow up naturally based on the user's answers, like a normal conversation. If the user's requirements are already clear, you may skip some questions.
 
@@ -82,7 +83,9 @@ After the introduction, learn the following through conversation:
 
 Based on the user's needs, recommend an appropriate combination of roles. Explain each role's purpose and why you're recommending it.
 
-Available standard roles:
+**The standard roles below are optimized for software development projects.** For non-software or mixed tasks, the team **framework** is universal (file-based planning, task folders, phase gates, review protocols) — but the **roles should be adapted** to the actual work. See "Adapting for Non-Software Projects" below.
+
+Available standard roles (software development):
 
 | Role | Name | Reference Agent | model | Core Capability |
 |------|------|----------------|-------|----------------|
@@ -101,6 +104,20 @@ See [references/roles.md](references/roles.md) for detailed role definitions and
 - Large projects can have the full set of roles
 - **Multi-instance researchers**: For research-heavy projects with multiple independent directions (e.g., tech stack evaluation + codebase analysis + competitor research), spawn multiple researchers in parallel. Name them `researcher-1`/`researcher-2` or by focus area (`researcher-api`/`researcher-arch`). Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code and write only to their own directories
 - Users can add custom roles (explain that custom roles require: name, responsibilities, model choice)
+
+**Adapting for Non-Software Projects**:
+
+When the task is not pure software development (e.g., research reports, data analysis, content production, planning), design custom roles by mapping the **pattern** of standard roles to the actual work:
+
+| Standard Pattern | Adapts To | Example |
+|-----------------|-----------|---------|
+| dev (creates deliverables) | writer, analyst, designer | `report-writer`, `data-analyst` |
+| researcher (gathers information) | researcher (same pattern, different scope) | `market-researcher`, `lit-reviewer` |
+| reviewer (quality gate) | editor, fact-checker, peer reviewer | `editor`, `fact-checker` |
+| e2e-tester (validates end result) | proofreader, UAT validator | `qa-validator` |
+| cleaner (reduces entropy) | formatter, deduplicator | `doc-cleaner` |
+
+The key: every team needs at least someone who **creates**, someone who **researches**, and someone who **reviews**. The framework (task folders, findings.md, progress.md, 3-Strike, phase gates) applies unchanged regardless of domain.
 
 ### 1.4 What Users Can Customize
 
