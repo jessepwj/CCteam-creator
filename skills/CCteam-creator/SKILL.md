@@ -10,6 +10,7 @@ description: >
   teammates. TRIGGER on: "team", "swarm", "start project", "set up project", "create team
   for", "build team", "organize project", "multi-agent project".
   IMPORTANT: You (team-lead) MUST read all reference files directly — do NOT delegate to subagents.
+  NOTE: After initial setup, you can add new teammates at any time — just spawn a new Agent with the team_name and follow the same onboarding pattern. The team is not locked after creation.
 ---
 
 # Team Project Setup
