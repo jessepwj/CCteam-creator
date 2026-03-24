@@ -111,7 +111,7 @@ The standard roles above are one proven configuration. For non-software or mixed
 
 1. **Separate creation from review** — whoever creates deliverables should not be the one reviewing them
 2. **Research can parallelize** — independent information-gathering directions should be separate agents (see multi-instance researcher)
-3. **Every team needs a quality gate** — someone whose job is to check the output before it's "done"
+3. **Quality gate and validation are different things** — reviewing the work (is it well-made?) is not the same as validating the result (does it actually achieve the goal?). Consider whether you need both
 4. **The framework is universal** — task folders, findings.md, progress.md, 3-Strike, phase gates, and context recovery all work regardless of what the team is doing. Only the role names and responsibilities change
 
 ### 1.4 What Users Can Customize
