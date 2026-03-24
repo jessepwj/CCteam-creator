@@ -9,6 +9,7 @@ description: >
   files (.plans/project/), per-agent work directories, and spawns configured
   teammates. TRIGGER on: "team", "swarm", "start project", "set up project", "create team
   for", "build team", "organize project", "multi-agent project".
+  IMPORTANT: You (team-lead) MUST read all reference files directly — do NOT delegate to subagents.
 ---
 
 # Team Project Setup
