@@ -32,6 +32,7 @@
 - team-lead 负责用户对齐、范围控制、任务分解和阶段推进
 - team-lead 维护项目全局真相：主 `task_plan.md`、`decisions.md` 和此 `CLAUDE.md`
 - team-lead 决定某个流程改进是项目本地的还是需要写回 `CCteam-creator` 的
+- **禁用独立子智能体**：团队存在后，所有工作通过 SendMessage 交给队友。不要启动独立的 Agent/子智能体（Explore、general-purpose 等）——它们绕过团队的规划文件和协作体系。唯一例外：用 `team_name` 生成新队友加入团队
 
 ## 团队花名册
 

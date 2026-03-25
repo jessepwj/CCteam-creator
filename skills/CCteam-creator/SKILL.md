@@ -307,6 +307,7 @@ Then **guide the user to run `/compact`** to free up context. Explain why:
 - **Code review trigger**: Call reviewer after completing a feature/new module; small changes/bug fixes do not require review
 - **researcher uses sonnet model**: Research requires sufficient depth
 - **Spawn in parallel**: Launch all independent agents simultaneously
+- **No standalone subagents after team exists**: Once the team is created, ALL work goes through teammates via SendMessage — do NOT spawn standalone Agent/subagent (Explore, general-purpose, etc.) to do work that a teammate should handle. Subagents bypass the team's planning files, findings, and coordination. The only exception is spawning a new teammate (with `team_name`) to permanently join the team
 - **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
 - **Code is the source of truth**: Documentation follows the code. Devs MUST update `docs/api-contracts.md` and `docs/architecture.md` when code changes — undocumented APIs do not exist for other agents
 - **Invariant-first for high-risk boundaries**: Recurring bugs should be promoted from Known Pitfalls to `docs/invariants.md`, then converted to automated tests. Reviewer is the second line of defense; automated tests are the first

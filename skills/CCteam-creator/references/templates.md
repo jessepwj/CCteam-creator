@@ -18,6 +18,7 @@ This file is generated in the **project working directory** (not inside `.plans/
 - team-lead owns user alignment, scope control, task decomposition, and phase transitions
 - team-lead maintains project-global truth: main `task_plan.md`, `decisions.md`, and this `CLAUDE.md`
 - team-lead decides whether a workflow improvement is project-local or should be written back into `CCteam-creator`
+- **No standalone subagents**: Once the team exists, ALL work goes through teammates via SendMessage. Do NOT spawn standalone Agent/subagent (Explore, general-purpose, etc.) — they bypass the team's planning files and coordination. Only exception: spawning a new teammate (with `team_name`) to join the team
 
 ## Team Roster
 

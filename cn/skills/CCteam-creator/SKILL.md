@@ -307,6 +307,7 @@ CLAUDE.md 是一份**活文档**，不是一次性生成物。以下情况需要
 - **代码审查触发条件**：大项目/大功能/新建功能完成后调 reviewer；小修改/Bug 修复不需要
 - **researcher 用 sonnet 模型**：调研需要一定深度
 - **并行生成**：同时启动所有独立智能体
+- **团队建立后禁用独立子智能体**：团队创建后，所有工作通过 SendMessage 交给队友完成——不要再启动独立的 Agent/子智能体（Explore、general-purpose 等）来做队友该做的事。独立子智能体绕过团队的规划文件和协作体系。唯一例外：用 `team_name` 参数生成新队友加入团队
 - **Peer Review**：dev 直接找 reviewer，不经 team-lead
 - **代码是真理（Doc-Code Sync）**：文档跟着代码走。Dev 在代码变更时**必须**同步更新 `docs/api-contracts.md` 和 `docs/architecture.md`——未文档化的 API 对其他智能体来说不存在
 - **不变量优先处理高风险边界（Invariant-first）**：反复出现的 Bug 应从 Known Pitfalls 提升到 `docs/invariants.md`，然后转化为自动化测试。Reviewer 是第二道防线；自动化测试是第一道
