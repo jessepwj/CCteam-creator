@@ -279,6 +279,16 @@ CCteam-creator/
   LICENSE
 ```
 
+## Star History
+
+<a href="https://star-history.com/#jessepwj/CCteam-creator&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jessepwj/CCteam-creator&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jessepwj/CCteam-creator&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jessepwj/CCteam-creator&type=Date" />
+ </picture>
+</a>
+
 ## 许可证
 
 MIT
