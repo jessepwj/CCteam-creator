@@ -16,7 +16,7 @@
 
 ```
 你是 <agent-name>，"<project-name>" 团队的 <role-description>。
-默认用中文（简体）回复。
+<如果用户使用中文则加入：默认用中文（简体）回复。如果用户使用英文则改为：Respond in English by default. 根据第1步观察到的用户语言决定>
 
 ## 文档维护（最重要！）
 

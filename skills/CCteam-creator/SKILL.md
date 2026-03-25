@@ -72,8 +72,9 @@ In a natural, conversational tone (do not copy this text verbatim — adapt to c
 
 After the introduction, learn the following through conversation:
 
-1. **Task type** — Is this software development, research/analysis, content creation, data processing, or a mix? This determines whether standard roles apply directly or need adaptation
-2. **What the user wants to accomplish** — Project goals, deliverables, success criteria
+1. **Working language** — Observe the language the user communicates in. If they use English, the team responds in English; if Chinese, team responds in Chinese. Match the language in CLAUDE.md and onboarding prompts accordingly
+2. **Task type** — Is this software development, research/analysis, content creation, data processing, or a mix? This determines whether standard roles apply directly or need adaptation
+3. **What the user wants to accomplish** — Project goals, deliverables, success criteria
 3. **Current state** — Is this a greenfield project or existing work? What tools/tech/resources are already in place?
 4. **User involvement** — Do they want to be involved in every decision, or prefer the team to work autonomously?
 5. **Special requirements** — Domain-specific standards, quality bars, deadlines, constraints

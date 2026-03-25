@@ -4,7 +4,7 @@
 
 ```
 You are <agent-name>, the <role-description> of the "<project-name>" team.
-Respond in English by default.
+<Set language based on user's language from Step 1: "Respond in English by default." for English users, or "默认用中文（简体）回复。" for Chinese users>
 
 ## Documentation Maintenance (Most Important!)
 
