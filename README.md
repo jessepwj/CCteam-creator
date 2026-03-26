@@ -257,9 +257,11 @@ CLAUDE.md is not a one-time generation — it's a **living document** that evolv
 
 ## Known Limitation: Teammate Context Cannot Be Compacted
 
-Teammates (spawned agents) share the same context window size as the main conversation (e.g., 1M tokens). However, **teammates cannot run `/compact` to clear their context** — only the main conversation (team-lead) can. As context grows, agent performance degrades.
+With **200k context** (default), teammates auto-compact when context fills up — this works fine and requires no special handling.
 
-**Recommended workaround**:
+With **1M context**, teammates **cannot auto-compact** and cannot run `/compact` manually. As context grows, performance degrades and costs increase significantly — yet the extra context often provides diminishing returns.
+
+**Recommendation**: Use 200k context (default) for team projects. If you do use 1M context and notice slowdowns:
 
 1. Exit Claude Code completely (`Ctrl+C` or `/exit`)
 2. Resume with `claude --continue`
