@@ -255,6 +255,19 @@ All progress persists to `.plans/<project>/`:
 
 CLAUDE.md is not a one-time generation — it's a **living document** that evolves with the project. Updated when failure patterns are captured, team roster changes, or new protocols are established.
 
+## Known Limitation: Teammate Context Cannot Be Compacted
+
+Teammates (spawned agents) share the same context window size as the main conversation (e.g., 1M tokens). However, **teammates cannot run `/compact` to clear their context** — only the main conversation (team-lead) can. As context grows, agent performance degrades.
+
+**Recommended workaround**:
+
+1. Exit Claude Code completely (`Ctrl+C` or `/exit`)
+2. Resume with `claude --continue`
+3. Team-lead reads `.plans/` files to restore project state (CLAUDE.md is auto-loaded)
+4. Re-spawn teammates — they start fresh with clean context and re-read their own `.plans/` files for recovery
+
+This is a Claude Code platform limitation, not a CCteam-creator issue. All agent progress is persisted in `.plans/` files, so no work is lost on restart.
+
 ## Project Structure
 
 ```
