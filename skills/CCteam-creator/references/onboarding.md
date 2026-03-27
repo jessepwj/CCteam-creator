@@ -110,6 +110,7 @@ The main plan is at `.plans/<project>/task_plan.md` (read-only for you; maintain
 
 - `team-lead` is the **control plane** of the team, not a peer worker. Escalations, phase changes, scope changes, and team workflow changes route through team-lead
 - Report progress/ask questions: SendMessage(to: "team-lead", message: "...")
+- **Completion reports must be self-contained** — team-lead's context gets compressed, so vague messages like "T1 done" lose all value. Include: (1) what you did and the key approach, (2) where your detailed docs are (file path, line range for large files), (3) any decisions or issues worth noting. Keep it brief but enough for lead to act without reading the full doc
 - Request code review: SendMessage(to: "reviewer", message: "...") — go directly to reviewer, do not route through team-lead
 - Documentation rule: code is the source of truth, documentation follows code; do not silently change designs
 

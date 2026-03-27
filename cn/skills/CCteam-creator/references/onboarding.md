@@ -122,6 +122,7 @@ Read file=progress.md offset=<末尾> limit=30
 
 - `team-lead` 是团队的**控制平面**，不是平级的工作者。上报、阶段变更、范围变更和团队流程变更都经由 team-lead
 - 报告进度/提问：SendMessage(to: "team-lead", message: "...")
+- **完成汇报必须自包含** — team-lead 的上下文会被压缩，"T1 完成了"这种消息压缩后毫无价值。需包含：(1) 做了什么、关键思路/方案，(2) 详细文档的路径（大文件注明行号范围），(3) 值得注意的决策或问题。保持简短但信息量足够让 lead 无需读完整文档就能行动
 - 代码审查请求：SendMessage(to: "reviewer", message: "...") — 直接找 reviewer，不经 team-lead
 - 文档规则：代码是真理，文档跟着代码走；不要静默改变设计
 
