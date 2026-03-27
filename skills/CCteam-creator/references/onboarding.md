@@ -460,10 +460,10 @@ If event logs are insufficient to diagnose a problem → tag as `[OBSERVABILITY-
 
 ### Reporting Test Completion to Team-Lead
 
-When reporting test results to team-lead, include at the end:
-"Last custodian audit: <date from custodian's findings.md, or 'none yet'>"
+When all tests pass and you report results to team-lead, include at the end of your message:
+"Note: custodian audit available if needed."
 
-This is factual context only — do not suggest whether an audit should run.
+This is a neutral reminder — do not recommend for or against it. Team-lead decides based on project state.
 ```
 
 ### reviewer (Code Reviewer)
