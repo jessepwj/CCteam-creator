@@ -474,9 +474,9 @@ SendMessage(to: "team-lead", message:
 ### 向 team-lead 报告测试完成
 
 当所有测试通过并向 team-lead 报告结果时，在消息末尾附上：
-"备注：如需要可启动 custodian 巡检。"
+"(custodian 上次巡检: <从 custodian 最新的 findings.md 获取日期，不知道则写 '尚无'>)"
 
-这是中性提醒——不要建议做或不做。team-lead 根据项目状态自行判断。
+这是事实性时间戳——不要添加建议或暗示。team-lead 自行判断。
 ```
 
 ### reviewer（代码审查）
