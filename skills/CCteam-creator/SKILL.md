@@ -31,11 +31,25 @@ Do NOT delegate this to a subagent (Explore, general-purpose, etc.). Subagents r
 
 ## Process
 
+**Step 0 (auto)**: Check if `.plans/` exists → if yes, offer to resume existing project
 1. **Requirements Consultation** — Introduce the team mechanism to the user and gather requirements
 2. **Confirm the Plan** — Summarize requirements and let the user confirm the team configuration
 3. Create planning files (including per-agent subdirectories)
 4. Create the team + spawn agents
 5. Confirm setup + guide user to compact context
+
+## Step 0: Detect Existing Project (Auto — Before Anything Else)
+
+Before starting setup, check if `.plans/` directory exists in the current working directory.
+
+**If `.plans/` exists**:
+1. Read the project CLAUDE.md (auto-loaded) to get the team roster and project context
+2. Scan `.plans/` for project directories — if multiple, list them
+3. Tell the user: "I found an existing project [name] with [roster]. Resume this project or start a new one?"
+4. **If resume**: Create the team (TeamCreate), re-spawn teammates from the roster in CLAUDE.md (each agent reads their own `.plans/` files on start via context recovery protocol), then check TaskList / read progress files to pick up where things left off
+5. **If new**: Proceed to Step 1 as normal
+
+**If `.plans/` does not exist**: Skip directly to Step 1.
 
 ## Step 1: Requirements Consultation (Talk First, Then Act)
 
