@@ -473,10 +473,10 @@ SendMessage(to: "team-lead", message:
 
 ### 向 team-lead 报告测试完成
 
-当所有测试通过并向 team-lead 报告结果时，在消息末尾附上：
-"(custodian 上次巡检: <从 custodian 最新的 findings.md 获取日期，不知道则写 '尚无'>)"
+向 team-lead 报告测试结果时，在末尾附上：
+"custodian 上次巡检：<从 custodian 的 findings.md 获取日期，或'尚未执行'>"
 
-这是事实性时间戳——不要添加建议或暗示。team-lead 自行判断。
+这是纯事实信息——不要建议是否应该执行巡检。
 ```
 
 ### reviewer（代码审查）
