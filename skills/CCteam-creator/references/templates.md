@@ -29,7 +29,7 @@ This file is generated in the **project working directory** (not inside `.plans/
 | researcher | Explorer/Researcher | sonnet | Code search + web research (read-only). Multi-instance: split by volume (most common) or by independent direction — never for sequential chains |
 | e2e-tester | E2E Tester | sonnet | Playwright tests + browser automation |
 | reviewer | Code Reviewer | sonnet | Security/quality/performance review (read-only) |
-| cleaner | Code Cleaner | sonnet | Dead code removal + refactoring |
+| custodian | Custodian | sonnet | Constraint compliance + doc governance + pattern→automation + code cleanup |
 
 ## Task Dispatch Protocol
 
@@ -92,13 +92,27 @@ Reading order: **progress** (where are we) -> **findings** (what happened) -> **
 
 ## Docs Index (Knowledge Base)
 
+> **Navigation map**: `docs/index.md` has section-level navigation with line ranges for each doc.
+> custodian maintains docs/index.md. Read it when you need to find specific info in docs/.
+> CLAUDE.md is NOT hot-reloaded — dynamic navigation info lives in docs/index.md, not here.
+
 | Document | Location | Updated By |
 |----------|----------|-----------|
+| Navigation Map | .plans/<project>/docs/index.md | custodian (sections, line ranges, freshness) |
 | Architecture | .plans/<project>/docs/architecture.md | team-lead, devs |
 | API Contracts | .plans/<project>/docs/api-contracts.md | devs (MUST sync on API change) |
 | Invariants | .plans/<project>/docs/invariants.md | team-lead, reviewer |
 
 **Doc-Code Sync rule**: When code changes an API or architecture, the corresponding docs/ file MUST be updated in the same task. Undocumented APIs do not exist for other agents.
+
+## Automated Checks
+
+> custodian builds and maintains check scripts. List them here so team-lead knows what's automated.
+
+| Check | Script | Enforces |
+|-------|--------|----------|
+| CI (tests + types) | scripts/run_ci.py | All tests pass, types check |
+| (add as custodian builds checks) | | |
 
 ## Harness Checklist
 
@@ -128,6 +142,8 @@ Team-lead reviews at phase boundaries (not every task):
 | Context overflow | Agent reports long context | Progress saved in files, resume agent or spawn successor |
 | CI gate | Any code change (dev completes a task) | Run CI script, all checks PASS before submitting for review. CI fail = task not done |
 | Guardrail capture | 3-Strike escalation resolved, or reviewer [BLOCK] fixed | Ask: will this recur? If yes → append to Known Pitfalls; if universal → [TEAM-PROTOCOL] |
+| Custodian audit | After 2-3 dev tasks complete, or at phase boundary | team-lead triggers custodian compliance scan; custodian reports gaps |
+| Pattern → Automation | Reviewer tags [AUTOMATE] on recurring pattern | team-lead routes to custodian → builds check script → adds to CI |
 | Template sync | Durable workflow improvement found | Update `CCteam-creator` source first, then sync project docs |
 | Team rebuild timing | Template changed enough to affect spawned-agent behavior | Prefer rebuild at phase boundaries, not mid-stream |
 
@@ -163,6 +179,7 @@ Typical template-level changes:
   progress.md           -- Work log
   decisions.md          -- Architecture decision log
   docs/                 -- Project knowledge base (source of truth for architecture, APIs, etc.)
+    index.md            -- Navigation map: sections & line ranges (custodian maintains)
     architecture.md     -- System architecture, components, data flow
     api-contracts.md    -- Frontend-backend API definitions, field specs, state machines
     invariants.md       -- System invariants (unbreakable boundaries)
@@ -351,7 +368,7 @@ All roles use task folders when assigned distinct tasks. The folder prefix varie
 | researcher | `research-` | `research-tech-stack/`, `research-auth-options/` |
 | e2e-tester | `test-` | `test-auth-flow/`, `test-checkout/` |
 | reviewer | `review-` | `review-auth-module/`, `review-payments/` |
-| cleaner | (uses root files) | — |
+| custodian | `audit-` | `audit-phase1-compliance/`, `audit-doc-health/` |
 
 ---
 
@@ -640,6 +657,60 @@ All roles use task folders when assigned distinct tasks. The folder prefix varie
 
 ---
 
+### Audit Folder (custodian)
+
+```
+.plans/<project>/custodian/audit-<scope>/
+```
+
+#### findings.md
+
+```markdown
+# Audit: <Scope> - Report
+
+> Compliance audit results.
+> Agent: custodian
+> Scope: <what was audited>
+> Date: <date>
+
+---
+
+## Summary
+
+- CRITICAL: 0
+- ADVISORY: 0
+
+## Doc-Code Sync
+
+<gaps found between code changes and docs/>
+
+## Index Integrity
+
+<missing findings.md index entries, orphan task folders>
+
+## docs/index.md Updates
+
+<navigation map changes made>
+
+## Recommendations
+
+<suggested actions for team-lead to dispatch>
+```
+
+#### progress.md
+
+```markdown
+# Audit: <Scope> - Execution Log
+
+> Audit process notes.
+
+---
+
+<Empty initially>
+```
+
+---
+
 ### Root findings.md as Index (All Roles)
 
 Every agent's root findings.md should serve as an index. Example:
@@ -676,6 +747,38 @@ Every agent's root findings.md should serve as an index. Example:
 The `docs/` directory is the project's **knowledge base** — structured reference documents that agents read for context recovery. Unlike task_plan.md (navigation) or findings.md (event log), docs/ files contain **stable, curated knowledge** that is actively maintained as the project evolves.
 
 Create during Step 3. Start with the files relevant to the project; not all are required.
+
+### docs/index.md (Navigation Map)
+
+```markdown
+# <Project Name> - Knowledge Base Index
+
+> Dynamic navigation map. custodian maintains this file.
+> Agents: Read this when you need to find specific info in docs/.
+> CLAUDE.md points here but does NOT duplicate this content.
+
+| Document | Key Sections | Last Updated |
+|----------|-------------|-------------|
+| architecture.md | §System Overview (L1-30): component map · §Data Flow (L32-78): request lifecycle · §Tech Stack (L80-95): frameworks | <date> |
+| api-contracts.md | §Auth API (L1-45): login/refresh/logout · §Chat API (L47-120): session CRUD | <date> |
+| invariants.md | §Security (L1-20): session isolation · §Data (L22-35): boundaries · §Contracts (L37-50): field matching | <date> |
+
+## How to Use This Index
+
+- Need to understand system components? → Read architecture.md §System Overview
+- Need API field names? → Read api-contracts.md, jump to the relevant section
+- Need to check if your change violates a boundary? → Read invariants.md
+
+## Freshness Log
+
+> custodian updates this after each audit scan.
+
+| Document | Last Audited | Status |
+|----------|-------------|--------|
+| architecture.md | <date> | [OK] |
+| api-contracts.md | <date> | [OK] |
+| invariants.md | <date> | [OK] |
+```
 
 ### docs/architecture.md
 

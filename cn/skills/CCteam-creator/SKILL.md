@@ -110,7 +110,7 @@ Read references/roles.md
 | 探索/研究 | researcher | — | sonnet | 代码搜索 + 网页搜索 + 只读不改代码 |
 | 联调测试 | e2e-tester | e2e-runner | sonnet | E2E 测试 + 浏览器自动化 + Bug 记录 |
 | 代码审查 | reviewer | code-reviewer | sonnet | 只读审查 + 安全/质量/性能深度检查 |
-| 代码清理 | cleaner | refactor-cleaner | sonnet | 死代码清理 + 重复合并 + 重构 |
+| 管家 | custodian | refactor-cleaner | sonnet | 约束合规 + 文档治理 + 模式→自动化 + 代码清理 |
 
 > **模型默认值**：所有角色默认使用 `sonnet`。仅在用户要求、不考虑成本、或角色涉及关键/复杂逻辑（如安全敏感审查、复杂业务逻辑）时，才将特定角色升级为 `opus`。不确定时在第 1 步与用户确认。
 
@@ -125,6 +125,7 @@ Read references/roles.md
   - **按方向拆分**：完全独立的调研主题。如技术选型 + 代码库分析 + 竞品调研——各自产出结论，互不依赖
   - 按量拆分时按编号命名（`researcher-1`/`researcher-2`），按方向拆分时按方向命名（`researcher-api`/`researcher-arch`）。每个有独立的 `.plans/` 目录。无竞态——researcher 对源代码只读
   - **反模式**：方向 B 依赖方向 A 的结论时不要拆（如"先确定认证方案，再调研实现库"）——单个 researcher 按顺序做比两个排队等依赖更快
+- **custodian 适用于 4+ 智能体团队或长期项目**。小团队（2-3 个智能体）custodian 的开销可能不值得——team-lead 可以直接承担合规检查
 - 用户可以添加自定义角色（解释自定义角色需要提供：名称、职责、模型选择）
 
 **非软件项目适配**：
@@ -187,6 +188,7 @@ Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
     architecture.md           -- 系统架构、组件、数据流
     api-contracts.md          -- 前后端 API 定义
     invariants.md             -- 不可违反的系统边界
+    index.md                  -- 带 section/行号的导航地图（custodian 维护）
   archive/                    -- 归档历史（旧 progress、旧计划）
 
   <agent-name>/               -- 每个智能体一个目录
@@ -207,7 +209,7 @@ Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
 | researcher | `research-` | `research-tech-stack/`、`research-auth-options/` |
 | e2e-tester | `test-` | `test-auth-flow/`、`test-checkout/` |
 | reviewer | `review-` | `review-auth-module/`、`review-payments/` |
-| cleaner | （使用根目录文件） | — |
+| custodian | `audit-` | `audit-phase1-compliance/`、`audit-doc-health/` |
 
 完整多角色示例结构：
 
@@ -274,6 +276,12 @@ Team-lead = 主对话（你自己）。不要生成 team-lead 智能体。
 
 CLAUDE.md 通过把精简的运营手册永久保留在上下文中来解决这个问题。
 
+### docs/index.md — 动态导航地图
+
+在第 3 步中，同时创建 `docs/index.md`——一个带 section 名和行号范围的详细导航地图。此文件由 custodian 维护，智能体需要查找信息时主动 Read。CLAUDE.md 指向它但不复制其内容（CLAUDE.md 仅在会话启动和 compact 后加载，因此动态导航信息应放在 docs/index.md 中）。
+
+参见 [references/templates.md](references/templates.md) 了解 docs/index.md 模板。
+
 ### 何时更新 CLAUDE.md
 
 CLAUDE.md 是一份**活文档**，不是一次性生成物。以下情况需要更新：
@@ -284,7 +292,9 @@ CLAUDE.md 是一份**活文档**，不是一次性生成物。以下情况需要
 
 不要在这里放任务级细节——只放能穿越上下文压缩的持久化运营知识。
 
-## 第 3.6 步：创建 CI 脚本骨架（适用时）
+## 第 3.6 步：Harness 基础设施搭建（适用时）
+
+### CI 脚本骨架
 
 如果项目有可测试的代码（后端、前端或两者兼有），在项目目录中创建一个 CI 脚本骨架（例如 `scripts/run_ci.py` 或 `scripts/ci.sh`）。该脚本应：
 
@@ -296,6 +306,21 @@ CLAUDE.md 是一份**活文档**，不是一次性生成物。以下情况需要
 骨架在项目启动时不需要完整——它随项目一起成长。但**文件必须从第一天就存在**，否则之后没人会去创建它。
 
 将 CI 命令添加到项目 CLAUDE.md 的核心协议表中，确保它在上下文压缩后仍然存在。
+
+### 检查脚本错误信息标准
+
+所有检查脚本（CI、契约校验、架构 linter）**必须**产出智能体可读的错误信息，包含修复指令：
+
+```
+# 差的错误信息：智能体无法据此行动
+ERROR: api-contracts.md out of sync
+
+# 好的错误信息：智能体可以直接修复
+[CONTRACT-SYNC] POST /api/auth/refresh — 代码中存在但文档中没有
+  File: src/auth/controller.py:142
+  FIX: 在 docs/api-contracts.md 的 "Auth API" 章节中添加此端点。
+  格式: | POST | /api/auth/refresh | 刷新 JWT token | { token: string } |
+```
 
 ## 第 4 步：创建团队 + 生成智能体
 
@@ -328,6 +353,7 @@ CLAUDE.md 是一份**活文档**，不是一次性生成物。以下情况需要
 - **Peer Review**：dev 直接找 reviewer，不经 team-lead
 - **代码是真理（Doc-Code Sync）**：文档跟着代码走。Dev 在代码变更时**必须**同步更新 `docs/api-contracts.md` 和 `docs/architecture.md`——未文档化的 API 对其他智能体来说不存在
 - **不变量优先处理高风险边界（Invariant-first）**：反复出现的 Bug 应从 Known Pitfalls 提升到 `docs/invariants.md`，然后转化为自动化测试。Reviewer 是第二道防线；自动化测试是第一道
+- **模式→自动化管道（Pattern → Automation）**：当 reviewer 标记 `[AUTOMATE]` 时，team-lead 将其转给 custodian，由 custodian 构建带有智能体可读错误信息的检查脚本并加入 CI。目标：将人工检查转化为自动化执行，让 reviewer 专注更深层的判断
 - **反膨胀原则（Anti-bloat）**：根 findings.md 是纯索引（不堆内容）。progress.md 太长难以快速浏览时应归档。task_plan.md 是精简导航图——架构、API 规范和技术细节属于 `docs/`，不是这里
 - **CI 门禁先于审查（CI gate before review）**：当 CI 脚本存在时，dev 必须运行并确认所有检查 PASS 后才能提交审查。Reviewer 可以拒绝未通过 CI 的代码。写了测试但没跑 = 没写测试
 - **模板优先处理持久流程变更**：如果发现的改进影响角色定义、入职 prompt、CLAUDE.md 结构或下发协议，先更新 `CCteam-creator` 源文件再建议重建

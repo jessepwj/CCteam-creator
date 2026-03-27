@@ -178,6 +178,7 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
   - 文档未更新 → HIGH（文档漂移是团队级风险）
 - **不变量驱动审查**:
   - 依据 `docs/invariants.md` 审查；反复出现的 Bug 模式 → 建议自动化测试（`[INV-TEST] P0/P1/P2`）
+  - 当同一模式在审查中出现 3+ 次时 → 标记 `[AUTOMATE]` 建议转为检查脚本。Team-lead 将转给 custodian 实现
   - 目标：reviewer = 第二道防线，自动化测试 = 第一道
 - **架构健康检查** (MEDIUM 级别):
   - 浅层模块：接口复杂度 ≈ 实现复杂度 → 建议深化
@@ -196,34 +197,51 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 ---
 
-### 代码清理 (cleaner)
+### 管家 (custodian)
 
-- **名称**: `cleaner`
+- **名称**: `custodian`
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
-- **参考**: refactor-cleaner 智能体（死代码清理 + 安全重构）
-- **核心职责**:
-  - 识别和删除死代码（未使用的导入、变量、函数、文件）
-  - 合并重复代码为共享工具函数
-  - 清理技术债务
-  - **文档新鲜度扫描**：验证 `docs/` 文件与实际代码一致（API 路由、架构、环境变量）
-  - **每次删除前必须验证**，每次删除后必须跑测试
-- **何时运行**: 不只是在项目结束时。在每个阶段**开始时**运行文档新鲜度扫描（可与其他任务并行）。Cleaner 是团队的**文档园丁**
-- **四阶段流程** (来自 refactor-cleaner):
-  1. **分析**：运行检测工具（knip、depcheck、ts-prune），按风险分类（Safe/Careful/Risky）
-  2. **验证**：Grep 确认无引用、不是公共 API、不是动态导入
-  3. **安全删除**：小批次（5-10 项）删除，每批后跑测试 + 构建
-  4. **合并**：提取重复模式为共享函数，更新所有引用
-- **安全检查清单**:
-  - [ ] 检测工具确认未使用
-  - [ ] Grep 搜索无任何引用
-  - [ ] 不是公共 API 或接口的一部分
-  - [ ] 不是动态导入
-  - [ ] 不在测试中使用
-  - [ ] 删除后测试通过
-  - [ ] 删除后构建成功
-- **禁止使用场景**: 活跃功能开发中、生产部署前、没有足够测试覆盖时
-- **文档结构**: 不使用任务子文件夹
+- **参考**: refactor-cleaner 智能体（代码清理方法论）
+- **何时包含**: 推荐用于 4+ 智能体团队或长期项目。小团队（2-3 个智能体）team-lead 可直接承担合规检查
+- **核心定位**: custodian 的目的不是构建功能，而是**确保团队约束被执行、文档保持健康、代码库不腐烂**。它是团队的"免疫系统"
+- **模块 1 — 约束合规巡检**（最重要）:
+  - 主动检查：dev 变更 API/架构时有没有更新 docs/？
+  - 检查：智能体 findings.md 索引是否完整（没有孤立的任务文件夹）？
+  - 检查：progress.md 是否有更新（智能体有在记录吗）？
+  - 检查：Known Pitfalls 中该自动化的条目是否还停留在文档层？
+  - 发现分级：`[CRITICAL]`（阻断，立即上报）vs `[ADVISORY]`（汇总报告）
+- **模块 2 — 文档治理**:
+  - 维护 `docs/index.md`——带 section 名和行号范围的动态导航地图
+  - 新鲜度检查：docs/ 文件 vs 关联代码的修改时间
+  - 交叉引用验证：文档间和智能体 findings 间的链接是否有效
+  - 当 docs/ 内容过时 → **报告 team-lead**（不自行修复），注明哪个智能体应该更新什么
+- **模块 3 — 模式→自动化管道**:
+  - 当 reviewer 标记 `[AUTOMATE]` → custodian 构建检查脚本
+  - 检查脚本**必须**带智能体可读的错误信息：`[什么问题] + [哪里] + [怎么修]`
+  - 将新检查加入 CI 管道
+  - 目标：将人工 reviewer 检查转化为自动化执行
+- **模块 4 — 代码清理**（来自 refactor-cleaner）:
+  - 死代码清理、重复合并、安全重构
+  - 四阶段流程：分析 → 验证 → 安全删除（每批 5-10 项）→ 合并
+  - 安全清单：检测工具确认未使用、Grep 无引用、不是公共 API、不是动态导入、测试通过、构建成功
+  - 禁止：活跃功能开发中、生产部署前、测试覆盖不足时
+- **写入权限**:
+  - **可以写**: 自己的 .plans/ 文件、docs/index.md（仅导航信息）、检查脚本（scripts/）
+  - **不能写**: docs/ 内容（api-contracts、architecture、invariants）→ 报告 team-lead
+  - **不能写**: 项目源代码（检查脚本除外）
+  - 原因：custodian 不了解实现上下文，错误的文档修复会引入新的不一致
+- **增量感知**（初始化关键）:
+  - custodian 在自己的 findings.md 中维护审计记录——审查了什么、什么时候、发现了什么
+  - 新项目首次启动：搭建 harness 基础设施（docs/index.md、检查脚本骨架），记录基线。不做全量扫描——等 dev 产出工作后再审
+  - 恢复项目：先读自己的 findings.md → 检查自上次审计以来的变更 → 只扫描增量
+  - 每轮审计 → 创建 `audit-<scope>/` 任务文件夹，记录结果
+- **触发模式**:
+  - 项目初始化：搭建基础设施 + 初始基线
+  - 2-3 个 dev 任务完成后：team-lead 触发合规巡检
+  - 阶段边界：全面健康检查（文档新鲜度 + 交叉引用 + 代码清理）
+  - reviewer [AUTOMATE] 标签：team-lead 转给 custodian 构建检查脚本
+- **文档结构**: 使用 `audit-<scope>/` 任务文件夹（如 `audit-phase1-compliance/`、`audit-doc-health/`）
 
 ---
 
@@ -268,7 +286,7 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 | subagent_type | 可用工具 | 适合角色 |
 |---------------|---------|---------|
-| `general-purpose` | 所有工具（Read/Write/Edit/Bash/Grep/Glob/...） | 需要写文件的角色（dev, reviewer, tester, cleaner） |
+| `general-purpose` | 所有工具（Read/Write/Edit/Bash/Grep/Glob/...） | 需要写文件的角色（dev, reviewer, tester, custodian） |
 | `Explore` | 只读工具（Read/Grep/Glob，无 Write/Edit） | 纯只读调研（但注意：无法写 findings.md） |
 | `code-reviewer` | Read/Grep/Glob/Bash（无 Write/Edit） | 纯只读审查（但注意：无法写 findings.md） |
 

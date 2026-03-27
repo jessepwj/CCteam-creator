@@ -39,7 +39,7 @@ CCteam-creator 在 Claude Code 中设置并行 AI 智能体团队。不再是单
 
 ### 2. 并行任务调度
 
-Team-lead 同时编排 6 个智能体 —— researcher 和 cleaner 立即启动（无依赖），dev 们准备就绪等待研究产出。每个智能体清楚自己的依赖关系。
+Team-lead 同时编排 6 个智能体 —— researcher 和 custodian 立即启动（无依赖），dev 们准备就绪等待研究产出。每个智能体清楚自己的依赖关系。
 
 ![并行调度](docs/images/02-parallel-dispatch.png)
 
@@ -140,7 +140,7 @@ cp -r CCteam-creator/cn/skills/CCteam-creator .claude/skills/CCteam-creator
 | 探索/研究 | `researcher` | sonnet | 代码搜索 + 网页调研 + 方案压测（只读） |
 | 联调测试 | `e2e-tester` | sonnet | Playwright E2E + 事件优先调试 + Bug 追踪 |
 | 代码审查 | `reviewer` | sonnet | 安全/质量/性能 + 文档一致性 + 不变量驱动审查 |
-| 代码清理 | `cleaner` | sonnet | 死代码清理 + 文档新鲜度扫描 + 安全重构 |
+| 管家 | `custodian` | sonnet | 约束合规 + 文档治理 + 模式→自动化 + 代码清理 |
 
 不是每个项目都需要全部角色。CCteam-creator 会根据你的需求推荐合适的组合。
 

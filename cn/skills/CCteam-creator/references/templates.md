@@ -43,7 +43,7 @@
 | researcher | 探索/研究 | sonnet | 代码搜索 + 网页调研（只读）。可多实例：按量拆分（最常见）或按独立方向拆分——不用于串行依赖链 |
 | e2e-tester | 联调测试 | sonnet | Playwright 测试 + 浏览器自动化 |
 | reviewer | 代码审查 | sonnet | 安全/质量/性能审查（只读） |
-| cleaner | 代码清理 | sonnet | 死代码清理 + 重构 |
+| custodian | 管家 | sonnet | 约束合规 + 文档治理 + 模式→自动化 + 代码清理 |
 
 ## 任务下发协议
 
@@ -106,13 +106,27 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 ## 文档索引（知识库）
 
+> **导航地图**：`docs/index.md` 有各文档的 section 级导航（含行号范围）。
+> custodian 维护 docs/index.md。需要在 docs/ 中查找信息时先 Read 它。
+> CLAUDE.md 不是热加载的——动态导航信息放在 docs/index.md 中，不在这里。
+
 | 文档 | 位置 | 维护者 |
 |------|------|--------|
+| 导航地图 | .plans/<project>/docs/index.md | custodian（sections、行号、新鲜度） |
 | 架构 | .plans/<project>/docs/architecture.md | team-lead, devs |
 | API 契约 | .plans/<project>/docs/api-contracts.md | devs（API 变更时**必须**同步） |
 | 不变量 | .plans/<project>/docs/invariants.md | team-lead, reviewer |
 
 **Doc-Code Sync 规则**：当代码变更了 API 或架构时，对应的 docs/ 文件**必须**在同一个任务中同步更新。未文档化的 API 对其他智能体来说不存在。
+
+## 自动化检查
+
+> custodian 构建和维护检查脚本。列在这里让 team-lead 知道哪些已自动化。
+
+| 检查 | 脚本 | 执行什么 |
+|------|------|---------|
+| CI（测试 + 类型） | scripts/run_ci.py | 所有测试通过、类型检查 |
+| （custodian 构建检查后在此添加） | | |
 
 ## Harness 检查清单
 
@@ -142,6 +156,8 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 | 上下文溢出 | 智能体报告上下文过长 | 进度已存文件，恢复或生成后继者 |
 | CI 门禁 | 任何代码变更（dev 完成任务时） | 运行 CI 脚本，所有检查 PASS 后才能提交审查。CI 失败 = 任务未完成 |
 | 护栏捕获 | 3-Strike 上报解决后，或 reviewer [BLOCK] 修复后 | 问：会复现吗？如果会 → 追加到 Known Pitfalls；如果通用 → [TEAM-PROTOCOL] |
+| custodian 巡检 | 2-3 个 dev 任务完成后，或阶段边界时 | team-lead 触发 custodian 合规巡检；custodian 报告缺口 |
+| 模式→自动化 | reviewer 标记 [AUTOMATE] 时 | team-lead 转给 custodian → 构建检查脚本 → 加入 CI |
 | 模板同步 | 发现持久流程改进 | 先更新 `CCteam-creator` 源文件，再同步项目文档 |
 | 团队重建时机 | 模板变更足以影响已生成智能体行为 | 优先在阶段边界重建，不要在开发中途 |
 
@@ -177,6 +193,7 @@ team-lead 在阶段边界检查（不是每个任务都查）：
   progress.md           -- 工作日志
   decisions.md          -- 架构决策记录
   docs/                 -- 项目知识库（架构、API 等的真理源头）
+    index.md            -- 导航地图：sections 和行号范围（custodian 维护）
     architecture.md     -- 系统架构、组件、数据流
     api-contracts.md    -- 前后端 API 定义、字段规范、状态机
     invariants.md       -- 系统不变量（不可违反的边界）
@@ -365,7 +382,7 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 | researcher | `research-` | `research-tech-stack/`、`research-auth-options/` |
 | e2e-tester | `test-` | `test-auth-flow/`、`test-checkout/` |
 | reviewer | `review-` | `review-auth-module/`、`review-payments/` |
-| cleaner | （使用根目录文件） | — |
+| custodian | `audit-` | `audit-phase1-compliance/`、`audit-doc-health/` |
 
 ---
 
@@ -654,6 +671,60 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 
 ---
 
+### 审计文件夹（custodian）
+
+```
+.plans/<project>/custodian/audit-<scope>/
+```
+
+#### findings.md
+
+```markdown
+# 审计: <范围> - 报告
+
+> 合规审计结果。
+> 智能体: custodian
+> 范围: <审了什么>
+> 日期: <日期>
+
+---
+
+## 汇总
+
+- CRITICAL: 0
+- ADVISORY: 0
+
+## Doc-Code Sync
+
+<代码变更与 docs/ 之间发现的缺口>
+
+## 索引完整性
+
+<缺失的 findings.md 索引条目、孤立的任务文件夹>
+
+## docs/index.md 更新
+
+<已做的导航地图变更>
+
+## 建议
+
+<建议 team-lead 下发的操作>
+```
+
+#### progress.md
+
+```markdown
+# 审计: <范围> - 执行日志
+
+> 审计过程笔记。
+
+---
+
+<初始为空>
+```
+
+---
+
 ### 根目录 findings.md 作为索引（所有角色）
 
 每个智能体的根 findings.md 都应作为索引。示例：
@@ -690,6 +761,38 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 `docs/` 目录是项目的**知识库**——结构化的参考文档，智能体读取它们来恢复上下文。不同于 task_plan.md（导航）或 findings.md（事件日志），docs/ 文件包含**稳定的、经过整理的知识**，随项目演进主动维护。
 
 在第 3 步创建。根据项目需要选择相关文件，不是所有文件都必须创建。
+
+### docs/index.md（导航地图）
+
+```markdown
+# <项目名> - 知识库索引
+
+> 动态导航地图。custodian 维护此文件。
+> 智能体：需要在 docs/ 中查找信息时先 Read 此文件。
+> CLAUDE.md 指向这里但不复制此内容。
+
+| 文档 | 关键 Sections | 最后更新 |
+|------|-------------|---------|
+| architecture.md | §系统概览 (L1-30): 组件图 · §数据流 (L32-78): 请求链路 · §技术栈 (L80-95): 框架 | <日期> |
+| api-contracts.md | §Auth API (L1-45): login/refresh/logout · §Chat API (L47-120): session CRUD | <日期> |
+| invariants.md | §安全 (L1-20): session 隔离 · §数据 (L22-35): 边界 · §契约 (L37-50): 字段匹配 | <日期> |
+
+## 如何使用此索引
+
+- 需要了解系统组件？→ 读 architecture.md §系统概览
+- 需要 API 字段名？→ 读 api-contracts.md，跳到相关 section
+- 需要检查变更是否违反边界？→ 读 invariants.md
+
+## 新鲜度日志
+
+> custodian 每次审计后更新。
+
+| 文档 | 上次审计 | 状态 |
+|------|---------|------|
+| architecture.md | <日期> | [OK] |
+| api-contracts.md | <日期> | [OK] |
+| invariants.md | <日期> | [OK] |
+```
 
 ### docs/architecture.md
 

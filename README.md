@@ -39,7 +39,7 @@ After setup, team-lead summarizes the team roster, task assignments, and depende
 
 ### 2. Parallel Task Dispatch
 
-Team-lead orchestrates 6 agents simultaneously — researcher and cleaner start immediately (no dependencies), while devs prepare and wait for research output. Each agent knows its dependencies.
+Team-lead orchestrates 6 agents simultaneously — researcher and custodian start immediately (no dependencies), while devs prepare and wait for research output. Each agent knows its dependencies.
 
 ![Parallel Dispatch](docs/images/02-parallel-dispatch.png)
 
@@ -140,7 +140,7 @@ cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 | Researcher | `researcher` | sonnet | Code search + web research + plan stress-testing (read-only) |
 | E2E Tester | `e2e-tester` | sonnet | Playwright E2E + event-first debugging + bug tracking |
 | Code Reviewer | `reviewer` | sonnet | Security/quality/performance + doc consistency + invariant-driven review |
-| Code Cleaner | `cleaner` | sonnet | Dead code removal + doc freshness scan + safe refactoring |
+| Custodian | `custodian` | sonnet | Constraint compliance + doc governance + pattern→automation + code cleanup |
 
 You don't need all roles. CCteam-creator recommends the right combination for your project.
 

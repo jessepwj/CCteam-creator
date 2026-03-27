@@ -110,7 +110,7 @@ Available standard roles (software development):
 | Explorer/Researcher | researcher | — | sonnet | Code search + web research + read-only (no code edits) |
 | E2E Tester | e2e-tester | e2e-runner | sonnet | E2E testing + browser automation + bug tracking |
 | Code Reviewer | reviewer | code-reviewer | sonnet | Read-only review + deep security/quality/performance checks |
-| Code Cleaner | cleaner | refactor-cleaner | sonnet | Dead code removal + deduplication + refactoring |
+| Custodian | custodian | refactor-cleaner | sonnet | Constraint compliance + doc governance + pattern→automation + code cleanup |
 
 > **Model default**: All roles use `sonnet`. Upgrade specific roles to `opus` only when the user requests it, cost is not a concern, or the role handles critical/complex logic (e.g., security-sensitive review, complex business logic). Ask the user during Step 1 if unsure.
 
@@ -125,6 +125,7 @@ See [references/roles.md](references/roles.md) for detailed role definitions and
   - **Direction splitting**: Fully independent research topics. E.g., tech stack evaluation + codebase analysis + competitor research — each produces its own conclusions with no dependency on the others
   - Name by number (`researcher-1`/`researcher-2`) for volume splits, by focus (`researcher-api`/`researcher-arch`) for direction splits. Each gets its own `.plans/` directory. No race conditions — researchers are read-only on source code
   - **Anti-pattern**: Do NOT split when direction B depends on A's output (e.g., "first determine auth approach, then research libraries for it") — a single researcher sequentially is faster than two in a blocking chain
+- **custodian is recommended for teams with 4+ agents or long-running projects**. For small teams (2-3 agents), custodian overhead may not be worth it — team-lead can absorb the compliance checks directly
 - Users can add custom roles (explain that custom roles require: name, responsibilities, model choice)
 
 **Adapting for Non-Software Projects**:
@@ -184,6 +185,7 @@ See [references/templates.md](references/templates.md) for file templates.
   progress.md                 -- Work log (archive old entries when bloated)
   decisions.md                -- Architecture decision log
   docs/                       -- Project knowledge base
+    index.md                  -- Navigation map with sections & line ranges (custodian maintains)
     architecture.md           -- System architecture, components, data flow
     api-contracts.md          -- Frontend-backend API definitions
     invariants.md             -- Unbreakable system boundaries
@@ -207,7 +209,7 @@ Every role creates task folders when assigned distinct tasks. The root `findings
 | researcher | `research-` | `research-tech-stack/`, `research-auth-options/` |
 | e2e-tester | `test-` | `test-auth-flow/`, `test-checkout/` |
 | reviewer | `review-` | `review-auth-module/`, `review-payments/` |
-| cleaner | (uses root files) | — |
+| custodian | `audit-` | `audit-phase1-compliance/`, `audit-doc-health/` |
 
 Example structure with multiple roles:
 
@@ -274,6 +276,12 @@ Without this file, after context compression the team-lead loses all knowledge o
 
 The CLAUDE.md solves this by keeping a concise operations guide permanently in context.
 
+### docs/index.md — Dynamic Navigation Map
+
+In Step 3, also create `docs/index.md` — a detailed navigation map showing each doc's sections and line ranges. This file is maintained by custodian and actively Read by agents when they need to find specific information. CLAUDE.md points to it but does NOT duplicate it (CLAUDE.md is only loaded at session start / after compact, so dynamic nav info belongs in docs/index.md).
+
+See [references/templates.md](references/templates.md) for the docs/index.md template.
+
 ### When to Update CLAUDE.md
 
 CLAUDE.md is a **living document**, not a one-time generation. Update it when:
@@ -284,14 +292,33 @@ CLAUDE.md is a **living document**, not a one-time generation. Update it when:
 
 Do NOT put task-level details here — only durable operational knowledge that survives context compression.
 
-## Step 3.6: Create CI Script Skeleton (When Applicable)
+## Step 3.6: Harness Setup (When Applicable)
 
-If the project has testable code (backend, frontend, or both), create a CI script skeleton in the project directory (e.g., `scripts/run_ci.py` or `scripts/ci.sh`). The script should:
+If the project has testable code (backend, frontend, or both), set up the enforcement infrastructure:
+
+### CI Script Skeleton
+
+Create a CI script skeleton (e.g., `scripts/run_ci.py` or `scripts/ci.sh`):
 
 - Run all quality checks in one command (tests, type checks, contract validation, etc.)
 - Exit 0 = all pass, exit 1 = failures
 - Start with an empty check list — devs add checks as they write tests
 - The first check is usually contract validation (if `docs/api-contracts.md` exists)
+
+### Check Script Error Message Standard
+
+All check scripts (CI, contract validation, architecture linters) MUST produce agent-readable error messages with fix instructions:
+
+```
+# BAD: agent cannot act on this
+ERROR: api-contracts.md out of sync
+
+# GOOD: agent can directly fix this
+[CONTRACT-SYNC] POST /api/auth/refresh — exists in code but not in docs
+  File: src/auth/controller.py:142
+  FIX: Add to docs/api-contracts.md under "Auth API" section.
+  Format: | POST | /api/auth/refresh | Refresh JWT token | { token: string } |
+```
 
 The skeleton does not need to be complete at project start — it grows as the project grows. But **the file must exist from day one**, otherwise no one will create it later.
 
@@ -322,12 +349,13 @@ Then **guide the user to run `/compact`** to free up context. Explain why:
 - **Context recovery**: After an agent is compacted, it must first read its task folder's files (or root files if no active task folder)
 - **All roles use task folders**: Every assigned task gets a dedicated folder with its own findings/progress files; root findings.md is an index
 - **Code review trigger**: Call reviewer after completing a feature/new module; small changes/bug fixes do not require review
-- **researcher uses sonnet model**: Research requires sufficient depth
+- **researcher uses sonnet model**: research requires sufficient depth
 - **Spawn in parallel**: Launch all independent agents simultaneously
 - **No standalone subagents after team exists**: Once the team is created, ALL work goes through teammates via SendMessage — do NOT spawn standalone Agent/subagent (Explore, general-purpose, etc.) to do work that a teammate should handle. Subagents bypass the team's planning files, findings, and coordination. The only exception is spawning a new teammate (with `team_name`) to permanently join the team
 - **Peer Review**: dev reaches out to reviewer directly, without going through team-lead
 - **Code is the source of truth**: Documentation follows the code. Devs MUST update `docs/api-contracts.md` and `docs/architecture.md` when code changes — undocumented APIs do not exist for other agents
 - **Invariant-first for high-risk boundaries**: Recurring bugs should be promoted from Known Pitfalls to `docs/invariants.md`, then converted to automated tests. Reviewer is the second line of defense; automated tests are the first
+- **Pattern → Automation pipeline**: When reviewer tags `[AUTOMATE]` on a recurring pattern, team-lead routes it to custodian, who builds a check script with agent-readable error messages and adds it to CI. Goal: convert manual checks into automated enforcement so reviewer can focus on deeper judgment calls
 - **Anti-bloat principle**: Root findings.md is a pure index (no content dumping). progress.md should be archived when it gets too long to scan quickly. task_plan.md is a lean navigation map — architecture, API specs, and tech details belong in `docs/`, not here
 - **CI gate before review**: When a CI script exists, dev must run it and confirm all checks pass before submitting for review. Reviewer may reject code that hasn't passed CI. Tests written but not run = tests not written
 - **Template-first for durable workflow changes**: if a discovered improvement affects role definitions, onboarding, CLAUDE.md structure, or dispatch protocols, update `CCteam-creator` source files before recommending a rebuild

@@ -178,6 +178,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Doc not updated → HIGH (doc drift is a team-level risk)
 - **Invariant-Driven Review**:
   - Review against `docs/invariants.md`; recurring bug patterns → recommend automated test (`[INV-TEST] P0/P1/P2`)
+  - When a pattern appears 3+ times across reviews → tag `[AUTOMATE]` and recommend converting to a check script. Team-lead routes to custodian for implementation
   - Goal: reviewer = second line of defense, automated tests = first
 - **Architecture Health Checks** (MEDIUM level):
   - Shallow modules: interface complexity ≈ implementation complexity → suggest deepening
@@ -196,34 +197,51 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 
 ---
 
-### Code Cleaner (cleaner)
+### Custodian (custodian)
 
-- **Name**: `cleaner`
+- **Name**: `custodian`
 - **subagent_type**: `general-purpose`
 - **model**: `sonnet`
-- **Reference**: refactor-cleaner agent (dead code removal + safe refactoring)
-- **Core Responsibilities**:
-  - Identify and remove dead code (unused imports, variables, functions, files)
-  - Merge duplicate code into shared utility functions
-  - Address technical debt
-  - **Doc freshness scan**: verify `docs/` files match actual code (API routes, architecture, env vars)
-  - **Must verify before every deletion**, must run tests after every deletion
-- **When to run**: Not just at project end. Run doc freshness scan at the START of each phase (can parallel with other tasks). Cleaner is the team's **doc-gardening agent**
-- **Four-Phase Process** (from refactor-cleaner):
-  1. **Analyze**: Run detection tools (knip, depcheck, ts-prune), categorize by risk (Safe/Careful/Risky)
-  2. **Validate**: Grep to confirm no references, not a public API, not a dynamic import
-  3. **Safe Deletion**: Remove in small batches (5-10 items), run tests + build after each batch
-  4. **Consolidate**: Extract duplicate patterns into shared functions, update all references
-- **Safety Checklist**:
-  - [ ] Detection tool confirms unused
-  - [ ] Grep finds no references anywhere
-  - [ ] Not a public API or interface
-  - [ ] Not a dynamic import
-  - [ ] Not used in tests
-  - [ ] Tests pass after deletion
-  - [ ] Build succeeds after deletion
-- **Prohibited Scenarios**: Active feature development, before production deployment, when test coverage is insufficient
-- **Documentation Structure**: No task subfolders
+- **Reference**: refactor-cleaner agent (code cleanup methodology)
+- **When to include**: Recommended for teams with 4+ agents or long-running projects. For small teams (2-3 agents), team-lead can absorb compliance checks directly
+- **Core Positioning**: custodian's purpose is NOT building features — it ensures the team's constraints are followed, docs stay healthy, and the codebase doesn't decay. It is the team's "immune system"
+- **Module 1 — Constraint Compliance Auditing** (most important):
+  - Proactively check: did devs update docs/ when changing APIs/architecture?
+  - Check: are agent findings.md indexes complete (no orphan task folders)?
+  - Check: are progress.md files being maintained (agents actually recording)?
+  - Check: are Known Pitfalls items that should be automated still stuck in doc layer?
+  - Categorize findings: `[CRITICAL]` (blocking, report immediately) vs `[ADVISORY]` (batch in summary report)
+- **Module 2 — Documentation Governance**:
+  - Maintain `docs/index.md` — the dynamic navigation map with section names and line ranges for each docs/ file
+  - Freshness check: docs/ files vs related code modification times
+  - Cross-reference validation: do links between docs and agent findings still work?
+  - When docs/ content is stale → **report to team-lead** (not self-fix), specifying which agent should update what
+- **Module 3 — Pattern → Automation Pipeline**:
+  - When reviewer tags `[AUTOMATE]` on a recurring pattern → custodian builds the check script
+  - Check scripts MUST have agent-readable error messages: `[WHAT] + [WHERE] + [HOW TO FIX]`
+  - Add new checks to CI pipeline
+  - Goal: convert manual reviewer checks into automated enforcement
+- **Module 4 — Code Cleanup** (from refactor-cleaner):
+  - Dead code removal, duplicate consolidation, safe refactoring
+  - Four-phase process: Analyze → Validate → Safe Deletion (batches of 5-10) → Consolidate
+  - Safety checklist: detection tool confirms unused, Grep no references, not public API, not dynamic import, tests pass, build succeeds
+  - Prohibited: during active feature development, before production deployment, when test coverage insufficient
+- **Write Permissions**:
+  - **Can write**: own .plans/ files, docs/index.md (navigation only), check scripts (scripts/)
+  - **Cannot write**: docs/ content (api-contracts, architecture, invariants) — report to team-lead instead
+  - **Cannot write**: project source code (except check scripts)
+  - Reason: custodian doesn't understand implementation context; incorrect doc fixes would introduce new inconsistencies
+- **Incremental Awareness** (critical for initialization):
+  - custodian maintains audit records in its own findings.md — what was audited, when, what was found
+  - On first start (new project): set up harness infrastructure (docs/index.md, check script skeletons), record baseline. Do NOT full-scan — wait for devs to produce work
+  - On resume (existing project): read own findings.md first → check what changed since last audit → only scan the delta
+  - Each audit round → create `audit-<scope>/` task folder, record results
+- **Trigger Model**:
+  - Project init: set up infrastructure + initial baseline
+  - After 2-3 dev tasks complete: team-lead triggers compliance scan
+  - Phase boundaries: full health check (doc freshness + cross-refs + code cleanup)
+  - Reviewer [AUTOMATE] tag: team-lead routes to custodian for check script creation
+- **Documentation Structure**: Uses `audit-<scope>/` task folders (e.g., `audit-phase1-compliance/`, `audit-doc-health/`)
 
 ---
 
@@ -268,7 +286,7 @@ Users may add custom roles following this format:
 
 | subagent_type | Available Tools | Suitable Roles |
 |---------------|----------------|---------------|
-| `general-purpose` | All tools (Read/Write/Edit/Bash/Grep/Glob/...) | Roles that need to write files (dev, reviewer, tester, cleaner) |
+| `general-purpose` | All tools (Read/Write/Edit/Bash/Grep/Glob/...) | Roles that need to write files (dev, reviewer, tester, custodian) |
 | `Explore` | Read-only tools (Read/Grep/Glob, no Write/Edit) | Pure read-only research (note: cannot write findings.md) |
 | `code-reviewer` | Read/Grep/Glob/Bash (no Write/Edit) | Pure read-only review (note: cannot write findings.md) |
 
