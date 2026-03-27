@@ -135,11 +135,11 @@ cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 
 | Role | Name | Model | Key Capabilities |
 |------|------|-------|-----------------|
-| Backend Dev | `backend-dev` | opus | Server code + TDD + Doc-Code Sync + observability (when applicable) |
-| Frontend Dev | `frontend-dev` | opus | Client code + TDD + Doc-Code Sync + component testing |
+| Backend Dev | `backend-dev` | sonnet | Server code + TDD + Doc-Code Sync + observability (when applicable) |
+| Frontend Dev | `frontend-dev` | sonnet | Client code + TDD + Doc-Code Sync + component testing |
 | Researcher | `researcher` | sonnet | Code search + web research + plan stress-testing (read-only) |
 | E2E Tester | `e2e-tester` | sonnet | Playwright E2E + event-first debugging + bug tracking |
-| Code Reviewer | `reviewer` | opus | Security/quality/performance + doc consistency + invariant-driven review |
+| Code Reviewer | `reviewer` | sonnet | Security/quality/performance + doc consistency + invariant-driven review |
 | Code Cleaner | `cleaner` | sonnet | Dead code removal + doc freshness scan + safe refactoring |
 
 You don't need all roles. CCteam-creator recommends the right combination for your project.

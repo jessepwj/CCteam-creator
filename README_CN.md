@@ -135,11 +135,11 @@ cp -r CCteam-creator/cn/skills/CCteam-creator .claude/skills/CCteam-creator
 
 | 角色 | 名称 | 模型 | 核心能力 |
 |------|------|------|---------|
-| 后端开发 | `backend-dev` | opus | 服务端代码 + TDD + Doc-Code 同步 + 可观测性（适用时） |
-| 前端开发 | `frontend-dev` | opus | 客户端代码 + TDD + Doc-Code 同步 + 组件测试 |
+| 后端开发 | `backend-dev` | sonnet | 服务端代码 + TDD + Doc-Code 同步 + 可观测性（适用时） |
+| 前端开发 | `frontend-dev` | sonnet | 客户端代码 + TDD + Doc-Code 同步 + 组件测试 |
 | 探索/研究 | `researcher` | sonnet | 代码搜索 + 网页调研 + 方案压测（只读） |
 | 联调测试 | `e2e-tester` | sonnet | Playwright E2E + 事件优先调试 + Bug 追踪 |
-| 代码审查 | `reviewer` | opus | 安全/质量/性能 + 文档一致性 + 不变量驱动审查 |
+| 代码审查 | `reviewer` | sonnet | 安全/质量/性能 + 文档一致性 + 不变量驱动审查 |
 | 代码清理 | `cleaner` | sonnet | 死代码清理 + 文档新鲜度扫描 + 安全重构 |
 
 不是每个项目都需要全部角色。CCteam-creator 会根据你的需求推荐合适的组合。

@@ -24,7 +24,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 
 - **Name**: `backend-dev`
 - **subagent_type**: `general-purpose`
-- **model**: `opus`
+- **model**: `sonnet` (default) — upgrade to `opus` if this role handles critical/complex logic
 - **Reference**: tdd-guide agent (TDD methodology + test-driven development)
 - **Core Responsibilities**:
   - Server-side implementation (API routes, controllers, middleware, database)
@@ -62,7 +62,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 
 - **Name**: `frontend-dev`
 - **subagent_type**: `general-purpose`
-- **model**: `opus`
+- **model**: `sonnet` (default) — upgrade to `opus` if this role handles critical/complex logic
 - **Reference**: tdd-guide agent
 - **Core Responsibilities**:
   - Client-side implementation (components, hooks, state management, styling, routing)
@@ -143,7 +143,7 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 
 - **Name**: `reviewer`
 - **subagent_type**: `general-purpose`
-- **model**: `opus`
+- **model**: `sonnet` (default) — upgrade to `opus` if security-critical or complex architecture review
 - **Reference**: code-reviewer agent (security + quality review)
 - **Why not use `code-reviewer` type**: code-reviewer only has Read/Grep/Glob/Bash and cannot Write/Edit. But reviewer needs to write to dev's findings.md and its own progress.md. Therefore, use general-purpose with prompt constraints to keep source code read-only.
 - **Core Responsibilities**:
@@ -229,11 +229,15 @@ The team-lead is the team's **control plane**, not just a dispatcher.
 
 ## Model Selection Guide
 
-| Complexity | Model | Use Case |
-|------------|-------|---------|
-| Medium (search, research, architecture analysis) | sonnet | researcher (read-only search + deep analysis) |
-| Medium (test writing, pattern-based operations) | sonnet | e2e-tester, cleaner |
-| High (writing business logic, security review) | opus | backend-dev, frontend-dev, reviewer (requires deep reasoning and global understanding) |
+**Default: all roles use `sonnet`.** Sonnet handles most tasks well at reasonable cost. Only upgrade to `opus` when justified:
+
+| When to upgrade to opus | Examples |
+|------------------------|---------|
+| Critical business logic that requires deep reasoning | Complex auth systems, payment processing, state machines |
+| Security-sensitive code review | Financial apps, auth modules, data privacy |
+| User explicitly requests higher quality or cost is not a concern | "Use the best model for devs" |
+
+Do not default to opus "just in case" — it costs significantly more and is slower. Let the user decide during Step 1 based on project importance and budget.
 
 ## Universal Behavior Protocol (All Roles Must Follow)
 

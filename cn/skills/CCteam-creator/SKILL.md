@@ -91,12 +91,14 @@ Read references/roles.md
 
 | 角色 | 名称 | 参考智能体 | model | 核心能力 |
 |------|------|-----------|-------|---------|
-| 后端开发 | backend-dev | tdd-guide | opus | 写代码 + TDD + 大任务按 task 分文件夹 |
-| 前端开发 | frontend-dev | tdd-guide | opus | 写代码 + TDD + 大任务按 task 分文件夹 |
+| 后端开发 | backend-dev | tdd-guide | sonnet | 写代码 + TDD + 大任务按 task 分文件夹 |
+| 前端开发 | frontend-dev | tdd-guide | sonnet | 写代码 + TDD + 大任务按 task 分文件夹 |
 | 探索/研究 | researcher | — | sonnet | 代码搜索 + 网页搜索 + 只读不改代码 |
 | 联调测试 | e2e-tester | e2e-runner | sonnet | E2E 测试 + 浏览器自动化 + Bug 记录 |
-| 代码审查 | reviewer | code-reviewer | opus | 只读审查 + 安全/质量/性能深度检查 |
+| 代码审查 | reviewer | code-reviewer | sonnet | 只读审查 + 安全/质量/性能深度检查 |
 | 代码清理 | cleaner | refactor-cleaner | sonnet | 死代码清理 + 重复合并 + 重构 |
+
+> **模型默认值**：所有角色默认使用 `sonnet`。仅在用户要求、不考虑成本、或角色涉及关键/复杂逻辑（如安全敏感审查、复杂业务逻辑）时，才将特定角色升级为 `opus`。不确定时在第 1 步与用户确认。
 
 参见 [references/roles.md](references/roles.md) 了解角色详细定义和能力。
 

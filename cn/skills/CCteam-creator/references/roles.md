@@ -24,7 +24,7 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 - **名称**: `backend-dev`
 - **subagent_type**: `general-purpose`
-- **model**: `opus`
+- **model**: `sonnet`（默认）— 涉及关键/复杂逻辑时可升级为 `opus`
 - **参考**: tdd-guide 智能体（TDD 方法论 + 测试驱动开发）
 - **核心职责**:
   - 服务端实现（API 路由、控制器、中间件、数据库）
@@ -62,7 +62,7 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 - **名称**: `frontend-dev`
 - **subagent_type**: `general-purpose`
-- **model**: `opus`
+- **model**: `sonnet`（默认）— 涉及关键/复杂逻辑时可升级为 `opus`
 - **参考**: tdd-guide 智能体
 - **核心职责**:
   - 客户端实现（组件、Hooks、状态管理、样式、路由）
@@ -143,7 +143,7 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 - **名称**: `reviewer`
 - **subagent_type**: `general-purpose`
-- **model**: `opus`
+- **model**: `sonnet`（默认）— 安全敏感或复杂架构审查时可升级为 `opus`
 - **参考**: code-reviewer 智能体（安全 + 质量审查）
 - **为什么不用 `code-reviewer` 类型**: code-reviewer 只有 Read/Grep/Glob/Bash，无法 Write/Edit。但 reviewer 需要写入 dev 的 findings.md 和自己的 progress.md。所以用 general-purpose + prompt 约束只读源代码。
 - **核心职责**:
@@ -229,11 +229,15 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
 
 ## 模型选择指南
 
-| 复杂度 | 模型 | 使用场景 |
-|--------|------|---------|
-| 中等（搜索、调研、架构分析） | sonnet | researcher（只读搜索 + 深度分析） |
-| 中等（测试编写、模式化操作） | sonnet | e2e-tester、cleaner |
-| 高（写业务代码、安全审查） | opus | backend-dev、frontend-dev、reviewer（需要深度推理和全局理解） |
+**默认：所有角色使用 `sonnet`。** Sonnet 能胜任大多数任务，成本合理。仅在有充分理由时升级为 `opus`：
+
+| 什么时候升级为 opus | 示例 |
+|-------------------|------|
+| 关键业务逻辑，需要深度推理 | 复杂认证系统、支付处理、状态机 |
+| 安全敏感的代码审查 | 金融应用、认证模块、数据隐私 |
+| 用户明确要求更高质量或不考虑成本 | "dev 用最好的模型" |
+
+不要"以防万一"就用 opus——它成本显著更高且更慢。让用户在第 1 步根据项目重要性和预算来决定。
 
 ## 通用行为协议（所有角色必须遵守）
 

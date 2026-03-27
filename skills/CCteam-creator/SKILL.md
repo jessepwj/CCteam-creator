@@ -91,12 +91,14 @@ Available standard roles (software development):
 
 | Role | Name | Reference Agent | model | Core Capability |
 |------|------|----------------|-------|----------------|
-| Backend Dev | backend-dev | tdd-guide | opus | Write code + TDD + large tasks split into task folders |
-| Frontend Dev | frontend-dev | tdd-guide | opus | Write code + TDD + large tasks split into task folders |
+| Backend Dev | backend-dev | tdd-guide | sonnet | Write code + TDD + large tasks split into task folders |
+| Frontend Dev | frontend-dev | tdd-guide | sonnet | Write code + TDD + large tasks split into task folders |
 | Explorer/Researcher | researcher | — | sonnet | Code search + web research + read-only (no code edits) |
 | E2E Tester | e2e-tester | e2e-runner | sonnet | E2E testing + browser automation + bug tracking |
-| Code Reviewer | reviewer | code-reviewer | opus | Read-only review + deep security/quality/performance checks |
+| Code Reviewer | reviewer | code-reviewer | sonnet | Read-only review + deep security/quality/performance checks |
 | Code Cleaner | cleaner | refactor-cleaner | sonnet | Dead code removal + deduplication + refactoring |
+
+> **Model default**: All roles use `sonnet`. Upgrade specific roles to `opus` only when the user requests it, cost is not a concern, or the role handles critical/complex logic (e.g., security-sensitive review, complex business logic). Ask the user during Step 1 if unsure.
 
 See [references/roles.md](references/roles.md) for detailed role definitions and capabilities.
 
