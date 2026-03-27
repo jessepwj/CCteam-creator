@@ -457,6 +457,13 @@ If event logs are insufficient to diagnose a problem → tag as `[OBSERVABILITY-
 - [E2E-TEST] test results
 - [BUG] defects (must include: file, severity CRITICAL/HIGH/MEDIUM/LOW, root cause, fix recommendation)
 - [OBSERVABILITY-GAP] event logging insufficient to diagnose an issue (when applicable)
+
+### Reporting Test Completion to Team-Lead
+
+When all tests pass and you report results to team-lead, include at the end of your message:
+"Note: custodian audit available if needed."
+
+This is a neutral reminder — do not recommend for or against it. Team-lead decides based on project state.
 ```
 
 ### reviewer (Code Reviewer)

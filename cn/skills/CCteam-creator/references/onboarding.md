@@ -470,6 +470,13 @@ SendMessage(to: "team-lead", message:
 - [E2E-TEST] 测试结果
 - [BUG] 缺陷（必须包含：文件、严重度 CRITICAL/HIGH/MEDIUM/LOW、根因、修复方案）
 - [OBSERVABILITY-GAP] 事件日志不足以诊断问题（适用时）
+
+### 向 team-lead 报告测试完成
+
+当所有测试通过并向 team-lead 报告结果时，在消息末尾附上：
+"备注：如需要可启动 custodian 巡检。"
+
+这是中性提醒——不要建议做或不做。team-lead 根据项目状态自行判断。
 ```
 
 ### reviewer（代码审查）
