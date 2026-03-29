@@ -293,9 +293,11 @@ If the project requires structured event logging:
 
 ### CI Gate (When CI Script Exists)
 After completing any code change, run the project's CI script (e.g., `python scripts/run_ci.py`).
+- CI includes **golden_rules.py** (universal checks: file size, secrets, console.log, doc freshness, invariant coverage) — these run automatically
 - ALL checks must PASS before requesting reviewer review
 - CI failure = task not complete — fix the issue first
 - When you write new tests, add them to the CI check list so future runs include them
+- Golden rules output agent-readable fix instructions — follow them directly
 
 ### Code Quality
 - Functions <50 lines, files <800 lines

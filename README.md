@@ -2,6 +2,8 @@
 
 > Multi-agent team orchestration skill for [Claude Code](https://code.claude.com/).
 
+**One skill, a full engineering team.** CCteam-creator turns a single Claude Code session into a coordinated team of 2-6 AI agents — with built-in CI enforcement, code review, doc-code sync, and a taste feedback loop that encodes your preferences into automated checks. Human steers, agents execute.
+
 [English](./README.md) | [中文](./README_CN.md)
 
 ## Standing on the Shoulders of Giants
@@ -212,6 +214,31 @@ The reviewer checks security/quality/performance, plus:
 
 For web apps and services, devs are guided to emit structured events. E2E tester uses **event-first debugging**: query event logs first, browser console second, screenshots last. Insufficient observability is tagged `[OBSERVABILITY-GAP]` — a higher-priority finding than the bug itself.
 
+### Golden Rules (Pre-installed CI Checks)
+
+Every project ships with `golden_rules.py` — 5 universal code health checks that run automatically as part of CI:
+
+| Check | What It Catches |
+|-------|----------------|
+| GR-1 File Size | Files over 800/1200 lines |
+| GR-2 Secrets | Hardcoded API keys, tokens, passwords |
+| GR-3 Console Log | console.log in production code |
+| GR-4 Doc Freshness | docs/ files stale vs source code |
+| GR-5 Invariant Coverage | Invariants without automated tests |
+
+All error messages are agent-readable (`[WHAT] + [WHERE] + [HOW TO FIX]`), so agents can fix issues directly. Custodian adds project-specific checks over time — the script grows with the project.
+
+### Taste Feedback Loop
+
+User preferences don't get lost between sessions. When you say "don't name it like that" or "always use X pattern":
+
+1. **team-lead captures** the preference in CLAUDE.md `Style Decisions`
+2. **reviewer checks** new code against recorded style decisions
+3. **After 3+ occurrences**, custodian **encodes it into golden_rules.py** as an automated check
+4. The preference is now **mechanically enforced** — no one needs to remember it
+
+This is the taste-to-code pipeline: human judgment becomes automated enforcement.
+
 ### File-Based State Persistence
 
 All progress persists to `.plans/<project>/`:
@@ -250,6 +277,8 @@ All progress persists to `.plans/<project>/`:
 | Periodic Self-Check | Verify alignment with plan every ~10 tool calls |
 | Doc-Code Sync | Devs update docs/ when code changes; reviewer verifies |
 | Phase Health Check | Verify doc freshness, stale tasks, index integrity at phase boundaries |
+| Taste Capture | Record user style preferences; encode into automated checks after 3+ occurrences |
+| Golden Rules CI | Pre-installed checks run automatically; custodian adds project-specific checks over time |
 
 ### Living CLAUDE.md
 
@@ -280,6 +309,8 @@ CCteam-creator/
   skills/
     CCteam-creator/               -- English skill
       SKILL.md
+      scripts/
+        golden_rules.py           -- Pre-installed universal code health checks
       references/
         roles.md / onboarding.md / templates.md
   cn/                             -- Chinese variant
@@ -287,6 +318,8 @@ CCteam-creator/
     skills/
       CCteam-creator/
         SKILL.md
+        scripts/
+          golden_rules.py
         references/
           roles.md / onboarding.md / templates.md
   docs/images/                    -- Screenshots

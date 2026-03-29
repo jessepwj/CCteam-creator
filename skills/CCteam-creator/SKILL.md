@@ -296,14 +296,34 @@ Do NOT put task-level details here — only durable operational knowledge that s
 
 If the project has testable code (backend, frontend, or both), set up the enforcement infrastructure:
 
+### Golden Rules (Pre-installed Checks)
+
+Copy the bundled golden_rules.py from this skill into the project:
+
+```bash
+cp <skill-path>/scripts/golden_rules.py <project>/scripts/golden_rules.py
+```
+
+Then configure `SRC_DIRS` at the bottom of the copied file to match the project's source directories (e.g., `["src"]`, `["backend", "frontend"]`).
+
+golden_rules.py provides 5 universal checks out of the box:
+- **GR-1 File Size**: files >800 lines WARN, >1200 lines FAIL
+- **GR-2 Hardcoded Secrets**: regex scan for API keys, tokens, passwords
+- **GR-3 Console Log**: console.log in production code (not test files)
+- **GR-4 Doc Freshness**: docs/ files stale vs source code commits
+- **GR-5 Invariant Coverage**: invariants.md entries without automated tests
+
+custodian can add project-specific checks to golden_rules.py over time (see roles.md § Golden Rules Maintenance).
+
 ### CI Script Skeleton
 
-Create a CI script skeleton (e.g., `scripts/run_ci.py` or `scripts/ci.sh`):
+Create a CI script skeleton (`scripts/run_ci.py`):
 
-- Run all quality checks in one command (tests, type checks, contract validation, etc.)
+- Import and call `golden_rules.check_all()` as the first step
+- Run all quality checks in one command (golden rules + tests + type checks + contract validation)
 - Exit 0 = all pass, exit 1 = failures
-- Start with an empty check list — devs add checks as they write tests
-- The first check is usually contract validation (if `docs/api-contracts.md` exists)
+- Devs add project-specific checks as they write tests
+- The first project-specific check is usually contract validation (if `docs/api-contracts.md` exists)
 
 ### Check Script Error Message Standard
 

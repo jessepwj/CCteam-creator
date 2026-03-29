@@ -294,14 +294,36 @@ CLAUDE.md 是一份**活文档**，不是一次性生成物。以下情况需要
 
 ## 第 3.6 步：Harness 基础设施搭建（适用时）
 
+如果项目有可测试的代码（后端、前端或两者兼有），搭建执行基础设施：
+
+### 黄金原则（预置检查）
+
+将本 skill 自带的 golden_rules.py 复制到项目中：
+
+```bash
+cp <skill-path>/scripts/golden_rules.py <project>/scripts/golden_rules.py
+```
+
+然后配置复制后文件底部的 `SRC_DIRS`，使其匹配项目的源代码目录（例如 `["src"]`、`["backend", "frontend"]`）。
+
+golden_rules.py 开箱提供 5 项通用检查：
+- **GR-1 文件大小**：>800 行 WARN，>1200 行 FAIL
+- **GR-2 硬编码密钥**：正则扫描 API key、token、password
+- **GR-3 Console Log**：生产代码中的 console.log（排除测试文件）
+- **GR-4 文档新鲜度**：docs/ 文件相对源代码的 commit 新鲜度
+- **GR-5 不变量覆盖**：invariants.md 中没有自动化测试的条目
+
+custodian 可以随时间向 golden_rules.py 添加项目特定检查（见 roles.md § 黄金原则维护）。
+
 ### CI 脚本骨架
 
-如果项目有可测试的代码（后端、前端或两者兼有），在项目目录中创建一个 CI 脚本骨架（例如 `scripts/run_ci.py` 或 `scripts/ci.sh`）。该脚本应：
+创建 CI 脚本骨架（`scripts/run_ci.py`）：
 
-- 用一条命令运行所有质量检查（测试、类型检查、契约校验等）
+- 首先导入并调用 `golden_rules.check_all()` 作为第一步
+- 用一条命令运行所有质量检查（黄金原则 + 测试 + 类型检查 + 契约校验）
 - 退出码 0 = 全部通过，退出码 1 = 有失败
-- 初始检查列表为空——dev 在编写测试时逐步添加检查项
-- 第一个检查通常是契约校验（如果 `docs/api-contracts.md` 存在）
+- dev 在编写测试时逐步添加项目特定检查项
+- 第一个项目特定检查通常是契约校验（如果 `docs/api-contracts.md` 存在）
 
 骨架在项目启动时不需要完整——它随项目一起成长。但**文件必须从第一天就存在**，否则之后没人会去创建它。
 

@@ -111,7 +111,8 @@ Reading order: **progress** (where are we) -> **findings** (what happened) -> **
 
 | Check | Script | Enforces |
 |-------|--------|----------|
-| CI (tests + types) | scripts/run_ci.py | All tests pass, types check |
+| Golden Rules | scripts/golden_rules.py | File size, secrets, console.log, doc freshness, invariant coverage |
+| CI (tests + types) | scripts/run_ci.py | Golden rules + all tests pass + types check |
 | (add as custodian builds checks) | | |
 
 ## Harness Checklist
@@ -130,6 +131,23 @@ Team-lead reviews at phase boundaries (not every task):
 
 (empty initially — team-lead adds entries from 3-Strike resolutions, reviewer [BLOCK] fixes, or any repeated failure)
 
+## Style Decisions
+
+> User taste preferences captured during the project.
+> When a pattern appears 3+ times, custodian should encode it into golden_rules.py.
+> Format: decision, source (user feedback / review / incident), enforcement status.
+
+| # | Decision | Source | Status |
+|---|----------|--------|--------|
+| (example) SD-1 | Variable names use camelCase, not snake_case | User feedback Session 2 | Manual |
+
+Status values:
+- `Manual` — documented only, reviewer checks by convention
+- `Pending automation` — appeared 3+ times, waiting for custodian to encode
+- `Automated (GR-N)` — encoded in golden_rules.py, mechanically enforced
+
+(delete the example row and populate as user provides feedback)
+
 ## Key Protocols
 
 | Protocol | Trigger | Action |
@@ -144,6 +162,8 @@ Team-lead reviews at phase boundaries (not every task):
 | Guardrail capture | 3-Strike escalation resolved, or reviewer [BLOCK] fixed | Ask: will this recur? If yes → append to Known Pitfalls; if universal → [TEAM-PROTOCOL] |
 | Custodian audit | After 2-3 dev tasks complete, or at phase boundary | team-lead triggers custodian compliance scan; custodian reports gaps |
 | Pattern → Automation | Reviewer tags [AUTOMATE] on recurring pattern | team-lead routes to custodian → builds check script → adds to CI |
+| Taste capture | User expresses style/naming/structure preference | Record in CLAUDE.md Style Decisions. 3+ times same pattern → mark `Pending automation`, dispatch custodian to encode in golden_rules.py |
+| Style → Automation | Style Decision reaches `Pending automation` | custodian encodes check in golden_rules.py, updates status to `Automated (GR-N)`. If not mechanizable → keep Manual with note |
 | Template sync | Durable workflow improvement found | Update `CCteam-creator` source first, then sync project docs |
 | Team rebuild timing | Template changed enough to affect spawned-agent behavior | Prefer rebuild at phase boundaries, not mid-stream |
 

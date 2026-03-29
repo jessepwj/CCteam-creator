@@ -125,7 +125,8 @@ SendMessage(to: "frontend-dev", message: "修复登录表单的 XSS 漏洞，见
 
 | 检查 | 脚本 | 执行什么 |
 |------|------|---------|
-| CI（测试 + 类型） | scripts/run_ci.py | 所有测试通过、类型检查 |
+| 黄金原则 | scripts/golden_rules.py | 文件大小、密钥、console.log、文档新鲜度、不变量覆盖 |
+| CI（测试 + 类型） | scripts/run_ci.py | 黄金原则 + 所有测试通过 + 类型检查 |
 | （custodian 构建检查后在此添加） | | |
 
 ## Harness 检查清单
@@ -144,6 +145,23 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 
 （初始为空——team-lead 从 3-Strike 解决方案、reviewer [BLOCK] 修复或任何重复失败中添加条目）
 
+## 风格决策
+
+> 项目中捕获的用户品味偏好。
+> 当同一模式出现 3+ 次时，custodian 应将其编码到 golden_rules.py 中。
+> 格式：决策内容、来源（用户反馈 / 审查 / 事故）、执行状态。
+
+| # | 决策 | 来源 | 状态 |
+|---|------|------|------|
+| （示例）SD-1 | 变量名使用 camelCase，不用 snake_case | 用户反馈 Session 2 | Manual |
+
+状态值：
+- `Manual` — 仅文档记录，reviewer 按惯例检查
+- `Pending automation` — 出现 3+ 次，等待 custodian 编码
+- `Automated (GR-N)` — 已编码到 golden_rules.py，机械化强制
+
+（删除示例行，在用户提供反馈时填充）
+
 ## 核心协议
 
 | 协议 | 触发时机 | 操作 |
@@ -158,6 +176,8 @@ team-lead 在阶段边界检查（不是每个任务都查）：
 | 护栏捕获 | 3-Strike 上报解决后，或 reviewer [BLOCK] 修复后 | 问：会复现吗？如果会 → 追加到 Known Pitfalls；如果通用 → [TEAM-PROTOCOL] |
 | custodian 巡检 | 2-3 个 dev 任务完成后，或阶段边界时 | team-lead 触发 custodian 合规巡检；custodian 报告缺口 |
 | 模式→自动化 | reviewer 标记 [AUTOMATE] 时 | team-lead 转给 custodian → 构建检查脚本 → 加入 CI |
+| 品味捕获 | 用户对代码风格/命名/结构表达偏好时 | 记录到 CLAUDE.md 风格决策。3+ 次同类 → 标记 `Pending automation`，派 custodian 编码到 golden_rules.py |
+| 风格→自动化 | 风格决策达到 `Pending automation` | custodian 编码检查到 golden_rules.py，更新状态为 `Automated (GR-N)`。不可机械化的 → 保持 Manual 并注明原因 |
 | 模板同步 | 发现持久流程改进 | 先更新 `CCteam-creator` 源文件，再同步项目文档 |
 | 团队重建时机 | 模板变更足以影响已生成智能体行为 | 优先在阶段边界重建，不要在开发中途 |
 

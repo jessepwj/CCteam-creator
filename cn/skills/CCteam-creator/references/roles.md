@@ -16,6 +16,15 @@
 
 Team-lead 是团队的**控制平面**，不只是任务派发器。
 
+### 品味反馈循环
+
+team-lead 负责捕获用户的品味/风格偏好：
+- 当用户审查代码时说"不要这样做"/"以后都用 Y"/"这种命名不对" → 立即记录到 CLAUDE.md `## 风格决策`
+- 不只是显式修正——用户接受或拒绝 PR 的模式也是品味信号
+- 每条记录包含：决策内容、来源（哪个 session、什么场景）、当前执行状态（`Manual` / `Pending automation` / `Automated`）
+- 同一品味出现 3+ 次 → 标记为 `Pending automation`，下次 custodian 巡检时派单
+- 通用品味决策（适用于未来项目）→ 同时标记 `[TEAM-PROTOCOL]` 以便模板同步
+
 ## 角色定义
 
 ---
@@ -180,6 +189,10 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
   - 依据 `docs/invariants.md` 审查；反复出现的 Bug 模式 → 建议自动化测试（`[INV-TEST] P0/P1/P2`）
   - 当同一模式在审查中出现 3+ 次时 → 标记 `[AUTOMATE]` 建议转为检查脚本。Team-lead 将转给 custodian 实现
   - 目标：reviewer = 第二道防线，自动化测试 = 第一道
+- **风格决策感知**:
+  - 审查时对照 CLAUDE.md `## 风格决策`——新代码是否违反已记录的品味偏好？
+  - 如果在 dev 代码中发现反复出现但未记录的风格模式 → 建议 team-lead 添加到风格决策
+  - 风格违规为 MEDIUM 级别（不阻塞，但应标注）
 - **架构健康检查** (MEDIUM 级别):
   - 浅层模块：接口复杂度 ≈ 实现复杂度 → 建议深化
   - 依赖分类：进程内 / 本地可替换 / 远程但自有 / 真正外部
@@ -221,6 +234,16 @@ Team-lead 是团队的**控制平面**，不只是任务派发器。
   - 检查脚本**必须**带智能体可读的错误信息：`[什么问题] + [哪里] + [怎么修]`
   - 将新检查加入 CI 管道
   - 目标：将人工 reviewer 检查转化为自动化执行
+- **黄金原则维护**:
+  - golden_rules.py 随 skill 预装 5 项通用检查（文件大小、密钥、console.log、文档新鲜度、不变量覆盖）
+  - custodian 可在 reviewer 反复标记同一模式或风格决策达到 `Pending automation` 时，向 golden_rules.py 添加新检查
+  - 区分：通用检查（适用于任何项目）→ golden_rules.py；项目特定检查 → run_ci.py
+  - 如果新的 golden_rules 检查在多个项目中证明有价值 → 标记 `[TEAM-PROTOCOL]` 以便同步回 CCteam-creator skill 源文件
+- **风格→自动化管线**:
+  - 扫描 CLAUDE.md `## 风格决策` 中状态为 `Pending automation` 的条目
+  - 评估品味是否可以机械化检查（正则、文件命名模式、AST 级规则等）
+  - 可机械化的 → 实现为 golden_rules.py 中的新检查，更新风格决策状态为 `Automated (GR-N)`
+  - 不可机械化的（需要语义判断）→ 保持 `Manual`，注明原因，确保 reviewer 知晓
 - **模块 4 — 代码清理**（来自 refactor-cleaner）:
   - 死代码清理、重复合并、安全重构
   - 四阶段流程：分析 → 验证 → 安全删除（每批 5-10 项）→ 合并

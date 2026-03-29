@@ -2,6 +2,8 @@
 
 > [Claude Code](https://code.claude.com/) 多智能体团队编排技能。
 
+**一个技能，一支完整的工程团队。** CCteam-creator 将单个 Claude Code 会话变成 2-6 个 AI 智能体的协作团队 —— 内置 CI 强制执行、代码审查、文档-代码同步、以及将你的偏好编码为自动化检查的品味反馈循环。人类掌舵，智能体执行。
+
 [English](./README.md) | [中文](./README_CN.md)
 
 ## 站在巨人的肩膀上
@@ -212,6 +214,31 @@ Reviewer 不仅检查安全/质量/性能，还检查：
 
 对于 Web 应用和服务，引导 dev 发出结构化事件。E2E tester 使用**事件优先调试**：先查事件日志，再看浏览器控制台，最后才截图。可观测性不足标记为 `[OBSERVABILITY-GAP]`——比 Bug 本身更高优先级的发现。
 
+### 黄金原则（预置 CI 检查）
+
+每个项目自带 `golden_rules.py` —— 5 项通用代码健康检查，作为 CI 的一部分自动运行：
+
+| 检查 | 检测内容 |
+|------|---------|
+| GR-1 文件大小 | 超过 800/1200 行的文件 |
+| GR-2 密钥 | 硬编码的 API key、token、password |
+| GR-3 Console Log | 生产代码中的 console.log |
+| GR-4 文档新鲜度 | docs/ 文件相对源代码是否过时 |
+| GR-5 不变量覆盖 | 没有自动化测试的不变量 |
+
+所有错误信息都是智能体可读的（`[问题] + [位置] + [修复方法]`），智能体可以直接修复。custodian 随时间添加项目特定检查——脚本随项目一起成长。
+
+### 品味反馈循环
+
+用户偏好不会在会话间丢失。当你说"不要这样命名"或"以后都用 X 模式"时：
+
+1. **team-lead 捕获**偏好，记录到 CLAUDE.md `风格决策`
+2. **reviewer 检查**新代码是否符合已记录的风格决策
+3. **出现 3+ 次后**，custodian **编码到 golden_rules.py** 成为自动化检查
+4. 偏好现在被**机械化强制** —— 无需任何人记住
+
+这就是品味到代码的管线：人类判断变成自动化执行。
+
 ### 文件持久化
 
 所有进度持久化到 `.plans/<project>/`：
@@ -250,6 +277,8 @@ Reviewer 不仅检查安全/质量/性能，还检查：
 | 定期自检 | 每 ~10 次工具调用检查是否偏离计划 |
 | Doc-Code 同步 | Dev 代码变更时更新 docs/；reviewer 验证 |
 | 阶段健康检查 | 阶段边界时检查文档新鲜度、过期任务、索引完整性 |
+| 品味捕获 | 记录用户风格偏好；出现 3+ 次后编码为自动化检查 |
+| 黄金原则 CI | 预置检查自动运行；custodian 随时间添加项目特定检查 |
 
 ### 活文档 CLAUDE.md
 
@@ -280,6 +309,8 @@ CCteam-creator/
   skills/
     CCteam-creator/               -- 英文技能
       SKILL.md
+      scripts/
+        golden_rules.py           -- 预置通用代码健康检查
       references/
         roles.md / onboarding.md / templates.md
   cn/                             -- 中文变体
@@ -287,6 +318,8 @@ CCteam-creator/
     skills/
       CCteam-creator/
         SKILL.md
+        scripts/
+          golden_rules.py
         references/
           roles.md / onboarding.md / templates.md
   docs/images/                    -- 截图

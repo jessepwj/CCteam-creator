@@ -16,6 +16,15 @@
 
 The team-lead is the team's **control plane**, not just a dispatcher.
 
+### Taste Feedback Loop
+
+team-lead is responsible for capturing user taste/style preferences:
+- When user reviews code and says "don't do X" / "always use Y" / "this naming is wrong" → immediately record in CLAUDE.md `## Style Decisions`
+- Not just explicit corrections — user accepting or rejecting PRs without comment is also a taste signal
+- Each record includes: the decision, source (which session, what context), current enforcement status (`Manual` / `Pending automation` / `Automated`)
+- When the same taste appears 3+ times → mark as `Pending automation`, dispatch to custodian at next audit
+- Universal taste decisions (applicable to future projects) → also flag `[TEAM-PROTOCOL]` for template sync
+
 ## Role Definitions
 
 ---
@@ -180,6 +189,10 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Review against `docs/invariants.md`; recurring bug patterns → recommend automated test (`[INV-TEST] P0/P1/P2`)
   - When a pattern appears 3+ times across reviews → tag `[AUTOMATE]` and recommend converting to a check script. Team-lead routes to custodian for implementation
   - Goal: reviewer = second line of defense, automated tests = first
+- **Style Decision Awareness**:
+  - Review code against CLAUDE.md `## Style Decisions` — does new code violate recorded taste preferences?
+  - If a new style pattern emerges repeatedly in dev code (not yet recorded) → suggest team-lead add it to Style Decisions
+  - Style violations are MEDIUM level (not blocking, but should be noted)
 - **Architecture Health Checks** (MEDIUM level):
   - Shallow modules: interface complexity ≈ implementation complexity → suggest deepening
   - Dependency classification: in-process / local-substitutable / remote-but-owned / true-external
@@ -221,6 +234,16 @@ The team-lead is the team's **control plane**, not just a dispatcher.
   - Check scripts MUST have agent-readable error messages: `[WHAT] + [WHERE] + [HOW TO FIX]`
   - Add new checks to CI pipeline
   - Goal: convert manual reviewer checks into automated enforcement
+- **Golden Rules Maintenance**:
+  - golden_rules.py ships with 5 universal checks (file size, secrets, console.log, doc freshness, invariant coverage)
+  - custodian can add new checks to golden_rules.py when reviewer repeatedly flags the same pattern or when a Style Decision reaches `Pending automation`
+  - Distinguish: universal checks (applicable to any project) → golden_rules.py; project-specific checks → run_ci.py
+  - If a new golden_rules check proves valuable across projects → flag `[TEAM-PROTOCOL]` for template sync back to CCteam-creator skill source
+- **Style → Automation Pipeline**:
+  - Scan CLAUDE.md `## Style Decisions` for entries with status `Pending automation`
+  - Evaluate if the taste can be mechanically checked (regex, file naming patterns, AST-level rules, etc.)
+  - If mechanizable → implement as a new check in golden_rules.py, update Style Decisions status to `Automated (GR-N)`
+  - If not mechanizable (requires semantic judgment) → keep `Manual`, add a note explaining why, ensure reviewer is aware
 - **Module 4 — Code Cleanup** (from refactor-cleaner):
   - Dead code removal, duplicate consolidation, safe refactoring
   - Four-phase process: Analyze → Validate → Safe Deletion (batches of 5-10) → Consolidate
