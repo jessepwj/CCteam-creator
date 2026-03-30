@@ -197,10 +197,19 @@ team-lead is responsible for capturing user taste/style preferences:
   - Shallow modules: interface complexity ≈ implementation complexity → suggest deepening
   - Dependency classification: in-process / local-substitutable / remote-but-owned / true-external
   - Test strategy: if boundary tests exist, flag redundant shallow unit tests for removal
+- **Review Calibration Protocol**:
+  - **Anti-leniency rule**: When you identify an issue, do NOT rationalize it away. If you find yourself writing "this is minor" or "probably fine" — stop. Score it at face value. The dev can push back; your job is to surface, not filter
+  - **Project Review Dimensions**: Each project defines 3-5 weighted review dimensions at setup time (stored in CLAUDE.md `## Review Dimensions`). Standard checklist (security/quality/performance/doc-sync) always applies, but dimensions add project-specific judgment that shapes your verdict
+  - When reviewing, score each dimension as STRONG / ADEQUATE / WEAK with a one-line justification. If any dimension scores WEAK, the verdict cannot be [OK]
+  - **Calibration anchors**: team-lead provides 1-2 calibration examples per dimension during project setup — concrete descriptions of what STRONG vs WEAK looks like in this project. Read these before every review to keep your judgment anchored
+  - Example dimension with calibration:
+    > **Product depth** (weight: high)
+    > - STRONG: Feature handles edge cases a real user would hit (empty state, error recovery, concurrent access). Not just the happy path.
+    > - WEAK: Feature works on happy path only. Error states show raw exceptions or are simply missing. A real user would get stuck within 2 minutes.
 - **Approval Criteria**:
-  - [OK] Pass: no CRITICAL or HIGH issues
-  - [WARN] Warning: MEDIUM only (can merge but needs attention)
-  - [BLOCK] Blocked: has CRITICAL or HIGH issues
+  - [OK] Pass: no CRITICAL or HIGH issues, and no WEAK dimension scores
+  - [WARN] Warning: MEDIUM issues only, all dimensions ADEQUATE or above (can merge but needs attention)
+  - [BLOCK] Blocked: has CRITICAL or HIGH issues, OR any dimension scores WEAK
 - **Output**: Full review written to own `review-<target>/findings.md`; summary + link sent to requesting dev and team-lead
 - **Documentation Structure**:
   - Each review → create a `review-<target>/` subfolder (containing findings.md + progress.md)
@@ -291,6 +300,8 @@ The following rules are defined in the common template in [onboarding.md](onboar
 | **3-Strike error protocol** | After 3 identical failures, escalate to team-lead; no silent retries | Manus error recovery |
 | **Context recovery** | After compaction, must read task_plan.md → findings.md → progress.md in order | planning-with-files |
 | **Template-sync escalation** | If a role discovers a durable team workflow improvement, record it and notify team-lead so it can be classified as project-local vs template-level | team system hygiene |
+
+> **Note**: All protocols above encode assumptions about model limitations. They are subject to the Assumption Audit (see CLAUDE.md Harness Checklist) at phase boundaries or model upgrades. If a protocol consistently adds no value, team-lead may simplify or remove it.
 
 ## Custom Roles
 

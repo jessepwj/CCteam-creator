@@ -92,6 +92,7 @@ After the introduction, learn the following through conversation:
 3. **Current state** — Is this a greenfield project or existing work? What tools/tech/resources are already in place?
 4. **User involvement** — Do they want to be involved in every decision, or prefer the team to work autonomously?
 5. **Special requirements** — Domain-specific standards, quality bars, deadlines, constraints
+6. **Quality priorities** — What matters most for this project beyond "code works"? Examples: product depth (handles real edge cases), visual polish, performance, API design elegance, test coverage depth. These become Review Dimensions that the reviewer scores against. 3-5 dimensions, each with a weight (high/medium/low) and concrete calibration anchors (what STRONG vs WEAK looks like in this project's context)
 
 **Note**: Do not fire all questions at once. Follow up naturally based on the user's answers, like a normal conversation. If the user's requirements are already clear, you may skip some questions.
 
@@ -381,6 +382,7 @@ Then **guide the user to run `/compact`** to free up context. Explain why:
 - **Template-first for durable workflow changes**: if a discovered improvement affects role definitions, onboarding, CLAUDE.md structure, or dispatch protocols, update `CCteam-creator` source files before recommending a rebuild
 - **Rebuild at phase boundaries**: do not rebuild an active team mid-stream unless necessary; prefer syncing templates first, then syncing project docs, then rebuilding between major phases
 - **No archiving**: Completed task folders stay in place — just mark `Status: complete` in the root findings.md index. Do not rename, move, or prefix folders with `_archive_`. The index is the navigation layer; folder location must remain stable so cross-references don't break
+- **Assumption audit**: Every harness component encodes an assumption about what the model cannot do well on its own. These assumptions go stale as models improve. At major model upgrades or when a mechanism repeatedly adds no value, team-lead should run the Assumption Audit (see CLAUDE.md Harness Checklist) and simplify what is no longer load-bearing. Principle: find the simplest solution possible, only increase complexity when needed
 
 ## Team-Lead Operations Guide
 

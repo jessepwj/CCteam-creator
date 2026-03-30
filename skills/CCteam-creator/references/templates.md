@@ -115,14 +115,50 @@ Reading order: **progress** (where are we) -> **findings** (what happened) -> **
 | CI (tests + types) | scripts/run_ci.py | Golden rules + all tests pass + types check |
 | (add as custodian builds checks) | | |
 
+## Review Dimensions
+
+> Project-specific review dimensions. Reviewer scores each dimension per review.
+> team-lead defines these during setup based on project goals and user quality priorities.
+> 3-5 dimensions recommended. Standard checks (security/quality/performance/doc-sync) always apply on top.
+
+| # | Dimension | Weight | STRONG looks like | WEAK looks like |
+|---|-----------|--------|-------------------|-----------------|
+| RD-1 | (example: Product depth) | high | Handles edge cases a real user would hit — empty states, error recovery, concurrent access | Happy path only; error states show raw exceptions or are missing |
+| RD-2 | (example: Code testability) | medium | Key behaviors covered by integration tests; easy to add new test cases | No tests, or tests coupled to implementation details that break on refactor |
+
+(team-lead fills during Step 1 based on project type and user priorities. Delete example rows and populate with actual dimensions.)
+
 ## Harness Checklist
 
 Team-lead reviews at phase boundaries (not every task):
+
+### Operational Health (every phase boundary)
 
 - **Docs harness**: Read CLAUDE.md + main task_plan.md — still accurate? If stale → update before dispatching next phase
 - **Observability harness**: Grep progress.md for "error|fail" — are failures logged with enough detail (steps tried, exact error, root cause)?
 - **Invariant harness**: Review Known Pitfalls below — should any entry become a reviewer checklist item or an automated test assertion?
 - **Replay harness**: Did this phase produce a reusable pattern (search strategy, architecture template, test plan)? If so, note with [TEAM-PROTOCOL] for future reference
+
+### Assumption Audit (model upgrade or project retro)
+
+> Every harness component encodes an assumption about model limitations.
+> These assumptions go stale. Audit when: new model release, project retro,
+> or a mechanism consistently adds no value.
+
+| Component | Assumption it encodes | Still load-bearing? | Action |
+|-----------|----------------------|--------------------:|--------|
+| Task folders | Model loses coherence without decomposition | Check: did agents use folders effectively, or was overhead > value? | Keep / Simplify / Remove |
+| 3-Strike protocol | Model retries infinitely without guardrails | Check: how often did 3-Strike actually trigger this phase? | Keep / Raise threshold / Remove |
+| Context recovery protocol | Model cannot resume after compaction without explicit state reload | Check: does the model pick up context from files naturally now? | Keep / Simplify / Remove |
+| Sprint/task decomposition granularity | Model cannot handle large scope in one pass | Check: could tasks have been coarser without quality loss? | Keep current / Make coarser |
+| Reviewer pass | Model cannot self-evaluate reliably | Check: did reviewer catch real issues dev missed, or mostly rubber-stamp? | Keep / Reduce frequency / Remove for simple tasks |
+| Review Dimensions scoring | Generic checklist misses project-specific quality | Check: did dimension scores drive useful feedback beyond standard checks? | Keep / Adjust dimensions / Remove |
+| CI gate before review | Model skips verification without enforcement | Check: did devs run CI voluntarily, or only when forced? | Keep / Trust dev |
+| Doc-code sync rule | Model forgets to update docs after code changes | Check: was doc drift still a problem, or did agents sync naturally? | Keep / Relax |
+
+**Decision rule**: If a component triggered <2 times in the last phase AND removing it wouldn't have caused any observable quality drop → candidate for removal or simplification. Record decision in `decisions.md`.
+
+**Principle**: The interesting harness combinations don't shrink as models improve — they move. Remove what's no longer needed, add new mechanisms for capabilities that are now within reach.
 
 ## Known Pitfalls
 
@@ -638,6 +674,14 @@ All roles use task folders when assigned distinct tasks. The folder prefix varie
 ---
 
 ## Verdict: [OK] | [WARN] | [BLOCK]
+
+## Dimension Scores
+
+| Dimension | Weight | Score | Justification |
+|-----------|--------|-------|---------------|
+| <from CLAUDE.md Review Dimensions> | high/medium/low | STRONG/ADEQUATE/WEAK | <one line> |
+
+(If any WEAK → verdict cannot be [OK])
 
 ## Issues
 
