@@ -64,6 +64,15 @@ team-lead is responsible for capturing user taste/style preferences:
   - Functions <50 lines, files <800 lines
   - Immutable patterns (spread, no mutation)
   - Explicit error handling, no swallowed exceptions
+- **Escalation Judgment**:
+  - Default: decide yourself, record reasoning in progress.md
+  - **Must ask team-lead before proceeding** when:
+    - Requirements ambiguity: two interpretations lead to different implementations
+    - Scope explosion: task is significantly larger than described
+    - Architecture impact: your decision would affect other agents' interfaces
+    - Irreversible choice: public API shape, database schema, third-party service
+  - **How to ask**: never send a bare question. Include: (1) what you're stuck on, (2) 2-3 options you see, (3) which one you'd pick and why
+  - **Anti-pattern**: "what should I do?" without options → rewrite with options first
 
 ---
 
@@ -87,6 +96,7 @@ team-lead is responsible for capturing user taste/style preferences:
   - Missing memoization
   - Accessibility (ARIA labels)
   - Bundle size
+- **Escalation Judgment**: Same as backend-dev (decide yourself by default; must ask team-lead with options when: ambiguous requirements, scope explosion, architecture impact, or irreversible choice)
 
 ---
 

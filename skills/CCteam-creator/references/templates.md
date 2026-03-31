@@ -202,6 +202,7 @@ Status values:
 | Style → Automation | Style Decision reaches `Pending automation` | custodian encodes check in golden_rules.py, updates status to `Automated (GR-N)`. If not mechanizable → keep Manual with note |
 | Template sync | Durable workflow improvement found | Update `CCteam-creator` source first, then sync project docs |
 | Team rebuild timing | Template changed enough to affect spawned-agent behavior | Prefer rebuild at phase boundaries, not mid-stream |
+| Escalation judgment (dev roles) | Dev hits ambiguous/irreversible/scope-changing decision | Must ask team-lead with options + recommendation before proceeding |
 
 ### Task Dispatch: Minimize Information Loss
 
