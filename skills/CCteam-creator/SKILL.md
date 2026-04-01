@@ -348,7 +348,7 @@ Add the CI command to the project CLAUDE.md Key Protocols table so it survives c
 ## Step 4: Create Team + Spawn Agents
 
 1. `TeamCreate(team_name: "<project>")`
-2. Create tasks via TaskCreate — each with a one-line scope + acceptance criteria + `.plans/` path in the description. Set dependencies (`addBlockedBy`) and owners (`owner`) via TaskUpdate. Prefer [AFK] tasks; specify input/output to minimize inter-agent information loss
+2. Create tasks via TaskCreate — each with a one-line scope + acceptance criteria + `.plans/` path in the description. Set dependencies (`addBlockedBy`) and owners (`owner`) via TaskUpdate. Specify input/output to minimize inter-agent information loss
 3. Spawn each role in parallel, `run_in_background: true`
 
 See [references/onboarding.md](references/onboarding.md) for the onboarding prompt for each role.

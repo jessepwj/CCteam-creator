@@ -209,7 +209,6 @@ Status values:
 Inter-agent messages lose detail. Every task dispatch MUST be self-contained:
 - Reference file paths to findings/docs (agent reads the file, not your summary)
 - Include acceptance criteria in the message (agent knows when it's done)
-- Mark [AFK] or [HITL] so agents know if they can proceed autonomously
 
 ### Template-Level vs Project-Local Changes
 

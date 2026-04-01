@@ -73,6 +73,10 @@ team-lead is responsible for capturing user taste/style preferences:
     - Irreversible choice: public API shape, database schema, third-party service
   - **How to ask**: never send a bare question. Include: (1) what you're stuck on, (2) 2-3 options you see, (3) which one you'd pick and why
   - **Anti-pattern**: "what should I do?" without options → rewrite with options first
+- **Task Confirmation** (large tasks only):
+  - After receiving a large task, first read and understand the task context — referenced files, relevant code, existing architecture
+  - Then confirm with team-lead: what you understood, your planned approach, and key decision points
+  - Start working only after team-lead confirms
 
 ---
 
@@ -97,6 +101,7 @@ team-lead is responsible for capturing user taste/style preferences:
   - Accessibility (ARIA labels)
   - Bundle size
 - **Escalation Judgment**: Same as backend-dev (decide yourself by default; must ask team-lead with options when: ambiguous requirements, scope explosion, architecture impact, or irreversible choice)
+- **Task Confirmation**: Same as backend-dev (large tasks: read context first, confirm understanding with team-lead before starting)
 
 ---
 
