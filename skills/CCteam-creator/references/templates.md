@@ -39,9 +39,11 @@ TaskCreate description: one-line scope + acceptance criteria + `.plans/` path.
 Example: `"JWT auth module. Input: researcher findings at .plans/x/researcher/research-auth/findings.md. Output: working auth + tests. See .plans/x/backend-dev/task-auth/task_plan.md"`
 Assign owner and dependencies via TaskUpdate. Teammates self-serve unblocked tasks via TaskList.
 
-### Large Tasks (features, new modules) -- IMPORTANT
+### Large Tasks (features, new modules) -- STOP AND CHECK BEFORE SENDING
 
-When assigning a large task to any agent, your message MUST include:
+**Before sending a large task to any agent, verify your message includes ALL 4 items below.
+If any item is missing, add it before sending. Do NOT skip — agents depend on this to work correctly.**
+
 1. **Scope & goals**: What to build, acceptance criteria
 2. **Document reminder**: "Create a task folder `<prefix>-<task-name>/` with task_plan.md + findings.md + progress.md, and add an index entry to your root findings.md"
 3. **Dependencies**: Which research/tasks they depend on, key file paths and line numbers

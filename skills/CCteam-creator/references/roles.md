@@ -76,6 +76,7 @@ team-lead is responsible for capturing user taste/style preferences:
 - **Task Confirmation** (large tasks only):
   - After receiving a large task, first read and understand the task context — referenced files, relevant code, existing architecture
   - Then confirm with team-lead: what you understood, your planned approach, and key decision points
+  - If the task message is missing document setup (no mention of task folder or planning files), remind team-lead: "This looks like a large task — should I create a task folder? Please confirm scope and dependencies."
   - Start working only after team-lead confirms
 
 ---
@@ -101,7 +102,7 @@ team-lead is responsible for capturing user taste/style preferences:
   - Accessibility (ARIA labels)
   - Bundle size
 - **Escalation Judgment**: Same as backend-dev (decide yourself by default; must ask team-lead with options when: ambiguous requirements, scope explosion, architecture impact, or irreversible choice)
-- **Task Confirmation**: Same as backend-dev (large tasks: read context first, confirm understanding with team-lead before starting)
+- **Task Confirmation**: Same as backend-dev (large tasks: read context first, confirm understanding with team-lead before starting; remind lead if task folder setup is missing)
 
 ---
 
