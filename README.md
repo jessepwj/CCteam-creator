@@ -16,6 +16,7 @@ CCteam-creator is built upon outstanding open-source projects and engineering pr
 | [**everything-claude-code**](https://github.com/affaan-m/everything-claude-code) | Agent harness optimization by Anthropic hackathon winner. 13 expert agents, 40+ skills. Inspired our role-based agent design and skill structure. |
 | [**mattpocock/skills**](https://github.com/mattpocock/skills) | TDD vertical-slice philosophy, "design it twice" parallel sub-agent pattern, interface durability principles, and plan stress-testing methodology. |
 | [**OpenAI Harness Engineering**](https://openai.com/index/harness-engineering/) | The discipline of designing constraints, feedback loops, and documentation systems that make AI agents reliable at scale. Inspired our docs/ knowledge base, invariant-driven review, Doc-Code Sync, failure-to-guardrail loop, and anti-bloat principles. |
+| [**Anthropic Harness Design**](https://www.anthropic.com/engineering/harness-design) | Anthropic Labs' research on multi-agent architectures for long-running autonomous coding. Three key lessons absorbed into CCteam-creator: (1) **Evaluator calibration** — out-of-the-box LLMs are poor QA agents that rationalize away issues; the fix is few-shot calibration anchors with concrete STRONG/WEAK examples, which shaped our Review Dimensions system. (2) **Every harness component is an assumption** — each mechanism encodes a belief about what the model can't do alone, and these assumptions go stale as models improve; this became our Assumption Audit checklist. (3) **Generator-evaluator separation** — separating the agent doing the work from the agent judging it is more tractable than making a generator self-critical, validating our existing dev/reviewer split and motivating the anti-leniency rule. |
 
 ---
 
@@ -202,13 +203,15 @@ Developers follow enhanced TDD:
 - **Behavior testing**: test WHAT the system does through public interfaces, not HOW
 - **Mock boundaries**: only mock at system boundaries (external APIs, databases), never internal modules
 
-### Architecture-Aware Code Review
+### Architecture-Aware Code Review with Calibrated Scoring
 
 The reviewer checks security/quality/performance, plus:
 - **Doc-Code consistency** — API/architecture docs updated?
 - **Invariant violations** — does the change break system boundaries?
 - **Shallow module detection** — interface complexity ≈ implementation complexity
 - **Test strategy** — "replace, don't layer" redundant tests
+
+**Review Dimensions** (inspired by Anthropic's evaluator calibration research): Each project defines 3-5 weighted review dimensions during setup (e.g., product depth, code testability, API design elegance). The reviewer scores each dimension as STRONG / ADEQUATE / WEAK with calibration anchors — concrete descriptions of what good and bad look like in this project's context. If any dimension scores WEAK, the review cannot pass. An **anti-leniency rule** prevents the reviewer from rationalizing issues away — a known failure mode of LLM self-evaluation identified in Anthropic's research.
 
 ### Observability Support (When Applicable)
 
@@ -277,8 +280,28 @@ All progress persists to `.plans/<project>/`:
 | Periodic Self-Check | Verify alignment with plan every ~10 tool calls |
 | Doc-Code Sync | Devs update docs/ when code changes; reviewer verifies |
 | Phase Health Check | Verify doc freshness, stale tasks, index integrity at phase boundaries |
+| Assumption Audit | Review whether each harness component is still load-bearing at model upgrades or retros |
+| Review Dimensions | Reviewer scores project-specific quality dimensions with calibration anchors |
+| Escalation Judgment | Devs classify decisions: decide yourself vs must ask team-lead with options |
+| Task Confirmation | Devs read full context and confirm understanding before starting large tasks |
 | Taste Capture | Record user style preferences; encode into automated checks after 3+ occurrences |
 | Golden Rules CI | Pre-installed checks run automatically; custodian adds project-specific checks over time |
+
+### Assumption Audit (Harness Evolution)
+
+Inspired by Anthropic's insight that "every harness component encodes an assumption about what the model cannot do well on its own." At phase boundaries or model upgrades, team-lead runs an Assumption Audit — reviewing each mechanism (task folders, 3-Strike, context recovery, reviewer pass, etc.) to determine if it's still load-bearing. Components that triggered fewer than 2 times in the last phase and whose removal wouldn't have caused quality drops are candidates for simplification. **Principle**: the interesting harness combinations don't shrink as models improve — they move.
+
+### Dev Escalation Judgment
+
+Dev agents are not purely mechanical executors. They classify decisions into two levels:
+- **Decide yourself** — implementation details, test strategy, tool choices within established patterns
+- **Must ask team-lead** — ambiguous requirements, scope explosion, architecture impact, irreversible choices (API shape, DB schema)
+
+When escalating, devs must include options and a recommendation — never bare questions. This prevents both silent derailment (going off track without asking) and excessive interruption (asking about every detail).
+
+### Task Confirmation (Sprint Contract)
+
+For large tasks, dev agents first read and understand the full context — referenced planning files, relevant source code, existing architecture — then confirm their understanding with team-lead before starting. If team-lead's dispatch message is missing document setup info, the dev reminds them. Inspired by the sprint contract pattern from Anthropic's research, where generator and evaluator negotiate "what done looks like" before any code is written.
 
 ### Living CLAUDE.md
 
