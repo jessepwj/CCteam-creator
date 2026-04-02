@@ -242,6 +242,15 @@ User preferences don't get lost between sessions. When you say "don't name it li
 
 This is the taste-to-code pipeline: human judgment becomes automated enforcement.
 
+### Team Snapshot (Fast Resume)
+
+When a team is first created, CCteam-creator saves a **team snapshot** (`.plans/<project>/team-snapshot.md`) containing the fully rendered onboarding prompts for every agent, along with skill source file timestamps. When you resume a project after exiting Claude Code:
+
+- **Skill files unchanged** → agents are spawned directly from cached prompts, skipping the expensive re-read of all skill reference files (~2500 lines → ~200 lines)
+- **Skill files updated** → lead is informed and can choose: fast resume with cached config, or re-read skill files to pick up latest protocol changes
+
+This makes team resume nearly instant while ensuring you always know when cached config might be stale.
+
 ### File-Based State Persistence
 
 All progress persists to `.plans/<project>/`:
@@ -249,6 +258,7 @@ All progress persists to `.plans/<project>/`:
 ```
 .plans/<project>/
   task_plan.md          -- Lean navigation map
+  team-snapshot.md      -- Cached onboarding prompts for fast resume
   docs/                 -- Project knowledge base
     architecture.md / api-contracts.md / invariants.md
   archive/              -- Archived history

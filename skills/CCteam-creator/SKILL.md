@@ -46,7 +46,13 @@ Before starting setup, check if `.plans/` directory exists in the current workin
 1. Read the project CLAUDE.md (auto-loaded) to get the team roster and project context
 2. Scan `.plans/` for project directories — if multiple, list them
 3. Tell the user: "I found an existing project [name] with [roster]. Resume this project or start a new one?"
-4. **If resume**: Create the team (TeamCreate), re-spawn teammates from the roster in CLAUDE.md (each agent reads their own `.plans/` files on start via context recovery protocol), then check TaskList / read progress files to pick up where things left off
+4. **If resume**:
+   a. Check if `.plans/<project>/team-snapshot.md` exists
+   b. **If snapshot exists**: Read the snapshot header metadata. Compare skill source file timestamps against snapshot generation time:
+      - **Source files unchanged** → use cached onboarding prompts from snapshot to spawn agents directly (skip reading skill reference files)
+      - **Source files changed** → inform user: "Skill files have been updated since this team was created. Use cached config for fast resume, or re-read skill files to pick up latest protocols?" Let user decide
+   c. **If no snapshot**: Fall back to reading all skill reference files (onboarding.md, roles.md) to rebuild onboarding prompts, then spawn agents
+   d. After spawning, check TaskList / read progress files to pick up where things left off
 5. **If new**: Proceed to Step 1 as normal
 
 **If `.plans/` does not exist**: Skip directly to Step 1.
@@ -352,6 +358,8 @@ Add the CI command to the project CLAUDE.md Key Protocols table so it survives c
 3. Spawn each role in parallel, `run_in_background: true`
 
 See [references/onboarding.md](references/onboarding.md) for the onboarding prompt for each role.
+
+4. **Generate team snapshot**: After all agents are spawned, write `.plans/<project>/team-snapshot.md` containing the rendered onboarding prompts and skill file timestamps. See [references/templates.md](references/templates.md) for the template. This enables fast resume without re-reading all skill files.
 
 ## Step 5: Confirm + Compact
 

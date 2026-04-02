@@ -242,6 +242,15 @@ Reviewer 不仅检查安全/质量/性能，还检查：
 
 这就是品味到代码的管线：人类判断变成自动化执行。
 
+### 团队快照（快速恢复）
+
+首次创建团队时，CCteam-creator 会保存一份**团队快照**（`.plans/<project>/team-snapshot.md`），包含每个 agent 完整渲染后的入职 prompt 和 skill 源文件时间戳。退出 Claude Code 后恢复项目时：
+
+- **Skill 文件未变** → 直接用缓存的 prompt 生成 agent，跳过重新读取所有 skill 参考文件（~2500 行 → ~200 行）
+- **Skill 文件有更新** → 通知 lead，可选择：用缓存快速恢复，或重新读取 skill 文件以获取最新协议变更
+
+这使团队恢复几乎即时完成，同时确保你始终知道缓存配置是否可能过时。
+
 ### 文件持久化
 
 所有进度持久化到 `.plans/<project>/`：
@@ -249,6 +258,7 @@ Reviewer 不仅检查安全/质量/性能，还检查：
 ```
 .plans/<project>/
   task_plan.md          -- 精简导航图
+  team-snapshot.md      -- 缓存的入职 prompt，用于快速恢复
   docs/                 -- 项目知识库
     architecture.md / api-contracts.md / invariants.md
   archive/              -- 归档历史

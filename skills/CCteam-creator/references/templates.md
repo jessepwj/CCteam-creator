@@ -88,7 +88,7 @@ SendMessage(to: "frontend-dev", message: "Fix XSS in login form, see src/auth/lo
 | Quick scan | Read each agent's `progress.md` in parallel |
 | Deep dive | Read agent's `findings.md` (index) then specific task folder |
 | Direction check | Read `.plans/<project>/task_plan.md` |
-| Resume project | Read each agent's `findings.md` index → recreate TaskCreate for remaining work |
+| Resume project | Read `team-snapshot.md` → check staleness → spawn from cached prompts → read each agent's `findings.md` index → recreate TaskCreate |
 
 Reading order: **progress** (where are we) -> **findings** (what happened) -> **task_plan** (what's the goal)
 
@@ -233,6 +233,7 @@ Typical template-level changes:
 ```
 .plans/<project>/
   task_plan.md          -- Main plan: lean navigation map (team-lead maintains)
+  team-snapshot.md      -- Cached onboarding prompts for fast team resume (generated at setup, see template below)
   findings.md           -- Team-level findings
   progress.md           -- Work log
   decisions.md          -- Architecture decision log
@@ -947,5 +948,51 @@ When a recurring bug pattern is identified (via reviewer or Known Pitfalls), con
 - Decision: <what was decided>
 - Rationale: <why>
 - Alternatives considered: <what else was evaluated>
+```
+
+---
+
+## Team Snapshot (team-snapshot.md)
+
+Generated at the end of Step 4 (after all agents are spawned). Enables fast team resume without re-reading all skill reference files.
+
+**When to regenerate**: If skill source files have been updated since the snapshot was generated, lead should regenerate by re-reading skill files and re-writing this file.
+
+```markdown
+# Team Snapshot
+
+> Generated: <date>
+> Project: <project-name>
+> Language: <English / Chinese>
+>
+> Skill source timestamps (for staleness detection):
+> - SKILL.md: <modification date>
+> - onboarding.md: <modification date>
+> - roles.md: <modification date>
+> - templates.md: <modification date>
+
+## Roster
+
+| Name | Role | Model | subagent_type |
+|------|------|-------|---------------|
+| <name> | <role> | <model> | <subagent_type> |
+
+## Onboarding Prompts
+
+### <agent-name>
+
+\`\`\`
+<The complete, rendered onboarding prompt that was sent to this agent
+via Agent() during initial setup. Includes common template + role-specific
+section + project-specific context (project name, paths, language).>
+\`\`\`
+
+### <agent-name>
+
+\`\`\`
+<rendered onboarding prompt>
+\`\`\`
+
+(one section per agent in the roster)
 ```
 
