@@ -956,6 +956,8 @@ When a recurring bug pattern is identified (via reviewer or Known Pitfalls), con
 
 Generated at the end of Step 4 (after all agents are spawned). Enables fast team resume without re-reading all skill reference files.
 
+**CRITICAL: Onboarding prompts must be saved in full — no summarization, no truncation, no omission.** The entire prompt exactly as it was sent to Agent() must be preserved. This is the whole point of the snapshot: on resume, lead reads this file and passes the cached prompt directly to Agent() without any reconstruction. If the prompt is incomplete, the agent will start with missing protocols or context.
+
 **When to regenerate**: If skill source files have been updated since the snapshot was generated, lead should regenerate by re-reading skill files and re-writing this file.
 
 ```markdown
@@ -979,18 +981,22 @@ Generated at the end of Step 4 (after all agents are spawned). Enables fast team
 
 ## Onboarding Prompts
 
-### <agent-name>
-
-\`\`\`
-<The complete, rendered onboarding prompt that was sent to this agent
-via Agent() during initial setup. Includes common template + role-specific
-section + project-specific context (project name, paths, language).>
-\`\`\`
+IMPORTANT: Each prompt below is the COMPLETE, UNABRIDGED onboarding prompt
+exactly as sent to Agent(). Do NOT summarize or truncate when generating
+this file. On resume, these prompts are used as-is to re-spawn agents.
 
 ### <agent-name>
 
 \`\`\`
-<rendered onboarding prompt>
+<The COMPLETE rendered onboarding prompt — common template + role-specific
+section + project-specific context. Must be identical to what was sent
+to Agent() during initial setup. No abbreviation.>
+\`\`\`
+
+### <agent-name>
+
+\`\`\`
+<COMPLETE rendered onboarding prompt>
 \`\`\`
 
 (one section per agent in the roster)

@@ -30,6 +30,98 @@ When invoked, CCteam-creator:
 2. **Sets up everything** — planning files, docs/ knowledge base, CLAUDE.md operations guide, agent onboarding
 3. **Manages collaboration** — agents communicate directly, persist state to files, follow built-in protocols
 
+## How It Works — Full Lifecycle
+
+Here's a complete walkthrough of how CCteam-creator operates, from first invocation to project completion and session resume.
+
+### Phase 1: Setup (First Session)
+
+```
+You: "Set up a team for my e-commerce project"
+
+┌─ Step 1: Consultation ──────────────────────────────────┐
+│ team-lead (Claude) asks about:                          │
+│ - Project goals and deliverables                        │
+│ - Task type (software, research, etc.)                  │
+│ - Current state (greenfield or existing code)           │
+│ - Quality priorities → become Review Dimensions         │
+│ team-lead recommends: backend-dev + frontend-dev +      │
+│   researcher + reviewer (4 agents)                      │
+└─────────────────────────────────────────────────────────┘
+         ↓ user confirms
+┌─ Step 2-3: File Creation ───────────────────────────────┐
+│ Creates .plans/ecommerce/ with:                         │
+│   task_plan.md, decisions.md, docs/, per-agent dirs     │
+│ Generates CLAUDE.md (always in context, survives        │
+│   compressions — the team's persistent memory)          │
+└─────────────────────────────────────────────────────────┘
+         ↓
+┌─ Step 4: Spawn & Snapshot ──────────────────────────────┐
+│ Spawns all agents in parallel with onboarding prompts   │
+│ Saves team-snapshot.md (complete onboarding prompts     │
+│   + skill file timestamps → enables fast resume)        │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Phase 2: Collaboration (Working Session)
+
+```
+┌─ team-lead (you + Claude main session) ─────────────────┐
+│                                                         │
+│  Dispatches tasks via SendMessage:                      │
+│  ┌──────────────┐  ┌──────────────┐                     │
+│  │ researcher   │  │ backend-dev  │                     │
+│  │ explores     │  │ waits for    │                     │
+│  │ codebase     │  │ research     │                     │
+│  └──────┬───────┘  └──────┬───────┘                     │
+│         │ findings.md     │                             │
+│         └────────────────→│ reads findings,             │
+│                           │ confirms understanding,     │
+│                           │ then builds feature         │
+│                           └──────┬───────┐              │
+│                                  │       ↓              │
+│                           ┌──────┴──┐ ┌─────────┐       │
+│                           │ request │ │ reviewer │       │
+│                           │ review  │→│ scores   │       │
+│                           │(direct) │ │ dims +   │       │
+│                           └─────────┘ │ issues   │       │
+│                                       └──┬──────┘       │
+│  Key behaviors:                          │              │
+│  • Dev confirms understanding before     │              │
+│    starting large tasks                  │              │
+│  • Dev escalates ambiguous/irreversible  │              │
+│    decisions with options + recommendation│              │
+│  • Reviewer scores project-specific      │              │
+│    dimensions with anti-leniency rule    │              │
+│  • All progress persists to .plans/ files│              │
+└──────────────────────────────────────────┘
+```
+
+### Phase 3: Resume (Next Session)
+
+```
+You: exit Claude Code, come back later
+You: "Resume my e-commerce project"
+
+┌─ Fast Resume Path ──────────────────────────────────────┐
+│ 1. CLAUDE.md auto-loads → team-lead knows the roster    │
+│ 2. Reads team-snapshot.md header → checks timestamps    │
+│    ┌─ skill files unchanged? ──→ use cached prompts     │
+│    └─ skill files updated?   ──→ ask: cache or re-read? │
+│ 3. Spawns agents from snapshot (skips ~2500 lines)      │
+│ 4. Each agent reads own .plans/ files → resumes work    │
+└─────────────────────────────────────────────────────────┘
+
+No work is lost. All state lives in .plans/ files.
+```
+
+### Phase Boundaries: Harness Checks
+
+At the end of each phase, team-lead runs two types of checks:
+
+- **Operational Health** — are docs fresh? are progress files maintained? any new Known Pitfalls?
+- **Assumption Audit** — is each harness component (task folders, 3-Strike, context recovery, reviewer pass) still adding value, or can it be simplified?
+
 ## In Action
 
 Screenshots from a real project session (ChatR — a full-stack chat application with event-driven observability).
