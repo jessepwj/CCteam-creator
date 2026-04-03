@@ -595,6 +595,13 @@ const apiKey = process.env.API_KEY;  // Good
 - [WARN] 警告：仅 MEDIUM（可合并但需注意）
 - [BLOCK] 阻断：有 CRITICAL 或 HIGH
 
+### 向 team-lead 报告审查完成
+
+当审查结果为 [OK]（无问题）并向 team-lead 报告时，在消息末尾附上：
+"备注：如需要可启动 custodian 巡检。"
+
+这是中性提醒——不要建议做或不做。team-lead 根据项目状态自行判断。
+
 ### 输出去向
 - 完整报告 → 自己的 `review-<target>/findings.md`
 - 交叉引用摘要 → 请求方 dev 的任务 `findings.md`
