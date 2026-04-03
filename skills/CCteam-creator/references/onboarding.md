@@ -582,6 +582,13 @@ If docs not updated → mark as HIGH (doc drift is a team-level risk, not just a
 - [WARN] Warning: MEDIUM only (can merge but needs attention)
 - [BLOCK] Blocked: has CRITICAL or HIGH issues
 
+### Reporting Review Completion to Team-Lead
+
+When the verdict is [OK] (no issues) and you report results to team-lead, include at the end of your message:
+"Note: custodian audit available if needed."
+
+This is a neutral reminder — do not recommend for or against it. Team-lead decides based on project state.
+
 ### Output Destination
 - Full report → own `review-<target>/findings.md`
 - Cross-reference summary → requesting dev's task `findings.md`
