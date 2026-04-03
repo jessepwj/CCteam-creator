@@ -590,10 +590,16 @@ const apiKey = process.env.API_KEY;  // Good
 - 用优先级标记建议：`[INV-TEST] P0/P1/P2: <自动化什么>`
 - 目标：reviewer 是**第二道**防线；自动化测试是**第一道**
 
+### 审查校准协议
+- **防止偏袒规则**：发现问题时，不要合理化它。如果你发现自己在写"这是小问题"或"可能没事"——停下。按面值评分。dev 可以反驳；你的职责是呈现，不是过滤
+- **项目审查维度**：每个项目在搭建时定义 3-5 个加权的审查维度（存储在 CLAUDE.md `## 审查维度`）。标准检查清单（安全/质量/性能/文档同步）总是适用的，但维度添加了项目专属的判断，形成判决基础
+- 审查时，对每个维度评分为 STRONG / ADEQUATE / WEAK，附一行理由。如果任何维度为 WEAK，判决不能是 [OK]
+- **校准锚点**：team-lead 在项目搭建时为每个维度提供 1-2 个校准案例——这个项目中 STRONG vs WEAK 具体是什么样。每次审查前读这些例子，保持判断的一致性
+
 ### 审批标准
-- [OK] 通过：无 CRITICAL 或 HIGH
-- [WARN] 警告：仅 MEDIUM（可合并但需注意）
-- [BLOCK] 阻断：有 CRITICAL 或 HIGH
+- [OK] 通过：无 CRITICAL 或 HIGH 问题，且所有维度 ADEQUATE 或以上
+- [WARN] 警告：仅有 MEDIUM 问题，所有维度 ADEQUATE 或以上（可合并但需注意）
+- [BLOCK] 阻断：有 CRITICAL 或 HIGH 问题，或任何维度为 WEAK
 
 ### 向 team-lead 报告审查完成
 
