@@ -1,6 +1,5 @@
 ---
-
-## name: setup
+name: setup
 description: >
   Set up a complete agent team with file-based planning for complex multi-agent projects.
   Use when: (1) user asks to start a new complex project with a team/swarm, (2) user says
@@ -12,6 +11,7 @@ description: >
   for", "build team", "organize project", "multi-agent project".
   IMPORTANT: You (team-lead) MUST read all reference files directly — do NOT delegate to subagents.
   NOTE: After initial setup, you can add new teammates at any time — just spawn a new Agent with the team_name and follow the same onboarding pattern. The team is not locked after creation.
+---
 
 # 团队项目设置
 
