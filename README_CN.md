@@ -191,23 +191,37 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 /plugin install CCteam-creator-cn@ccteam     # 中文
 ```
 
-### 方式 2：手动安装
+### 方式 2：手动安装（直接复制 skill 目录）
+
+如果你不想用 marketplace 插件方式,可以直接把 skill 目录复制到本地 skills 目录。复制后 skill 直接出现在 `~/.claude/skills/` 里,用 `/CCteam-creator`(或 `/CCteam-creator-cn`)即可调用——**无需 `/reload-plugins`**。
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
 
-# 英文
+# 英文版(推荐)
 cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 
-# 或中文
-cp -r CCteam-creator/cn/skills/CCteam-creator ~/.claude/skills/CCteam-creator
+# 或中文版
+cp -r CCteam-creator/cn/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator-cn
 ```
+
+然后**重启 Claude Code 一次**(skill 在 session 启动时被发现)。重启后:
+
+- Slash 命令:`/CCteam-creator` 或 `/CCteam-creator-cn`
+- 自然语言:"帮我搭建一个团队" / "set up a team for my project"
+
+**后续更新**:进入 clone 目录,运行 `git pull`,然后重新执行上面的 `cp -r` 命令即可。skill 内置的 Step 0 Update Check 会在新版本可用时自动通知你。
 
 ### 方式 3：项目级安装
 
+通过项目目录和团队共享。复制到项目的 `.claude/skills/`:
+
 ```bash
-# 通过项目目录与团队共享
-cp -r CCteam-creator/cn/skills/CCteam-creator .claude/skills/CCteam-creator
+# 英文版
+cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
+
+# 或中文版
+cp -r CCteam-creator/cn/skills/CCteam-creator-cn .claude/skills/CCteam-creator-cn
 ```
 
 ## 使用方法
@@ -445,7 +459,12 @@ Claude Code 的第三方 marketplace **默认不自动更新**，所以新推送
 ```bash
 cd <你的 clone 位置>
 git pull
-cp -r cn/skills/CCteam-creator ~/.claude/skills/CCteam-creator
+
+# 英文版
+cp -r skills/CCteam-creator ~/.claude/skills/CCteam-creator
+
+# 或中文版
+cp -r cn/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator-cn
 ```
 
 ## 已知限制：Team-lead 压缩后可能"失忆"

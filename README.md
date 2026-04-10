@@ -195,23 +195,37 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 /plugin install CCteam-creator-cn@ccteam     # Chinese
 ```
 
-### Option 2: Manual Install
+### Option 2: Manual Install (Direct Skill Copy)
+
+If you prefer not to use the marketplace, just clone the repo and copy the skill folder directly into your local skills directory. After this, the skill appears directly in `~/.claude/skills/` and can be invoked with `/CCteam-creator` (or `/CCteam-creator-cn`) — **no `/reload-plugins` needed**.
 
 ```bash
 git clone https://github.com/jessepwj/CCteam-creator.git
 
-# English
+# English (recommended)
 cp -r CCteam-creator/skills/CCteam-creator ~/.claude/skills/CCteam-creator
 
 # Or Chinese
-cp -r CCteam-creator/cn/skills/CCteam-creator ~/.claude/skills/CCteam-creator
+cp -r CCteam-creator/cn/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator-cn
 ```
+
+Then **restart Claude Code once** (skills are discovered at session start). After restart:
+
+- Slash command: `/CCteam-creator` or `/CCteam-creator-cn`
+- Natural language: "set up a team for my project" / "帮我搭建一个团队"
+
+**To update later**: `cd` into the cloned repo, run `git pull`, and re-run the `cp -r` command above. The skill's built-in Step 0 Update Check will notify you inline when a new version is available on GitHub.
 
 ### Option 3: Project-level Install
 
+Share with your team via a project-local skills directory. Copy into the project's `.claude/skills/`:
+
 ```bash
-# Share with your team via project directory
+# English
 cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
+
+# Or Chinese
+cp -r CCteam-creator/cn/skills/CCteam-creator-cn .claude/skills/CCteam-creator-cn
 ```
 
 ## Usage
@@ -449,7 +463,12 @@ For users on the manual-install path (`git clone` + `cp -r`), simply pull the la
 ```bash
 cd <your-clone-location>
 git pull
+
+# English
 cp -r skills/CCteam-creator ~/.claude/skills/CCteam-creator
+
+# Or Chinese
+cp -r cn/skills/CCteam-creator-cn ~/.claude/skills/CCteam-creator-cn
 ```
 
 ## Known Limitation: Team-lead May "Lose Memory" After Compaction
