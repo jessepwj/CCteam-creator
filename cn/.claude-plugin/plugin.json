@@ -1,7 +1,7 @@
 {
   "name": "CCteam-creator-cn",
   "description": "Claude Code multi-agent team orchestration (Chinese version). Set up parallel AI agent teams with file-based planning and role-based collaboration.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "author": {
     "name": "jessepwj"
   },

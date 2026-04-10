@@ -424,6 +424,54 @@ With **1M context**, teammates **cannot auto-compact** and cannot run `/compact`
 
 This is a Claude Code platform limitation, not a CCteam-creator issue. All agent progress is persisted in `.plans/` files, so no work is lost on restart.
 
+## Updating
+
+Third-party Claude Code marketplaces do **not** auto-update by default, so newly-pushed CCteam-creator versions won't reach installed users automatically. This skill has a built-in **Step 0 Update Check** that runs each time CCteam-creator is triggered — it silently fetches the latest `plugin.json` version from GitHub and notifies you (one line, no confirmation needed) if a newer version is available.
+
+**To actually install the newer version** after seeing the notification:
+
+```bash
+/plugin marketplace update ccteam
+/exit
+# restart Claude Code
+```
+
+If `/plugin marketplace update` reports no changes despite a new version being published (known upstream bug: [anthropics/claude-code#31462](https://github.com/anthropics/claude-code/issues/31462)), force a fresh clone:
+
+```bash
+/plugin marketplace remove ccteam
+/plugin marketplace add jessepwj/CCteam-creator
+/plugin install CCteam-creator@ccteam
+```
+
+For users on the manual-install path (`git clone` + `cp -r`), simply pull the latest:
+
+```bash
+cd <your-clone-location>
+git pull
+cp -r skills/CCteam-creator ~/.claude/skills/CCteam-creator
+```
+
+## Known Limitation: Team-lead May "Lose Memory" After Compaction
+
+After the main conversation runs `/compact`, team-lead sometimes forgets teammate names, operational protocols, and current project context — manifesting as not knowing which teammates exist, forgetting how to dispatch tasks, or losing track of which phase it's in.
+
+**Why this happens**:
+
+- CLAUDE.md is injected **once at session start**, **not re-loaded every turn**
+- The compactor rewrites history (including the team roster, SKILL.md protocols, and onboarding prompts) into a summary — details can be lost
+- `team-snapshot.md` still exists on disk, but the amnesiac lead doesn't know it should go read it
+
+**One-sentence rescue**:
+
+If you notice the lead is confused after compaction, just tell it:
+
+> **"Read `.plans/<project>/team-snapshot.md` to restore team state"**
+
+This makes team-lead reload the full team roster and all onboarding prompts, returning to a working state immediately. All progress is in `.plans/` files — compaction loses zero actual work; it only loses "the lead's operational memory in its head", and that memory has a full copy on disk.
+
+> After setup finishes, the skill will proactively remind you of this before guiding you through `/compact`. For first-time users, memorizing this one sentence is enough.
+
 ## Project Structure
 
 ```

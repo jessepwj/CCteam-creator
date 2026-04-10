@@ -31,14 +31,41 @@ Do NOT delegate this to a subagent (Explore, general-purpose, etc.). Subagents r
 
 ## Process
 
-**Step 0 (auto)**: Check if `.plans/` exists → if yes, offer to resume existing project
+**Step 0 Update Check (auto)**: Background version fetch + one-line notification if newer version exists
+**Step 0 Detect (auto)**: Check if `.plans/` exists → if yes, offer to resume existing project
 1. **Requirements Consultation** — Introduce the team mechanism to the user and gather requirements
 2. **Confirm the Plan** — Summarize requirements and let the user confirm the team configuration
 3. Create planning files (including per-agent subdirectories)
 4. Create the team + spawn agents
 5. Confirm setup + guide user to compact context
 
-## Step 0: Detect Existing Project (Auto — Before Anything Else)
+## Step 0 Update Check: Version Self-Check (Auto — Before Anything Else, ~2s)
+
+Before any other step, perform a lightweight version check. **No user consent needed, do not ask any questions.**
+
+1. **Remote version**: WebFetch `https://raw.githubusercontent.com/jessepwj/CCteam-creator/master/.claude-plugin/plugin.json` with prompt: "What is the value of the version field? Respond with just the version string."
+2. **Local version**: Use Bash to read local plugin.json (try these paths in order, use the first that exists):
+
+   ```bash
+   cat ~/.claude/plugins/cache/ccteam/CCteam-creator/*/.claude-plugin/plugin.json 2>/dev/null || \
+   cat ~/.claude/plugins/cache/ccteam/CCteam-creator-cn/*/.claude-plugin/plugin.json 2>/dev/null || \
+   cat ~/.claude/skills/CCteam-creator/.claude-plugin/plugin.json 2>/dev/null
+   ```
+
+   Extract the version field from the output.
+3. **Compare**:
+   - **remote ≤ local**, OR **WebFetch failed**, OR **local plugin.json not found** → **completely silent**, proceed to the next step. Do NOT print "version check passed" or any confirmation noise
+   - **remote > local** → print **one** notification line (just one, then immediately continue, do NOT wait for user reply):
+     > ℹ️ A newer CCteam-creator version is available (<local> → <remote>). It will auto-apply on next Claude Code startup. Continuing with <local> in this session. For immediate effect: `/plugin marketplace update ccteam` → `/exit` → restart → re-trigger this skill.
+
+**Hard rules**:
+- ❌ Do NOT ask the user "continue with old version?" — no confirmation at all
+- ❌ Do NOT attempt to Bash-update the plugin cache yourself — that's Claude Code's job, not the skill's
+- ❌ Do NOT render the version check as a visible task in TodoWrite/TaskCreate — it should run in the background invisibly
+- ❌ If the network fails, do NOT retry — just proceed
+- ✅ At most one notification line, then **immediately** proceed to the next step
+
+## Step 0 Detect: Detect Existing Project (Auto — Before Anything Else)
 
 Before starting setup, check if `.plans/` directory exists in the current working directory.
 
@@ -367,9 +394,22 @@ Show the user a table of team members and the file locations.
 
 Then **guide the user to run `/compact`** to free up context. Explain why:
 - The setup process consumed significant context (reading templates, creating files, spawning agents)
-- All operational knowledge is now persisted in CLAUDE.md (always loaded) and `.plans/` files
+- All operational knowledge is now persisted in CLAUDE.md (loaded at session start) and `.plans/` files
 - Compacting reclaims context space for actual team management work
-- After compaction, team-lead can resume immediately — CLAUDE.md keeps all protocols in context
+
+### MUST warn the user before compaction (important!)
+
+Tell the user the following — verbatim or paraphrased:
+
+> **After compaction, team-lead may "lose memory"** — forgetting teammate names, operational protocols, and the current project context. This is normal behavior of Claude Code's compaction: CLAUDE.md is only injected at session start, and the compactor rewrites history (including the team roster and protocols) into a summary, so details can be lost.
+>
+> **If I (team-lead) seem confused after compaction, just tell me one sentence**:
+>
+> > "Read `.plans/<project>/team-snapshot.md` to restore team state"
+>
+> This makes me reload the full team roster and all onboarding prompts, returning to a working state immediately. All progress is in `.plans/` files — nothing is lost.
+
+This warning **must** be delivered before guiding `/compact` — otherwise the user will hit an amnesiac lead and not know the rescue command.
 
 ## Key Rules
 

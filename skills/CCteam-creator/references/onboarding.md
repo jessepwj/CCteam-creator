@@ -109,36 +109,58 @@ The main plan is at `.plans/<project>/task_plan.md` (read-only for you; maintain
 
 ## Team Communication
 
-- `team-lead` is the **control plane** of the team, not a peer worker. Escalations, phase changes, scope changes, and team workflow changes route through team-lead
-- Report progress/ask questions: SendMessage(to: "team-lead", message: "...")
-- **Completion reports must have enough detail for lead to make correct decisions** — team-lead dispatches next tasks and coordinates the team based on YOUR report. Vague messages like "T1 done" force lead to guess, leading to wrong decisions. Include: (1) what you did and the key approach/principle, (2) doc path for details (line range for large files), (3) any decisions made or issues found. Brief but informative — lead will read the full doc if needed
-- Request code review: SendMessage(to: "reviewer", message: "...") — go directly to reviewer, do not route through team-lead
-- Documentation rule: code is the source of truth, documentation follows code; do not silently change designs
+**Bidirectional communication is the default, not an exception.** File system handles persistence, messages handle alignment — you need both. team-lead is the **control plane**: escalations, phase changes, and scope changes route through it.
 
-### Team-Protocol Escalation
+### Receive task → confirm before starting
 
-If you discover a reusable team workflow improvement, record it with tag `[TEAM-PROTOCOL]` and notify team-lead.
+For any new task from team-lead, **your first reply must be a one-line acknowledgement**: (1) your understanding of the goal, (2) your planned first action. Only then start work. For large tasks, additionally list 2-3 key decision points and wait for team-lead confirmation before coding. A 5-second confirm prevents a 30-minute drift.
 
-Examples:
+### Completion report → bring evidence, not just "done"
 
-- better team-lead dispatch rules
-- better role boundaries
-- better review gates
-- better task/finding/progress conventions
-- better CLAUDE.md structure
+Completion messages must let lead decide without reading the full doc. Include:
+1. What you did and the core approach/principle
+2. Doc path (line range for large files)
+3. Decisions made or problems discovered
+4. **Verifiable evidence** (grep/diff/test output) — not "done" or "fixed"
 
-Do not decide on your own whether such a change should stay project-local or be written back into `CCteam-creator`; that classification belongs to team-lead.
+### Between-task Checkpoint → proactive cadence
+
+After completing a task, **before claiming the next one from TaskList**, send a short message:
+`"Done: X. Next planned: Y. Blockers: none/W"`
+This lets lead redirect when priorities shift, instead of discovering drift after you've finished 3 tasks. No need to wait for lead's reply — send and continue — but don't skip this step.
+
+### Basics
+
+- Progress/questions: `SendMessage(to: "team-lead", ...)`
+- Code review: `SendMessage(to: "reviewer", ...)` — go direct, don't route through team-lead
+- Code is the source of truth; documentation follows code; no silent design changes
 
 ### Task Handoff Protocol
 
-**Large tasks/features** (passing work results between roles):
-1. First write handoff documentation: record conclusions, approach, key file paths and line numbers in findings.md
-2. Then SendMessage to the receiver, including: handoff summary + document location
-   Example: SendMessage(to: "backend-dev", message: "Research complete. API approach in findings.md §3-§5, recommend Approach A, rationale in §4")
+**Large tasks** (passing work between roles): First write handoff doc in findings.md (conclusions, approach, key file paths and line numbers), then SendMessage with the location.
+Example: `SendMessage(to: "backend-dev", message: "Research complete. API approach in findings.md §3-§5, recommend Approach A, rationale in §4")`
 
-**Small tasks/minor changes**:
-Just SendMessage with the change description directly, no extra handoff documentation needed.
-   Example: SendMessage(to: "reviewer", message: "Fixed XSS in login, change in src/auth/login.ts:42")
+**Small tasks**: Just SendMessage with the change description.
+Example: `SendMessage(to: "reviewer", message: "Fixed XSS in login, src/auth/login.ts:42")`
+
+### Team-Protocol Escalation
+
+Discovered a reusable team workflow improvement? Tag it `[TEAM-PROTOCOL]` and notify team-lead. Classification (project-local vs template-level) is team-lead's call, not yours.
+
+## Escalation Judgment (when to ask team-lead)
+
+**Default**: decide yourself when you can, record reasoning in progress.md. **Don't ask about everything** (noise), but also **don't internalize confusion** (silent bugs).
+
+**Must ask team-lead before proceeding** when:
+- **Requirements have >1 interpretation** — two readings lead to different implementations
+- **Priority/sequencing unclear** — multiple viable next tasks, uncertain which to pick
+- **Scope explosion** — task is significantly larger than described
+- **Architecture impact** — your decision affects other roles' interfaces
+- **Irreversible choice** — public API shape, DB schema, third-party service selection
+
+**How to ask**:
+- When you can list options → describe the dilemma + 2-3 options + your pick + reasoning
+- **When you can't list options → describe directly where you're stuck and what info you're missing**. Don't stay silent just because you couldn't come up with options — the raw confusion itself is a valuable signal
 
 ## Error Handling Protocol (3-Strike)
 

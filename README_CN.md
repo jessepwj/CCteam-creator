@@ -420,6 +420,54 @@ CLAUDE.md 不是一次性生成物——它是一份**活文档**，随项目演
 
 这是 Claude Code 平台的限制，不是 CCteam-creator 的问题。所有工作进度都持久化在 `.plans/` 文件中，重启不会丢失任何工作。
 
+## 更新
+
+Claude Code 的第三方 marketplace **默认不自动更新**，所以新推送的 CCteam-creator 版本不会自动到达已安装的用户。本 skill 内置了 **Step 0 Update Check**——每次触发 CCteam-creator 时都会静默从 GitHub 拉最新的 `plugin.json` 版本号并对比本地,如发现新版会打一行通知(不需要确认)。
+
+**看到通知后如何实际安装新版**:
+
+```bash
+/plugin marketplace update ccteam
+/exit
+# 然后重启 Claude Code
+```
+
+如果 `/plugin marketplace update` 报告"没有变化"但确实有新版(已知上游 bug:[anthropics/claude-code#31462](https://github.com/anthropics/claude-code/issues/31462)),强制重新拉取:
+
+```bash
+/plugin marketplace remove ccteam
+/plugin marketplace add jessepwj/CCteam-creator
+/plugin install CCteam-creator@ccteam
+```
+
+对于手动安装的用户(`git clone` + `cp -r`),直接 pull 最新:
+
+```bash
+cd <你的 clone 位置>
+git pull
+cp -r cn/skills/CCteam-creator ~/.claude/skills/CCteam-creator
+```
+
+## 已知限制：Team-lead 压缩后可能"失忆"
+
+当主会话执行 `/compact` 后，team-lead 有时会忘记团队成员、运营协议和当前项目上下文——表现为不知道有哪些队友、不记得该怎么分配任务、忘记阶段在哪一步。
+
+**为什么会这样**：
+
+- CLAUDE.md 只在**会话启动时**注入一次，**不是每轮重新加载**
+- 压缩器会把历史消息（包括团队花名册、SKILL.md 协议、入职 prompt）重写成摘要，细节可能丢失
+- 磁盘上的 `team-snapshot.md` 仍然存在，但 lead 压缩后不知道自己需要去读它
+
+**一句话救援**：
+
+如果发现 lead 压缩后状态混乱，直接对它说：
+
+> **"读 `.plans/<项目名>/team-snapshot.md` 恢复团队状态"**
+
+这会让 team-lead 重新加载完整的团队花名册和所有入职 prompt，立刻回到工作状态。所有进度都在 `.plans/` 文件里——压缩不会丢失任何实际工作，丢的只是"lead 脑子里的运营记忆"，而这些记忆在磁盘上都有完整副本。
+
+> 搭建完成后,skill 会在引导 `/compact` 之前主动提醒这一点。如果你是首次使用,记住这一句话就够了。
+
 ## 项目结构
 
 ```

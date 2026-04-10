@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-Golden Rules -- universal code health checks for CCteam-creator projects.
+黄金规则 -- CCteam-creator 项目的通用代码质量检查工具。
 
-Pre-installed by CCteam-creator skill. Copied to <project>/scripts/ during
-Step 3.6 (Harness Setup). Called by run_ci.py as part of the CI pipeline.
+由 CCteam-creator 技能预安装，在步骤 3.6（工具链配置）时复制到 <project>/scripts/ 目录。
+作为 CI 管道的一部分，由 run_ci.py 调用执行。
 
-Usage:
-    # Standalone
+使用方式：
+    # 独立运行
     python golden_rules.py src/backend src/frontend
 
-    # From run_ci.py
+    # 从 run_ci.py 调用
     from golden_rules import check_all
     result = check_all(["src/backend", "src/frontend"], docs_dir=".plans/<project>/docs")
 
-Error messages follow agent-readable format:
-    [TAG] <what's wrong>
-      File: <path:line>
-      FIX: <exactly how to fix it>
+错误消息遵循代理可读的格式：
+    [TAG] <问题描述>
+      File: <路径:行号>
+      FIX: <具体修复方案>
 """
 import re
 import subprocess
@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Result collector (no global mutable state)
+# 结果收集器（无全局可变状态）
 # ---------------------------------------------------------------------------
 
 
@@ -52,7 +52,7 @@ class CheckResult:
 
 
 # ---------------------------------------------------------------------------
-# Shared helpers
+# 共享的辅助函数
 # ---------------------------------------------------------------------------
 CODE_EXTENSIONS = {
     ".py", ".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte",
@@ -66,7 +66,7 @@ EXCLUDE_DIRS = {
 
 
 def _iter_code_files(src_dirs):
-    """Yield Path objects for code files in src_dirs, skipping excluded dirs and minified files."""
+    """遍历源目录中的代码文件，跳过排除目录和压缩文件。"""
     for src_dir in src_dirs:
         root = Path(src_dir)
         if not root.exists():
@@ -78,17 +78,17 @@ def _iter_code_files(src_dirs):
                 continue
             if any(part in EXCLUDE_DIRS for part in f.parts):
                 continue
-            # Skip minified files (e.g., foo.min.js)
+            # 跳过压缩文件（如 foo.min.js）
             if ".min." in f.name:
                 continue
             yield f
 
 
 # ---------------------------------------------------------------------------
-# GR-1: File Size
+# GR-1: 文件大小检查
 # ---------------------------------------------------------------------------
 def check_file_size(src_dirs, result, warn_limit=800, fail_limit=1200):
-    """Files over warn_limit lines get WARN; over fail_limit get FAIL."""
+    """文件行数超过 warn_limit 发出警告；超过 fail_limit 则失败。"""
     print("[GR-1] File Size Check")
     found = False
     for f in _iter_code_files(src_dirs):
@@ -109,7 +109,7 @@ def check_file_size(src_dirs, result, warn_limit=800, fail_limit=1200):
 
 
 # ---------------------------------------------------------------------------
-# GR-2: Hardcoded Secrets
+# GR-2: 硬编码秘密检查
 # ---------------------------------------------------------------------------
 SECRET_PATTERNS = [
     (r"""['"]sk-[a-zA-Z0-9]{20,}['"]""", "Possible OpenAI/Stripe API key"),
@@ -119,12 +119,12 @@ SECRET_PATTERNS = [
      "Possible hardcoded secret"),
 ]
 
-# Lines containing these markers are likely examples/placeholders, not real secrets
+# 包含这些标记的行可能是示例/占位符，不是真实秘密
 EXAMPLE_MARKERS = ("example", "placeholder", "your_key_here", "xxx", "changeme", "<your")
 
 
 def check_secrets(src_dirs, result):
-    """Scan for hardcoded secrets using regex patterns."""
+    """使用正则表达式模式扫描硬编码的秘密。"""
     print("[GR-2] Hardcoded Secrets Check")
     found = False
     for f in _iter_code_files(src_dirs):
@@ -134,29 +134,29 @@ def check_secrets(src_dirs, result):
             continue
         for i, line in enumerate(content.splitlines(), 1):
             stripped = line.strip()
-            # Skip lines that are clearly examples/placeholders
+            # 跳过明显的示例/占位符行
             if any(marker in stripped.lower() for marker in EXAMPLE_MARKERS):
                 continue
             for pattern, desc in SECRET_PATTERNS:
                 if re.search(pattern, line):
                     result.fail("GR-SECRET", f"{f}:{i} -- {desc}",
-                                "Move to environment variable. Never commit secrets to code.")
+                                "转移到环境变量。永远不要在代码中提交秘密。")
                     found = True
-                    break  # one match per line is enough
+                    break  # 每行一个匹配就够了
     if not found:
         print("  [OK] No hardcoded secrets detected.\n")
 
 
 # ---------------------------------------------------------------------------
-# GR-3: No console.log in Production Code
+# GR-3: 生产代码中无 console.log 检查
 # ---------------------------------------------------------------------------
 CONSOLE_PATTERN = re.compile(r"\bconsole\.(log|debug|info|warn|error)\b")
 TEST_DIR_NAMES = {"test", "tests", "__tests__", "spec", "scripts", "e2e", "cypress"}
 
 
 def check_console_log(src_dirs, result):
-    """Detect console.log in production code (not test files)."""
-    print("[GR-3] Console Log Check")
+    """检测生产代码中的 console.log（排除测试文件）。"""
+    print("[GR-3] Console Log 检查")
     found = False
     for f in _iter_code_files(src_dirs):
         if f.suffix not in {".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"}:
@@ -173,31 +173,31 @@ def check_console_log(src_dirs, result):
                 if stripped.startswith("//"):
                     continue
                 result.warn("GR-CONSOLE", f"{f}:{i} -- {stripped[:80]}",
-                            "Remove console.log from production code. Use a structured logger instead.")
+                            "从生产代码中移除 console.log。使用结构化日志记录器代替。")
                 found = True
     if not found:
         print("  [OK] No console.log in production code.\n")
 
 
 # ---------------------------------------------------------------------------
-# GR-4: Doc Freshness (requires git)
+# GR-4: 文档新鲜度检查（需要 git）
 # ---------------------------------------------------------------------------
 def check_doc_freshness(docs_dir, src_dirs, result, stale_commit_threshold=10):
-    """Compare docs/ last-modified commit vs source code commits.
+    """比较 docs/ 最后修改的提交与源代码提交。
 
-    If source has N+ commits since docs were last touched, emit WARN.
-    Requires git. Silently skips if git is not available or docs_dir missing.
+    如果源代码自上次更新文档后有 N+ 个提交，则发出警告。
+    需要 git。如果 git 不可用或 docs_dir 不存在则静默跳过。
     """
-    print("[GR-4] Doc Freshness Check")
+    print("[GR-4] 文档新鲜度检查")
     docs_path = Path(docs_dir)
     if not docs_path.exists():
-        print("  [SKIP] docs/ directory not found. Skipping freshness check.\n")
+        print("  [SKIP] 未找到 docs/ 目录。跳过新鲜度检查。\n")
         return
 
     doc_files = {
-        "api-contracts.md": "API contract",
-        "architecture.md": "architecture",
-        "invariants.md": "invariants",
+        "api-contracts.md": "API 契约",
+        "architecture.md": "架构",
+        "invariants.md": "不变量",
     }
 
     found = False
@@ -230,31 +230,31 @@ def check_doc_freshness(docs_dir, src_dirs, result, stale_commit_threshold=10):
                 quoted_dirs = " ".join(f'"{d}"' for d in src_dirs)
                 result.warn(
                     "GR-DOC-STALE",
-                    f"{doc_file} -- {src_commits} source commits since last doc update",
-                    f"Review and update {label} docs. Run: git log --oneline {last_doc_commit}..HEAD -- {quoted_dirs}")
+                    f"{doc_file} -- 上次更新文档后有 {src_commits} 个源代码提交",
+                    f"查看并更新 {label} 文档。运行：git log --oneline {last_doc_commit}..HEAD -- {quoted_dirs}")
                 found = True
         except Exception:
             continue
 
     if not found:
-        print("  [OK] All docs appear fresh.\n")
+        print("  [OK] 所有文档看起来是最新的。\n")
 
 
 # ---------------------------------------------------------------------------
-# GR-5: Invariant Coverage
+# GR-5: 不变量测试覆盖率检查
 # ---------------------------------------------------------------------------
 def check_invariant_coverage(docs_dir, result):
-    """Scan invariants.md for items marked 'no test' and report them."""
-    print("[GR-5] Invariant Coverage Check")
+    """扫描 invariants.md 文件中标记为"无测试"的项目并报告。"""
+    print("[GR-5] 不变量覆盖率检查")
     inv_file = Path(docs_dir) / "invariants.md"
     if not inv_file.exists():
-        print("  [SKIP] docs/invariants.md not found. Skipping.\n")
+        print("  [SKIP] 未找到 docs/invariants.md。跳过。\n")
         return
 
     try:
         content = inv_file.read_text(encoding="utf-8", errors="ignore")
     except Exception:
-        print("  [SKIP] Could not read invariants.md.\n")
+        print("  [SKIP] 无法读取 invariants.md。\n")
         return
 
     no_test_count = 0
@@ -262,25 +262,25 @@ def check_invariant_coverage(docs_dir, result):
         if re.search(r"(?i)status:\s*no\s*test", line):
             result.info(
                 "GR-INV-NO-TEST",
-                f"docs/invariants.md:{i} -- Invariant without automated test: {line.strip()[:80]}",
-                "Write an automated test for this invariant. Untested invariants rely on human memory.")
+                f"docs/invariants.md:{i} -- 没有自动化测试的不变量：{line.strip()[:80]}",
+                "为此不变量编写自动化测试。未经测试的不变量依赖人工记忆。")
             no_test_count += 1
 
     if no_test_count == 0:
-        print("  [OK] All invariants have test coverage (or no invariants defined).\n")
+        print("  [OK] 所有不变量都有测试覆盖（或没有定义不变量）。\n")
     else:
-        print(f"  {no_test_count} invariant(s) without automated tests.\n")
+        print(f"  {no_test_count} 个不变量没有自动化测试。\n")
 
 
 # ---------------------------------------------------------------------------
-# Public API
+# 公开 API
 # ---------------------------------------------------------------------------
 def check_all(src_dirs, docs_dir=None):
-    """Run all golden rule checks. Returns (fail_count, warn_count, info_count)."""
+    """运行所有黄金规则检查。返回（失败数, 警告数, 信息数）。"""
     result = CheckResult()
 
     print("=" * 60)
-    print("Golden Rules Check")
+    print("黄金规则检查")
     print("=" * 60 + "\n")
 
     check_file_size(src_dirs, result)
@@ -292,25 +292,25 @@ def check_all(src_dirs, docs_dir=None):
         check_invariant_coverage(docs_dir, result)
 
     print("=" * 60)
-    print(f"Golden Rules Summary: {result.fails} FAIL, {result.warns} WARN, {result.infos} INFO")
+    print(f"黄金规则汇总：{result.fails} 个失败，{result.warns} 个警告，{result.infos} 个信息")
     if result.fails > 0:
-        print("Result: FAILED -- fix FAIL items before proceeding.")
+        print("结果：失败 -- 继续之前修复失败项。")
     elif result.warns > 0:
-        print("Result: PASSED with warnings -- review WARN items.")
+        print("结果：通过，有警告 -- 查看警告项。")
     else:
-        print("Result: PASSED")
+        print("结果：通过")
     print("=" * 60)
 
     return result.fails, result.warns, result.infos
 
 
 # ---------------------------------------------------------------------------
-# CLI entry point
+# CLI 入口点
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python golden_rules.py <src_dir1> [src_dir2] ... [--docs <docs_dir>]")
-        print("Example: python golden_rules.py src/ --docs .plans/myproject/docs")
+        print("用法：python golden_rules.py <src_dir1> [src_dir2] ... [--docs <docs_dir>]")
+        print("示例：python golden_rules.py src/ --docs .plans/myproject/docs")
         sys.exit(2)
 
     args = sys.argv[1:]
