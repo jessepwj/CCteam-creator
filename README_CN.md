@@ -214,11 +214,11 @@ cp -r CCteam-creator/cn/skills/CCteam-creator .claude/skills/CCteam-creator
 
 ```
 > 帮我的电商项目搭建一个团队
-> /CCteam-creator-cn:setup
+> /CCteam-creator-cn
 > 我要做一个 REST API，帮我建个团队
 ```
 
-> 手动安装时，命令是 `/CCteam-creator` 而不是 `/CCteam-creator-cn:setup`。
+> Slash 命令是 `/CCteam-creator-cn`(英文版是 `/CCteam-creator`)。自然语言触发也有效——直接说"帮我搭建团队"之类的即可。如果你通过 Skill 工具直接调用,用完整 namespace:`Skill(CCteam-creator-cn:CCteam-creator-cn)`。
 
 **触发关键词**：`团队`、`team`、`swarm`、`开始项目`、`创建团队`、`搭建团队`、`多智能体项目`。
 

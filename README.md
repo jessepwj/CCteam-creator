@@ -218,11 +218,11 @@ cp -r CCteam-creator/skills/CCteam-creator .claude/skills/CCteam-creator
 
 ```
 > Set up a team for my e-commerce project
-> /CCteam-creator:setup
+> /CCteam-creator
 > Build a REST API with a team
 ```
 
-> If installed manually, the command is `/CCteam-creator` instead of `/CCteam-creator:setup`.
+> The slash command is `/CCteam-creator` (or `/CCteam-creator-cn` for the Chinese variant). Natural language triggers also work — just ask to "set up a team" or similar. If you invoke via the Skill tool directly, use the full namespace: `Skill(CCteam-creator:CCteam-creator)`.
 
 **Trigger keywords**: `team`, `swarm`, `start project`, `set up project`, `create team`, `build team`, `multi-agent project`.
 
