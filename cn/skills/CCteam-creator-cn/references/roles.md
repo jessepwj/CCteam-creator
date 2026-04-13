@@ -49,18 +49,9 @@ team-lead 负责捕获用户的品味/风格偏好：
   - 必须覆盖的边界：null/undefined、空值、无效类型、边界值、错误路径、并发、大数据、特殊字符
   - 单元测试（必须）+ 集成测试（必须）+ E2E 测试（关键路径）
   - 不能出现：测试实现细节而非行为、测试间共享状态、断言不足、外部服务未 mock
-- **跨 agent 接口 Contract-First**（当前后端由不同 agent 实现时强制）：
-  - 在 `docs/api-contracts.md` 中先定义 API 字段表——名称、类型、单位、是否可选、描述——**再**写代码
-  - 双方从同一份 contract 抄字段名；禁止各自发明
-  - 有歧义的字段（百分比 vs 比例、count 计的是什么、时间戳格式）**必须**带单位注释
-  - 理由：字段名漂移和单位不匹配是多 agent 团队里最大的 review 循环浪费源
-- **Doc-Code Sync**（强制要求）:
-  - API 变更 → **必须**更新 `docs/api-contracts.md`
-  - 架构变更 → **必须**更新 `docs/architecture.md`
-  - 未文档化的 API 对其他智能体来说不存在
-- **完成汇报必须声明环境副作用**：
-  - 如果你的改动需要服务重启 / DB 迁移 / 缓存清除 / 配置重载，下一个 agent 才能观察到效果——在完成汇报里明确声明（`已由我执行: <证据>` / `需 team-lead 执行: <什么>` / `none`）
-  - 静默假设会导致下一个 agent 在过时状态上做验证——这是"在我这台机器上能跑"review 循环最常见的成因之一
+- **Contract-First**（前后端由不同 agent 实现时强制）：在 `docs/api-contracts.md` 中先定义字段表（名称、类型、单位、是否可选），再写代码；双方从 contract 抄字段名，禁止发明；有歧义字段必须带单位注释
+- **Doc-Code Sync**（强制）: API 变更 → 更新 `docs/api-contracts.md`；架构变更 → 更新 `docs/architecture.md`。未文档化的 API 对其他 agent 不存在
+- **完成汇报的环境副作用**：需要重启 / 迁移 / 清缓存 / 重载配置时声明 `none` / `已由我执行` / `需 team-lead 执行`。静默省略会破坏下游验证
 - **可观测性**（适用时）:
   - 重要操作必须发出结构化事件
   - 缺少事件 = Bug（e2e-tester 无法调试它观测不到的东西）
@@ -88,10 +79,7 @@ team-lead 负责捕获用户的品味/风格偏好：
   - 80%+ 测试覆盖率
 - **文档结构**: 与 backend-dev 相同（大任务分 task 文件夹）
 - **代码审查规则**: 与 backend-dev 相同（大功能审查，小改不审查）
-- **Contract-First**（前后端由不同 agent 实现时强制）: 与 backend-dev 相同——在 `docs/api-contracts.md` 中先读/定义字段表再写 `types/*.ts`；从 contract 抄字段名，禁止发明
-- **Doc-Code Sync**（强制要求）: 与 backend-dev 相同（API 变更 → 更新 docs/api-contracts.md）
-- **CI 门禁**（当 CI 脚本存在时）: 与 backend-dev 相同（CI 通过后才能审查）
-- **完成汇报的环境副作用声明**: 与 backend-dev 相同（纯前端改动通常是 `none`，但仍需明确声明）
+- **Contract-First / Doc-Code Sync / CI 门禁 / 环境副作用**: 与 backend-dev 相同（在 `docs/api-contracts.md` 中先读字段表再写 `types/*.ts`；纯前端改动环境副作用通常声明 `none`）
 - **可观测性**（适用时）: 前端关键错误必须上报到后端事件端点
 - **额外关注**:
   - React 不必要的重渲染
@@ -145,11 +133,7 @@ team-lead 负责捕获用户的品味/风格偏好：
   - 选择器优先级：`getByRole` > `getByTestId` > `getByLabel` > `getByText`
   - 禁止 `waitForTimeout`，用 `waitForSelector` 或 `expect().toBeVisible()`
   - Flaky 测试：先隔离（test.fixme），再排查竞态/时序/数据依赖
-- **陌生 UI 的 Explore-Then-Codify**（推荐）：
-  - 在为你没交互过的 UI 写新 `.spec` 之前，用 MCP 做一次交互式探路（`browser_navigate` / `browser_click` / `browser_snapshot`），把**真实** selector、**真实**异步时序、任何隐式副作用记录到 `test-<scope>/exploration.md`
-  - 然后写 spec 时直接从 `exploration.md` 抄 selector——禁止猜想式写 spec
-  - 已经跑过的流程的回归 spec 豁免——本规则只针对**陌生** UI 的**新** spec
-  - 理由：真实 UI 框架藏着猜想式 spec 抓不到的坑（aria-label 带图标前缀、title/header 不匹配、空内容按钮 disabled、上传触发的隐式异步链等）。花 10 分钟探路能省几小时调 flaky test
+- **陌生 UI 的 Explore-Then-Codify**（推荐）：写新 `.spec` 前先用 MCP 交互式探路（`browser_navigate` / `browser_click` / `browser_snapshot`），把真实 selector 和时序记到 `test-<scope>/exploration.md`，再从该文件抄 selector 写 spec。禁止猜想式。已跑过流程的回归 spec 豁免
 - **质量标准**:
   - 关键路径 100% 通过
   - 总通过率 >95%
@@ -214,12 +198,7 @@ team-lead 负责捕获用户的品味/风格偏好：
   - 浅层模块：接口复杂度 ≈ 实现复杂度 → 建议深化
   - 依赖分类：进程内 / 本地可替换 / 远程但自有 / 真正外部
   - 测试策略：如果边界测试已存在，标记冗余的浅层单元测试可以删除
-- **反幻影 Finding 协议**:
-  - 每次新 review 都先对同一目标上次留下的 open findings 做 grep 核活——幻影 finding（已修 / 从未真实 / 错误路径搜索的）必须关闭，不得带进新一轮。在一次实战中观察到 73% 的 open findings 是幻影
-  - 每条新 finding 必须带当前 commit 证据（`grep -n` 输出或 `git log -p` 节选）——没证据的 finding 无效
-  - "在预期位置找不到"永远不是跳过检查的理由；记录 `[NOT-FOUND]` 前必须先跑一次全仓库 `Glob pattern="**/<filename>"`
-  - 反复出现的幻影类（3+ 次 review）→ 打 `[AUTOMATE]` 标签交给 custodian 用 `golden_rules.py` 机械化
-  - 完整协议见 onboarding.md § 反幻影 Finding 协议
+- **反幻影 Finding 协议**: 写新 finding 前先 grep 核活同一目标上次留下的 open findings；每条新 finding 必须带当前 commit 证据；`[NOT-FOUND]` 前必须全仓库 Glob；反复幻影类 → `[AUTOMATE]` → custodian。完整协议见 onboarding.md
 - **审查校准协议**:
   - **防止偏袒规则**：发现问题时，不要合理化它。如果你发现自己在写"这是小问题"或"可能没事"——停下。按面值打分。dev 可以反驳；你的职责是呈现，不是过滤
   - **项目审查维度**：每个项目在搭建时定义 3-5 个加权的审查维度（存储在 CLAUDE.md `## 审查维度`）。标准清单（安全/质量/性能/文档同步）总是适用的，但维度添加了项目专属的判断，形成判决基础
