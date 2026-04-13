@@ -169,6 +169,22 @@ Team-lead reviews at phase boundaries (not every task):
 
 (empty initially — team-lead adds entries from 3-Strike resolutions, reviewer [BLOCK] fixes, or any repeated failure)
 
+<!--
+Example entries (delete if not applicable to this project):
+
+### KP-1: Stateful service not restarted after code change
+- Symptom: Next agent verifies against stale behavior; reviewer reports "fix didn't work"; e2e-tester sees old responses
+- Root cause: Dev modifies long-running-service code (backend server, worker, etc.) without restarting, or fails to declare restart status in the completion report
+- Fix: Restart the service; re-run verification
+- Prevention: Completion report MUST declare environmental side effects (`done by me` / `needs team-lead action` / `none`). team-lead maintains a pre-flight checklist for task types that depend on live state — before dispatching e2e-tester or integration-focused devs, verify the service is running the current code
+
+### KP-2: Test/dev mode bypasses production business logic
+- Symptom: Feature works in dev mode but fails in production, OR tests pass on DEV but the assurance is hollow (e.g., all permission tests pass because DEV hardcodes admin role)
+- Root cause: DEV/test branch hardcodes values (role=admin, skip rate-limit, fixed user_id) that are supposed to be derived by the very logic under test
+- Fix: Remove the hardcode; make DEV a real path with minimal setup friction, not a shortcut around business logic
+- Prevention: Rule — test/dev branches may simplify **setup** (e.g., auto-login without filling a form) but MUST exercise the **same code paths** as production (e.g., role still comes from `fetchMe`, not a literal string). Reviewer should flag any `if DEV_MODE:` branch that skips a code path instead of simplifying input to it
+-->
+
 ## Style Decisions
 
 > User taste preferences captured during the project.
@@ -883,24 +899,39 @@ Create during Step 3. Start with the files relevant to the project; not all are 
 
 > Frontend-backend interface definitions. Source of truth for field names and types.
 > Updated by: devs (MUST update when adding/changing endpoints)
+>
+> **Contract-First rule**: When frontend and backend are implemented by different agents,
+> the field table for each endpoint MUST be defined here **before** either side writes code.
+> Both sides copy field names from this file — never invent locally. This prevents the
+> most common class of wasted review cycles: field-name drift and unit mismatch.
 
 ## Endpoints
 
 ### POST /api/example
 
-Request:
+**Field table** (authoritative naming — copy into TS types and Python schemas):
+
+| Field | Type | Required | Unit / Format | Description |
+|-------|------|----------|---------------|-------------|
+| user_id | string | yes | uuid v4 | Authenticated user identifier |
+| progress | number | yes | percentage [0, 100] | Completion — NOT [0, 1] |
+| dead_count | number | yes | count | Number of dead methods (not a ratio) |
+| created_at | string | yes | ISO-8601 UTC | e.g. 2026-04-13T10:30:00Z |
+| note | string | no | — | Optional free text |
+
+Request body:
 \`\`\`json
-{ "field": "type — description" }
+{ "user_id": "...", "progress": 42, "dead_count": 3, "note": "..." }
 \`\`\`
 
 Response:
 \`\`\`json
-{ "field": "type — description" }
+{ "id": "...", "status": "accepted" }
 \`\`\`
 
 ---
 
-<Add endpoints as they are designed/implemented>
+<Add endpoints as they are designed/implemented — always start with the field table>
 ```
 
 ### docs/invariants.md

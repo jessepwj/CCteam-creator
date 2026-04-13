@@ -71,6 +71,15 @@
 
 这是**渐进式展开**：docs/ 给你系统全貌，然后你自己的文件给你任务状态。不要 Read 完整的项目 progress.md 或完整的主 task_plan.md——它们是导航图，不是参考资料。
 
+### 恢复后的现状核实（关键）
+
+在你修改、引用或汇报任何上个 session 碰过的文件之前，**必须**核实它的**当前**状态——不要相信记忆：
+- 文件行数：`wc -l <file>`
+- 关键符号：`Grep pattern="<函数|类>" path="<file>"`
+- 最近改动：`git log --oneline -5 <file>`
+
+progress.md 是"我上次做到哪"的快照，**不是**"代码现在是什么样"。两次 session 之间可能有其他 agent 改过同一个文件。汇报过时的行号或函数位置会破坏 reviewer 的信任，还可能级联成错误修复。一次 grep 很便宜，一个幻影汇报代价高昂。
+
 ### 文档更新频率
 
 - 完成一个任务 → TaskUpdate(status: "completed") + 更新 progress.md（记录）。任务文件夹内的子步骤：在该文件夹的 task_plan.md 中勾选
@@ -127,6 +136,8 @@ Read file=progress.md offset=<末尾> limit=30
 
 任何来自 team-lead 的新任务，**第一条回复必须是一句话确认**：(1) 你对目标的理解 (2) 计划的第一步。然后才动手。大任务额外附上 2-3 个关键决策点，等 team-lead 确认后再写代码。5 秒的确认能防 30 分钟的跑偏。
 
+**如果消息打包了多个独立交付物**，你的确认**必须**逐条枚举每一部分："本任务包含 N 项：(1) X, (2) Y, (3) Z —— 全部必做。" 按顺序执行，在最终汇报里对每一项分别列 check。不要只做一部分就说任务完成——多 Part 消息是工作被静默丢弃的头号原因。
+
 ### 完成汇报 → 带证据，不只说"done"
 
 完成消息必须让 lead 不读完整文档就能决策。包含：
@@ -134,6 +145,16 @@ Read file=progress.md offset=<末尾> limit=30
 2. 文档路径（大文件注明行号范围）
 3. 做了哪些决策或发现什么问题
 4. **可验证的证据**（grep/diff/测试输出）——不是"done"或"修好了"
+5. **环境副作用**——你的改动是否需要服务重启 / DB 迁移 / 缓存清除 / 配置重载，下一个 agent 才能验证？必须明确声明一种：`none` / `已由我执行（证据：…）` / `需 team-lead 执行：<什么>`。**不写默认为 none**，如果实际需要处理就会静默破坏下一个 agent 的验证
+
+### Idle 不等于完成汇报
+
+每个 turn 结束时自动 idle——那只意味你在等输入，**不等于**你已经汇报了结果。每次进入 idle 前确认：
+
+1. 你是否已经给 team-lead（或请求方）发过显式 `SendMessage(...)` 附带本轮任务的完成证据？
+2. 如果没有——**现在就发**，哪怕短。team-lead 无法对他不知道已完成的工作采取下一步；idle 通知本身不携带任何内容。
+
+规则：**每个任务的最后一个动作是发消息**，不是写文件。文件写入固化状态，消息触发下一步。
 
 ### 任务间 Checkpoint → 主动报告节奏
 
@@ -311,6 +332,18 @@ null/undefined、空值、无效类型、边界值、错误路径、并发、大
 - 完成大功能/新功能模块后 → 先在 findings.md 记录改动摘要（涉及文件、设计决策、已知风险），再 SendMessage(to: "reviewer") 请求审查并注明文档位置
 - 小修改、Bug 修复、配置变更 → 不需要审查，直接继续
 - 审查结果修复后，在 findings.md 标记 [REVIEW-FIX]
+
+### 跨 agent 接口 Contract-First
+
+**当同一接口的前后端由不同 agent 实现时**，`docs/api-contracts.md` 中的 API 字段表**必须**在任何一方开始写代码**之前**就定义好：
+- 每个字段：名称、类型、单位、是否可选、一行说明
+- 双方从同一份 contract 抄字段名——禁止各自发明
+- 有歧义的字段必须带单位注释。例如：
+  - `progress: number — 百分比 [0, 100]`（不是 [0, 1]）
+  - `created_at: string — ISO-8601 UTC，如 2026-04-13T10:30:00Z`
+  - `dead_count: number — 死方法的**数量**（不是比例）`
+
+当同一个 agent 同时实现接口两侧时，这一步可以与写代码合并。这条规则存在的目的是防止多 agent 团队最常见的一类浪费——字段名漂移和单位不匹配导致的来回返工。
 
 ### Doc-Code Sync（强制要求）
 当你变更了 API（新端点、修改响应格式、新增字段）：
@@ -544,13 +577,25 @@ SendMessage(to: "team-lead", message:
 ```
 这样可以让 dev 的 findings.md 保持整洁，同时提供直达完整报告的链接。
 
+### 反幻影 Finding 协议（关键）
+
+长跑 review 会累积**幻影 findings**——过去 review 中记录的、但现在已被修复 / 从未真实存在 / 在错误位置搜索的 issue。不及时清理，台账会漂向失效，未来的 reviewer 会在追幽灵上浪费时间。在一次实战中，同一目标的 open findings 73% 是幻影。本协议就是为防止这件事。
+
+**每次 review 的硬规则：**
+
+1. **先核活台账**：在写任何新 finding 之前，用 grep 核实你对同一目标之前 review 留下的每一条 open finding。已修的标 `[CLOSED verified <日期>]` 并从 open 集合移除。**禁止**在过时台账上开始新的 review 工作。
+2. **每条新 finding 必须带当前 commit 证据**：每条 `[CRITICAL]` / `[HIGH]` / `[MEDIUM]` **必须**包含一行 `grep -n` 输出或 `git log -p` 节选，证明该问题在**你正在 review 的 commit** 上确实存在。没有当前 commit 证据的 finding 无效，不得记录。
+3. **"找不到就跳过"永远不是合法理由**：如果代码看起来不在预期位置，不要放弃检查。用 `Glob pattern="**/<filename>"` 全仓库搜——大部分"消失"的代码只是在你没想到的地方。只有做完穷尽性 Glob 后，才能记录 `[NOT-FOUND]` 并 ping 请求方要正确路径。
+4. **上报反复出现的幻影类**：如果同一类幻影在 3+ 次 review 中出现（例如过时的字段名 finding、陈旧的路径假设），打 `[AUTOMATE]` 标签，交给 team-lead → custodian 用 `golden_rules.py` 机械化。反幻影是基线卫生；慢性幻影模式应该变成 check script，而不是靠人工纪律。
+
 ### 审查流程
 1. 收到审查请求 → 运行 `git diff` 看变更
-2. 聚焦变更的文件
-3. 按以下检查清单逐项审查
-4. 按 CRITICAL > HIGH > MEDIUM > LOW 分级输出
-5. 将完整报告写入自己的审查文件夹
-6. 在 dev 的 findings.md 中追加交叉引用
+2. **核活同一目标上次 review 留下的 open findings**（见上文反幻影协议）
+3. 聚焦变更的文件
+4. 按以下检查清单逐项审查
+5. 按 CRITICAL > HIGH > MEDIUM > LOW 分级输出，**每条都附当前 commit 证据**
+6. 将完整报告写入自己的审查文件夹
+7. 在 dev 的 findings.md 中追加交叉引用
 
 ### 安全检查（CRITICAL 级别，来自 code-reviewer 方法论）
 - 硬编码密钥（API key、密码、token）

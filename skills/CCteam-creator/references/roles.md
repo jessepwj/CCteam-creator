@@ -49,10 +49,18 @@ team-lead is responsible for capturing user taste/style preferences:
   - Required boundary cases: null/undefined, empty values, invalid types, boundary values, error paths, concurrency, large data, special characters
   - Unit tests (required) + integration tests (required) + E2E tests (critical paths)
   - Avoid: testing implementation details instead of behavior, shared state between tests, insufficient assertions, unmocked external services
+- **Contract-First for cross-agent interfaces** (mandatory when frontend and backend are implemented by different agents):
+  - Define the API field table in `docs/api-contracts.md` — name, type, unit, optionality, description — BEFORE either side writes code
+  - Both sides copy field names from the contract; never invent locally
+  - Ambiguity-prone fields (percentage vs ratio, count vs count-of-what, timestamp format) MUST carry explicit unit annotations
+  - Rationale: field-name drift and unit mismatch between parallel dev tracks is the single largest waste of review cycles in multi-agent teams
 - **Doc-Code Sync** (mandatory):
   - API changes → MUST update `docs/api-contracts.md`
   - Architecture changes → MUST update `docs/architecture.md`
   - Undocumented APIs do not exist for other agents
+- **Environmental side effects must be declared in completion reports**:
+  - If your change requires a service restart, DB migration, cache clear, or config reload for the next agent to observe the effect, state it explicitly (`done by me: <evidence>` / `needs team-lead action: <what>` / `none`)
+  - Silent assumptions cause the next agent's verification to run against stale state — this is one of the most common causes of "it worked on my box" review loops
 - **Observability** (when applicable):
   - Important operations must emit structured events
   - Missing events = a bug (e2e-tester cannot debug what it cannot observe)
@@ -80,8 +88,10 @@ team-lead is responsible for capturing user taste/style preferences:
   - 80%+ test coverage
 - **Documentation Structure**: Same as backend-dev (large tasks use task folders)
 - **Code Review Rules**: Same as backend-dev (large features require review, small changes do not)
+- **Contract-First** (mandatory when a different agent implements the backend side): Same as backend-dev — read/define the field table in `docs/api-contracts.md` before writing `types/*.ts`; copy field names, never invent
 - **Doc-Code Sync** (mandatory): Same as backend-dev (API changes → update docs/api-contracts.md)
 - **CI Gate** (when CI script exists): Same as backend-dev (CI green before review)
+- **Environmental side effects in completion reports**: Same as backend-dev (frontend-only changes usually `none`, but state it explicitly)
 - **Observability** (when applicable): Frontend critical errors must report to backend event endpoint
 - **Additional Focus**:
   - Unnecessary React re-renders
@@ -135,6 +145,11 @@ team-lead is responsible for capturing user taste/style preferences:
   - Selector priority: `getByRole` > `getByTestId` > `getByLabel` > `getByText`
   - Prohibited: `waitForTimeout`; use `waitForSelector` or `expect().toBeVisible()` instead
   - Flaky tests: isolate first (test.fixme), then investigate race conditions/timing/data dependencies
+- **Explore-Then-Codify for unfamiliar UI** (recommended):
+  - Before writing a new `.spec` targeting UI you have not interacted with before, do one interactive MCP exploration pass (`browser_navigate` / `browser_click` / `browser_snapshot`) and record the **real** selectors, **real** async timings, and any implicit side effects to `test-<scope>/exploration.md`
+  - Then write the spec copying selectors directly from `exploration.md` — no guessed selectors
+  - Regression specs on flows already exercised are exempt — this rule targets **new** specs against **unknown** UI
+  - Rationale: real UI frameworks hide traps that assumption-driven specs cannot catch (aria-labels with icon prefixes, title/header mismatches, disabled-when-empty buttons, implicit async chains triggered by uploads, etc.). Spending 10 minutes exploring saves hours of flaky-test debugging
 - **Quality Standards**:
   - Critical paths 100% passing
   - Overall pass rate >95%
@@ -199,6 +214,12 @@ team-lead is responsible for capturing user taste/style preferences:
   - Shallow modules: interface complexity ≈ implementation complexity → suggest deepening
   - Dependency classification: in-process / local-substitutable / remote-but-owned / true-external
   - Test strategy: if boundary tests exist, flag redundant shallow unit tests for removal
+- **Anti-Phantom Finding Protocol**:
+  - Every new review begins by grep-verifying still-open findings from prior rounds on the same target — phantom findings (already fixed / never real / wrong-path searches) must be closed, not carried forward. At one observed failure point, 73% of open findings were phantoms
+  - Every new finding requires current-commit evidence (`grep -n` output or `git log -p` excerpt) — findings without evidence are invalid
+  - "Not found in expected location" is never a reason to skip a check; run a repo-wide `Glob pattern="**/<filename>"` before recording `[NOT-FOUND]`
+  - Recurring phantom classes (3+ reviews) → tag `[AUTOMATE]` for custodian to mechanize via `golden_rules.py`
+  - Full protocol in onboarding.md § Anti-Phantom Finding Protocol
 - **Review Calibration Protocol**:
   - **Anti-leniency rule**: When you identify an issue, do NOT rationalize it away. If you find yourself writing "this is minor" or "probably fine" — stop. Score it at face value. The dev can push back; your job is to surface, not filter
   - **Project Review Dimensions**: Each project defines 3-5 weighted review dimensions at setup time (stored in CLAUDE.md `## Review Dimensions`). Standard checklist (security/quality/performance/doc-sync) always applies, but dimensions add project-specific judgment that shapes your verdict

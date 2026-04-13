@@ -59,6 +59,15 @@ Whenever your context is compacted (compacted or restarted), you **must** first 
 
 This is **progressive disclosure**: docs/ gives you the system picture, then your own files give you task state. Do NOT read the entire project progress.md or the full main task_plan.md — they are navigation maps, not reference material.
 
+### Reality Check After Recovery (Critical)
+
+Before you modify, reference, or report on any file you touched in a previous session, verify its **current** state — do not trust recalled memory:
+- File size: `wc -l <file>`
+- Key symbols: `Grep pattern="<func|class>" path="<file>"`
+- Recent edits: `git log --oneline -5 <file>`
+
+progress.md is a snapshot of "where I left off", **not** "what the code looks like now". Between sessions other agents may have modified the same file. Reporting stale line numbers or function locations undermines reviewer trust and can cascade into wrong fixes. One grep is cheap; a phantom report is expensive.
+
 ### Documentation Update Frequency
 
 - Complete a task → TaskUpdate(status: "completed") + update progress.md (log it). Sub-steps within a task folder: check off in that folder's task_plan.md
@@ -115,6 +124,8 @@ The main plan is at `.plans/<project>/task_plan.md` (read-only for you; maintain
 
 For any new task from team-lead, **your first reply must be a one-line acknowledgement**: (1) your understanding of the goal, (2) your planned first action. Only then start work. For large tasks, additionally list 2-3 key decision points and wait for team-lead confirmation before coding. A 5-second confirm prevents a 30-minute drift.
 
+**If the message bundles multiple distinct deliverables**, your acknowledgement MUST enumerate every part: "This task contains N items: (1) X, (2) Y, (3) Z — all required." Execute in order, and report completion for each item separately in the final report. Do not claim the task is done after finishing only one part — bundled messages are the #1 source of silently dropped work.
+
 ### Completion report → bring evidence, not just "done"
 
 Completion messages must let lead decide without reading the full doc. Include:
@@ -122,6 +133,16 @@ Completion messages must let lead decide without reading the full doc. Include:
 2. Doc path (line range for large files)
 3. Decisions made or problems discovered
 4. **Verifiable evidence** (grep/diff/test output) — not "done" or "fixed"
+5. **Environmental side effects** — does your change require a service restart, DB migration, cache clear, or config reload before the next agent can verify it? State one of: `none` / `done by me (evidence: …)` / `needs team-lead action: <what>`. Omission defaults to "none" and silently breaks the next agent's verification when it isn't
+
+### Idle is not a completion report
+
+Going idle at turn-end is automatic — it just means you are waiting for input, **not** that you have reported results. Before every idle, verify:
+
+1. Did you send an explicit `SendMessage(to: "team-lead", …)` (or the requesting peer) with the completion evidence for the task you just finished?
+2. If not, send it **now** — even if short. The team-lead cannot act on work they do not know is done; the idle notification carries no content.
+
+Rule: **the last action of every task is an outbound message**, not a file write. File writes persist state; messages trigger the next step.
 
 ### Between-task Checkpoint → proactive cadence
 
@@ -298,6 +319,18 @@ you do not need to read all task folders.
 - After completing a large feature/new module → first record a change summary in findings.md (files involved, design decisions, known risks), then SendMessage(to: "reviewer") to request review and specify the document location
 - Small changes, bug fixes, config changes → no review needed, continue directly
 - After fixing review issues, mark [REVIEW-FIX] in findings.md
+
+### Contract-First for Cross-Agent Interfaces
+
+**When the frontend and backend of an interface are implemented by different agents**, the API field table in `docs/api-contracts.md` MUST be defined **before** either side writes code:
+- Each field: name, type, unit, optionality, one-line description
+- Both sides copy field names from the same contract — never invent them locally
+- Ambiguity-prone fields MUST carry explicit unit annotations. Examples:
+  - `progress: number — percentage in [0, 100]` (not [0, 1])
+  - `created_at: string — ISO-8601 UTC, e.g. 2026-04-13T10:30:00Z`
+  - `dead_count: number — count of dead methods (not ratio)`
+
+When the same agent implements both sides of an interface, this step may be merged with coding. The rule exists to prevent the most common class of wasted review cycles: field-name drift and unit mismatch between parallel dev tracks.
 
 ### Doc-Code Sync (Mandatory)
 When you change an API (new endpoint, modified response format, new fields):
@@ -531,13 +564,25 @@ After writing the full review to your own folder, append a brief summary + link 
 ```
 This keeps the dev's findings.md clean while providing a direct link to the full review.
 
+### Anti-Phantom Finding Protocol (Critical)
+
+Long-running review streams accumulate **phantom findings** — issues logged in past reviews that have since been fixed, were never real, or were searched in the wrong location. Left uncorrected, the open-findings ledger drifts toward irrelevance and future reviewers waste time chasing ghosts. At one observed failure point, 73% of open findings on the same target were phantoms. This protocol prevents that.
+
+**Hard rules, every review:**
+
+1. **Revive-check the ledger first**: Before writing any new finding, grep each still-open finding from your prior reviews of the same target. Mark resolved ones `[CLOSED verified <date>]` and remove from the open set. Do not start new review work on a stale ledger.
+2. **Every new finding carries current-commit evidence**: Each `[CRITICAL]` / `[HIGH]` / `[MEDIUM]` entry MUST include a `grep -n` output line or a `git log -p` excerpt proving the issue exists at the commit you are reviewing. Findings without current-commit evidence are invalid and must not be logged.
+3. **"Can't find it" is never a valid skip**: If code appears missing from the expected location, do not drop the check. Run `Glob pattern="**/<filename>"` across the whole repo — most "missing" code is actually somewhere you didn't expect. Only after an exhaustive glob may you record `[NOT-FOUND]` and ping the requesting dev for the correct path.
+4. **Escalate recurring phantom classes**: If the same phantom pattern appears across 3+ reviews (e.g., outdated field-name findings, stale path assumptions), tag `[AUTOMATE]` and hand off to team-lead → custodian for mechanization via `golden_rules.py`. Anti-phantom is baseline hygiene; chronic phantom patterns should become check scripts, not manual discipline.
+
 ### Review Workflow
 1. Receive review request → run `git diff` to see changes
-2. Focus on the changed files
-3. Review against the checklist below item by item
-4. Output issues graded CRITICAL > HIGH > MEDIUM > LOW
-5. Write full report to own review folder
-6. Append cross-reference to dev's findings.md
+2. **Revive-check prior open findings on the same target** (see Anti-Phantom Protocol above)
+3. Focus on the changed files
+4. Review against the checklist below item by item
+5. Output issues graded CRITICAL > HIGH > MEDIUM > LOW, each with current-commit evidence
+6. Write full report to own review folder
+7. Append cross-reference to dev's findings.md
 
 ### Security Checks (CRITICAL level, from code-reviewer methodology)
 - Hardcoded secrets (API keys, passwords, tokens)

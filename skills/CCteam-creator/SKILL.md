@@ -540,4 +540,5 @@ When an agent reports "3 failures, escalating to team-lead":
 - Are there stale `in_progress` tasks in TaskList that should be completed or reassigned?
 - Does main task_plan.md phase status match actual progress?
 - Review CLAUDE.md Known Pitfalls — anything to include in next phase's task dispatch?
+- **Environmental pre-flight check**: Does the next phase require a specific runtime state (service restart, seed data, cache clear, DB migration applied)? Project-specific pre-flight steps are tracked in CLAUDE.md `## Known Pitfalls`. Run them BEFORE dispatching agents that depend on live state (typically e2e-tester and integration-focused devs) — do not rely on the previous phase's dev to remember. Environmental side effects should also appear in each dev's completion report as a standard field
 - Run Harness Checklist (see CLAUDE.md template)

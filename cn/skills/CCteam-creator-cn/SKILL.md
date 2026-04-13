@@ -566,5 +566,6 @@ team-lead 的职责不只是派发任务：
 - TaskList 中是否有过期的 `in_progress` 任务应标完成或重新分配？
 - 主 task_plan.md 的阶段状态是否与实际进度一致？
 - 检查 CLAUDE.md Known Pitfalls——有没有需要在下一阶段任务下发时带上的？
+- **环境 pre-flight 检查**：下一阶段是否需要特定的运行时状态（服务重启、种子数据、缓存清除、DB 迁移已应用）？项目特定的 pre-flight 步骤记在 CLAUDE.md `## Known Pitfalls`。在派发依赖 live 状态的 agent（通常是 e2e-tester 和集成型 dev）**之前**执行——不要指望上一阶段的 dev 记得。环境副作用也应作为标准字段出现在每个 dev 的完成汇报里
 - 执行 Harness 检查清单（见 CLAUDE.md 模板）
 
