@@ -448,6 +448,8 @@ ERROR: api-contracts.md out of sync
 - **假设审计**：每个 harness 组件（任务文件夹、3-Strike、上下文恢复等）都对模型能力的假设进行编码。这些假设会过时。在主要模型升级时或项目回顾时，运行假设审计（见 CLAUDE.md Harness 检查清单）并简化不再必要的机制。原则：尽可能保持简单，只在需要时增加复杂性
 - **不要归档文件夹**：已完成的任务文件夹留在原地，在根 findings.md 索引中标记 `Status: complete` 即可。不要重命名、移动或加 `_archive_` 前缀——索引是导航层，文件夹位置必须稳定，否则交叉引用会断裂
 - **语言跟随用户**：根据第 1 步观察到的用户语言决定团队语言。用户用中文则团队中文回复；用户用英文则团队英文回复。不要硬编码语言偏好
+- **大任务先写方案再派发**：跨 3+ 角色或 5+ tool calls 的任务，team-lead 必须先写 `.plans/<project>/session-<N>-<topic>-plan.md`（目标 / 方案 / 参数 / 任务拆分 / 下发顺序 / 回滚）**再** SendMessage。派发消息只引用 plan 章节，不在消息里重复上下文，禁止边派边想
+- **可派的不自己做**：team-lead 禁止自己执行 commit / push / SSH 巡检 / 脏文件清理 / deploy.sh 运行——这些一律派给 backend-dev（或对应角色）。team-lead 只做决策、跨仓库协调、不可派的本地动作（KP-1 重启等）、custodian 派发
 
 ## Team-Lead 运营指南
 

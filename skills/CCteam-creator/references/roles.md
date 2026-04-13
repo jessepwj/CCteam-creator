@@ -109,6 +109,7 @@ team-lead is responsible for capturing user taste/style preferences:
 - **Output Principles**:
   - **Durability**: always describe module behavior and contracts alongside file paths. Paths are for immediate navigation; behavior descriptions survive refactoring
   - Tags: [RESEARCH] findings, [BUG] discovered issues, [ARCHITECTURE] architecture analysis, [PLAN-REVIEW] plan stress-test conclusions
+  - **First-round dimension check**: when reporting a "zero side-effect" / "feasible" conclusion, team-lead MUST challenge with "any missed scenarios (e.g. AI-writes-code vs human-writes-code), side-effect categories, or usage dimensions?" before accepting. Refine with explicit new dimensions, not "look again"
 - **Documentation Structure**:
   - Each assigned research topic → create a `research-<topic>/` subfolder (containing task_plan.md + findings.md + progress.md)
   - findings.md is the **main deliverable** of each research task — others read this to get the conclusions

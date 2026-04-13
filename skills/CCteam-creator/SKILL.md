@@ -431,6 +431,8 @@ This warning **must** be delivered before guiding `/compact` — otherwise the u
 - **Rebuild at phase boundaries**: do not rebuild an active team mid-stream unless necessary; prefer syncing templates first, then syncing project docs, then rebuilding between major phases
 - **No archiving**: Completed task folders stay in place — just mark `Status: complete` in the root findings.md index. Do not rename, move, or prefix folders with `_archive_`. The index is the navigation layer; folder location must remain stable so cross-references don't break
 - **Assumption audit**: Every harness component encodes an assumption about what the model cannot do well on its own. These assumptions go stale as models improve. At major model upgrades or when a mechanism repeatedly adds no value, team-lead should run the Assumption Audit (see CLAUDE.md Harness Checklist) and simplify what is no longer load-bearing. Principle: find the simplest solution possible, only increase complexity when needed
+- **Large task plan-first**: For tasks spanning 3+ agents or 5+ tool calls, team-lead MUST write `.plans/<project>/session-<N>-<topic>-plan.md` (goal / solution / params / task split / dispatch order / rollback) BEFORE any SendMessage. Dispatch messages reference plan sections only — no re-explaining context inline, no dispatch-while-thinking
+- **Delegate everything delegable**: team-lead does NOT self-execute commits / push / SSH inspection / file cleanup / deploy script runs — these go to backend-dev (or the appropriate role). team-lead only does decisions, cross-repo coordination, un-delegatable local actions (KP-1 restarts, etc.), and custodian dispatch
 
 ## Team-Lead Operations Guide
 

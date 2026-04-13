@@ -1,7 +1,7 @@
 {
   "name": "CCteam-creator",
   "description": "Multi-agent team orchestration for Claude Code. Set up parallel AI agent teams with file-based planning, progress tracking, and role-based collaboration.",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "author": {
     "name": "jessepwj"
   },
