@@ -33,6 +33,18 @@ This file is generated in the **project working directory** (not inside `.plans/
 
 ## Task Dispatch Protocol
 
+### Message Delivery Timing (Mechanism — Affects All Dispatch)
+
+**SendMessage to a spawned teammate is delivered only when the recipient is idle** (between turns). You cannot interrupt an in-progress task. Key consequences:
+
+- **Front-load context** in the initial dispatch — no mid-task "oh also do X"; missing context = one wasted turn minimum
+- **Mid-course correction** requires waiting for the current turn to end — there is no preemption, not even for broadcasts
+- **Live status** comes from reading the agent's `progress.md` / `findings.md` / task folder directly — **files are live, messages are not**
+- **Dispatch granularity** is a tradeoff: smaller tasks = more checkpoints; larger tasks = fewer roundtrips but longer blindness windows. Choose by uncertainty level.
+- **Bundling multi-part work** is sometimes correct (zero-latency sequencing); agents handle it via the Multi-Part Recognition protocol
+
+Full dispatch strategy guide: SKILL.md § Message Delivery Timing Constraint.
+
 ### TaskCreate Description Format (for team-lead reference after context compression)
 
 TaskCreate description: one-line scope + acceptance criteria + `.plans/` path.

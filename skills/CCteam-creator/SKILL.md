@@ -474,6 +474,31 @@ Read .plans/<project>/task_plan.md
 
 Reading order: **progress (where are we) → findings (what was encountered) → task_plan (what is the goal)**
 
+### Message Delivery Timing Constraint (Critical — Affects All Dispatch)
+
+**Mechanism** (verified empirically, not documented elsewhere): `SendMessage` to a spawned teammate is **NOT delivered mid-turn**. The recipient only picks up new messages when idle (between turns). You cannot interrupt an agent while it is actively working on a task — the message queues until the agent finishes its current turn and replies.
+
+**This is a hard constraint of the spawning/messaging system, not a discipline rule.** Team-lead must plan dispatches around it.
+
+**Consequences for dispatch strategy**:
+
+1. **Front-load everything in the initial message**. Since you cannot add "oh, also do X" mid-task, the dispatch message must contain all context, acceptance criteria, dependency file paths, constraints, and expected output format. Missing context = the agent burns a full turn on wrong assumptions before you get a chance to correct.
+
+2. **You cannot mid-course correct a running agent**. If priorities shift or you spot an error, you must wait for its current turn to end. The correction queues and lands at the next idle. Plan assuming no interruption window.
+
+3. **Dispatch granularity is a speed-vs-control tradeoff**:
+   - **Smaller tasks** → more checkpoints, faster course correction, more SendMessage overhead
+   - **Larger tasks** → fewer roundtrips, longer blindness windows, harder to redirect if the approach is wrong
+   - **Rule of thumb**: High-uncertainty work (exploratory, novel, ambiguous spec) → smaller tasks. Low-uncertainty work (well-specified, routine, familiar pattern) → larger tasks.
+
+4. **Urgent broadcasts are not urgent**. `SendMessage(to: "*", …)` for a stop-everything signal will still only land per-recipient at their next idle. Agents mid-task will run to completion of their current turn. There is no preemption.
+
+5. **"How's it going?" pings do not work mid-task**. You cannot peek at in-progress work via messages. Instead, read the agent's own `progress.md` / `findings.md` / task folder files — **files are live, messages are not**. This is the single most important operational corollary: when you need to know what an agent is doing *right now*, read its files, do not message it.
+
+6. **Multi-part bundling is sometimes the correct choice**. When parts of a job must be done sequentially without roundtrip latency (e.g., "implement A, then immediately run CI, then report all results"), bundle them into one message and rely on the agent's Multi-Part Recognition protocol (see onboarding.md) to enumerate and execute each part. Bundling trades checkpoint granularity for zero-latency sequencing — both directions have costs, pick based on the task.
+
+**Corollary — File system beats messages for live state**: Messages convey intent and decisions at turn boundaries; files convey continuous state at any time. When you need current ground truth about an agent, the answer is always in its files — progress.md for "what just happened", findings.md for "what was learned", task_plan.md for "what's the plan". Messages carry requests and responses, not status.
+
 ### Team-Lead Owns the Control Plane
 
 The team-lead is responsible for more than dispatch:
